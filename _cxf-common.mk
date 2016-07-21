@@ -25,6 +25,19 @@ $(CXFOUT):
 .PRECIOUS: $(CXFOUT)/%.d $(CXFOUT)/%.i
 
 
+
+# enable paralellism based on number of available processors
+# I believe this is the most portable solution (nearly POSIX)
+cxf_numprocs=$(shell getconf _NPROCESSORS_ONLN)
+override MAKEFLAGS+= --jobs=${cxf_numprocs}
+
+# group parallel output on a per-target basis,
+# and squelch unhelpful output from Make
+override MAKEFLAGS+= --output-sync=target
+override MAKEFLAGS+= --no-print-directory
+
+
+
 # TODO: these should be specific to the host OS
 override CXFOBJ:=o
 override CXFLIB:=a
