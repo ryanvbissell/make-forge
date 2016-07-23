@@ -28,6 +28,7 @@ define tf_register_test =
     TF_SUB_TOPDEPS+= ${1}
 endef
 
+
 define tf_test_exitstatus =
     $(call tf_register_test,${1})
     ${1}: _build_$(cxf_target)
@@ -35,13 +36,6 @@ define tf_test_exitstatus =
 	@$(cxf_program)
 endef
 
-# builds executable from a single source file, and tests via exitstatus
-define tf_build_and_test_exitstatus =
-    $(eval $(call cxf_declare_target,$(1)))
-    $(eval $(call cxf_add_sources,$(tf_testdir),$(2)))
-    $(eval $(call cxf_build_executable,$(1)))
-    $(call tf_test_exitstatus,${1})
-endef
 
 define tf_test_sha1sum =
     $(call tf_register_test,${1})
@@ -49,6 +43,15 @@ define tf_test_sha1sum =
 	@echo "Running:  '$$@' ..."
 	@$(cxf_program) >$(CXFOUT)/$(cxf_target).log 2>&1
 	@sha1sum $(CXFOUT)/$(cxf_target).log
+endef
+
+
+# builds executable from a single source file, and tests via exitstatus
+define tf_build_and_test_exitstatus =
+$(eval $(call cxf_declare_target,$(1)))
+$(eval $(call cxf_add_sources,$(tf_testdir),$(2)))
+$(eval $(call cxf_build_executable,$(1)))
+$(call tf_test_exitstatus,${1})
 endef
 
 
