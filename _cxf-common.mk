@@ -65,7 +65,14 @@ else
 endif
 
 
-define cxf_reset_target =
+define cxf_initialize =
+    $(eval override CXF_LDFLAGS:=$(LDFLAGS))
+    $(eval override CXF_CPPFLAGS:=$(CPPFLAGS))
+    $(eval override CXF_CXXFLAGS:=$(CXXFLAGS))
+endef
+
+
+define cxf_declare_target =
     $(eval override cxf_target:=$(1))
     $(eval override undefine cxf_srcfiles)
     $(eval override undefine cxf_objfiles)
@@ -73,9 +80,11 @@ define cxf_reset_target =
     $(eval override undefine cxf_libfiles)
     $(eval override undefine cxf_linkfiles)
     $(eval override undefine cxf_deptargets)
-    $(eval override CXF_LDFLAGS:=$(LDFLAGS))
-    $(eval override CXF_CPPFLAGS:=$(CPPFLAGS))
-    $(eval override CXF_CXXFLAGS:=$(CXXFLAGS))
+endef
+
+define cxf_reset_target =
+    $(eval $(call cxf_initialize))
+    $(eval $(call cxf_declare_target,$(1)))
 endef
 
 
@@ -176,7 +185,10 @@ define cxf_build_executable =
 	@echo +++ [$(cxf_target)] Generating executable \'$$(notdir $$@)\'...
 	@$(test) $(CXX) -o $$@ $$^ $(LDFLAGS) $(CXF_LDFLAGS)
 
-    $(cxf_target): $(cxf_deptargets) $(cxf_program)
+    .PHONY: _build_$(cxf_target)
+    _build_$(cxf_target): $(cxf_deptargets) $(cxf_program)
+
+    $(cxf_target): _build_$(cxf_target)
 
     .PHONY: _clean_$(cxf_target)
     _clean_$(cxf_target):
@@ -195,5 +207,8 @@ cxf_version:=0 (beta)
 version::
 	@echo "( cx-forge, version $(cxf_version) )"
 	@echo ""
+
+
+$(eval $(call cxf_initialize))
 
 endif  # CXF_COMMON_INCLUDE_GUARD
