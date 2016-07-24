@@ -42,8 +42,7 @@ define tf_test_exitstatus =
     $(call _tf_gen_runtarget,$(1))
 endef
 
-override SHELL:=$(shell which bash)
-$(warning SHELL is $(SHELL))
+
 define tf_test_sha1sum =
     $(call tf_register_test,${1})
     $(call _tf_gen_runtarget,_run_$(1))
