@@ -45,10 +45,13 @@ endef
 
 define tf_test_sha1sum =
     $(call tf_register_test,${1})
-    $(call _tf_gen_runtarget,_run_$(1),sha1sum)
+    $(call _tf_gen_runtarget,_run_$(1),sha1sum   )
     ${1}: _run_$(cxf_target)
 	@TF_SHA1SUM=`sha1sum $(tf_logfile) | awk '{print $$$$1}'` && \
-	 echo "TF_SHA1SUM is '$$$${TF_SHA1SUM}'"
+	 if [ ! "$$$${TF_SHA1SUM}" = "$(2)" ]; then \
+	     echo "$(1): sha1 was '$$$${TF_SHA1SUM}', expected '$(2)'." 2>&1 ;\
+	     false ;\
+	 fi
 endef
 
 
