@@ -50,25 +50,36 @@ endef
 
 
 define tf_test_sha1sum =
-    $(warning topdeps is still '$(TF_SUB_TOPDEPS)')
     $(call tf_register_test,${1})
-    $(warning topdeps is still '$(TF_SUB_TOPDEPS)')
-    $(call tf_test_exitstatus,_exit_$(1))
-    $(warning topdeps is still '$(TF_SUB_TOPDEPS)')
-    $(eval TF_SUB_TOPDEPS:=$(filter-out $(lastword $(TF_SUB_TOPDEPS)),$(TF_SUB_TOPDEPS)))
-    $(warning topdeps is still '$(TF_SUB_TOPDEPS)')
-    ${1}: _exit_$(cxf_target)
-	@sha1sum $(CXFOUT)/$(cxf_target).log
+    $(call _tf_gen_runtarget,_run_$(1))
+    ${1}: _run_$(cxf_target)
+	$(eval TF_SHA1SUM:=$(shell sha1sum $(CXFOUT)/$(cxf_target).log))
+	$(eval TF_SHA1SUM:=$(shell echo $(TF_SHA1SUM) | awk '{print $$1;}'))
+	@test \"$(TF_SHA1SUM)\" = \"$(2)\"
+endef
+
+
+
+define _tf_build_for_test =
+    $(eval $(call cxf_declare_target,$(1)))
+    $(eval $(call cxf_add_sources,$(tf_testdir),$(2)))
+    $(eval $(call cxf_build_executable,$(1)))
 endef
 
 
 # builds executable from a single source file, and tests via exitstatus
 define tf_build_and_test_exitstatus =
-$(eval $(call cxf_declare_target,$(1)))
-$(eval $(call cxf_add_sources,$(tf_testdir),$(2)))
-$(eval $(call cxf_build_executable,$(1)))
-$(call tf_test_exitstatus,${1})
+    $(eval $(call _tf_build_for_test,$(1),$(2)))
+    $(call tf_test_exitstatus,${1})
 endef
+
+
+# build executable from a single source file, and tests for sha1sum
+define tf_build_and_test_sha1sum =
+    $(eval $(call _tf_build_for_test,$(1),$(2)))
+    $(call tf_test_sha1sum,$(1),$(3))
+endef
+
 
 
 
