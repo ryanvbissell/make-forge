@@ -32,20 +32,20 @@ endef
 
 define _tf_gen_runtarget =
     ${1}: _build_$(cxf_target)
-	@echo "Running:  '$(cxf_target)' ..."
+	@echo "Running [$(2)]:  '$(cxf_target)' ..."
 	@$(cxf_program) >$(tf_logfile) 2>&1
 endef
 
 
 define tf_test_exitstatus =
     $(call tf_register_test,${1})
-    $(call _tf_gen_runtarget,$(1))
+    $(call _tf_gen_runtarget,$(1),exitstatus)
 endef
 
 
 define tf_test_sha1sum =
     $(call tf_register_test,${1})
-    $(call _tf_gen_runtarget,_run_$(1))
+    $(call _tf_gen_runtarget,_run_$(1),sha1sum)
     ${1}: _run_$(cxf_target)
 	@TF_SHA1SUM=`sha1sum $(tf_logfile) | awk '{print $$$$1}'` && \
 	 echo "TF_SHA1SUM is '$$$${TF_SHA1SUM}'"
