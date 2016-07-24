@@ -79,6 +79,7 @@ endef
 
 define cxf_declare_target =
     $(eval override cxf_target:=$(1))
+    $(eval override cxf_testout:=$(CXFOUT)/$(cxf_target))
     $(eval override undefine cxf_srcfiles)
     $(eval override undefine cxf_objfiles)
     $(eval override undefine cxf_depfiles)
@@ -111,22 +112,22 @@ endef
 #    sed:      add trailing colons (and blank lines)
 #    sed:      remove lines containing only a colon
 define _cxf_gen_dependencies =
-	@$(test2) $(CXX) -MM $(CXF_CPPFLAGS) $(CXF_CXXFLAGS) $$< $(redir)$(CXFOUT)/$(1).d
-	@$(test2) mv -f $(CXFOUT)/$(1).d $(CXFOUT)/$(1).d.tmp
-	@$(test2) sed -e 's|.*:|$(CXFOUT)/$(1).o:|' $(indir)$(CXFOUT)/$(1).d.tmp $(redir)$(CXFOUT)/$(1).d
-	@$(test2) echo "" $(append)$(CXFOUT)/$(1).d
+	@$(test2) $(CXX) -MM $(CXF_CPPFLAGS) $(CXF_CXXFLAGS) $$< $(redir)$(cxf_testout)/$(1).d
+	@$(test2) mv -f $(cxf_testout)/$(1).d $(cxf_testout)/$(1).d.tmp
+	@$(test2) sed -e 's|.*:|$(cxf_testout)/$(1).o:|' $(indir)$(cxf_testout)/$(1).d.tmp $(redir)$(cxf_testout)/$(1).d
+	@$(test2) echo "" $(append)$(cxf_testout)/$(1).d
 	@$(test2) sed -e 's/.*://' \
-	             -e 's/\\$$$$//' $(indir)$(CXFOUT)/$(1).d.tmp $(pipe) \
+	             -e 's/\\$$$$//' $(indir)$(cxf_testout)/$(1).d.tmp $(pipe) \
 	 $(test2) fmt -1 $(pipe) \
 	 $(test2) sed -e 's/^ *//' \
 	             -e 's/$$$$/:\n/' \
-	             -e 's/^:.*$$$$/\n/' $(append)$(CXFOUT)/$(1).d
-	@$(test2) $(RM) $(CXFOUT)/$(1).d.tmp
+	             -e 's/^:.*$$$$/\n/' $(append)$(cxf_testout)/$(1).d
+	@$(test2) $(RM) $(cxf_testout)/$(1).d.tmp
 endef
 
 
 define _cxf_gen_static_pattern_rule
-    $(1): $(CXFOUT)/%.$(CXFOBJ): $(2)/%$(3) | $(CXFOUT)
+    $(1): $(cxf_testout)/%.$(CXFOBJ): $(2)/%$(3) | $(cxf_testout)
 	@$(call _cxf_compile_c++)
 	@$(call _cxf_gen_dependencies,$$*)
 endef
@@ -136,7 +137,7 @@ define cxf_add_sources =
     $(eval override _src:=$(wildcard $(1)/$(2)))
     $(eval override _ext:=$(suffix $(2)))
     $(eval override _obj:=$(subst $(_ext),.$(CXFOBJ),$(_src)))
-    $(eval override _obj:=$(subst $(1),$(CXFOUT),$(_obj)))
+    $(eval override _obj:=$(subst $(1),$(cxf_testout),$(_obj)))
     $(eval override cxf_srcfiles+= $(_src))
     $(eval override cxf_objfiles+= $(_obj))
     $(eval $(call _cxf_gen_static_pattern_rule,$(_obj),$(1),$(_ext)))
@@ -162,7 +163,7 @@ endef
 
 define cxf_build_static_library =
     $(eval $(_cxf_import_depfiles))
-    $(eval override cxf_$(cxf_target)_lib:=$(CXFOUT)/$(1).a)
+    $(eval override cxf_$(cxf_target)_lib:=$(cxf_testout)/$(1).a)
 
     $(cxf_$(cxf_target)_lib): $(cxf_objfiles)
 	@$(echo) +++ [$(cxf_target)] Generating static library \'$$(notdir $$@)\'...
@@ -184,7 +185,11 @@ endef
 
 define cxf_build_executable =
     $(eval $(_cxf_import_depfiles))
-    $(eval override cxf_program:=$(CXFOUT)/$(1)$(CXFEXE))
+    $(eval override cxf_program:=$(cxf_testout)/$(1)$(CXFEXE))
+
+    $(cxf_testout): | $(CXFOUT)
+	@echo "Creating '$$@'..."
+	@$(test) mkdir $$@
 
     $(cxf_program): $(cxf_objfiles) $(cxf_linkfiles)
 	@$(echo) +++ [$(cxf_target)] Generating executable \'$$(notdir $$@)\'...

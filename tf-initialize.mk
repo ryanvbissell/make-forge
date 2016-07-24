@@ -26,13 +26,14 @@ all: _all
 
 define tf_register_test =
     $(eval TF_SUB_TOPDEPS+= ${1})
+    $(eval tf_logfile:=$(cxf_testout)/$(cxf_target).log)
 endef
 
 
 define _tf_gen_runtarget =
     ${1}: _build_$(cxf_target)
 	@echo "Running:  '$(cxf_target)' ..."
-	@$(cxf_program) >$(CXFOUT)/$(cxf_target).log 2>&1
+	@$(cxf_program) >$(tf_logfile) 2>&1
 endef
 
 
@@ -41,16 +42,15 @@ define tf_test_exitstatus =
     $(call _tf_gen_runtarget,$(1))
 endef
 
-
+override SHELL:=$(shell which bash)
+$(warning SHELL is $(SHELL))
 define tf_test_sha1sum =
     $(call tf_register_test,${1})
     $(call _tf_gen_runtarget,_run_$(1))
     ${1}: _run_$(cxf_target)
-	$(eval TF_SHA1SUM:=$(shell sha1sum $(CXFOUT)/$(cxf_target).log))
-	$(eval TF_SHA1SUM:=$(shell echo $(TF_SHA1SUM) | awk '{print $$1;}'))
-	@test \"$(TF_SHA1SUM)\" = \"$(2)\"
+	@TF_SHA1SUM=`sha1sum $(tf_logfile) | awk '{print $$$$1}'` && \
+	 echo "TF_SHA1SUM is '$$$${TF_SHA1SUM}'"
 endef
-
 
 
 define _tf_build_for_test =
