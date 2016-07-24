@@ -23,14 +23,6 @@ include $(CXFDIR)/_cxf-common.mk
 .DEFAULT_GOAL:=all
 all: _all
 
-define cxf_push =
-   $(eval  $(1)+= $(2))
-endef
-
-define cxf_pop =
-    $(eval $(1):=$(filter-out $(lastword $(1)),$(1)))
-endef
-
 
 define tf_register_test =
     $(eval TF_SUB_TOPDEPS+= ${1})
