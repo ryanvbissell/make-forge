@@ -13,6 +13,7 @@ override TF_INCLUDE_GUARD:=1
 override CXFDIR:=$(patsubst %/,%,$(CXFDIR))
 override CXF_TESTROOT:=$(patsubst %/,%,$(CXF_TESTROOT))
 
+override CXF_QUIET_BUILDS:=1
 override CXFOUT:=$(CXF_TESTROOT)/.out
 include $(CXFDIR)/_cxf-common.mk
 

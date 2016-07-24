@@ -64,6 +64,11 @@ else
     override append:=>>
 endif
 
+override echo:=echo
+ifdef CXF_QUIET_BUILDS
+    override echo:=>/dev/null echo
+endif
+
 
 define cxf_initialize =
     $(eval override CXF_LDFLAGS:=$(LDFLAGS))
@@ -89,7 +94,7 @@ endef
 
 
 define _cxf_compile_c++ =
-	@echo "+++ [$$(notdir $(cxf_target))] $$(notdir $$<)"
+	@$(echo) "+++ [$$(notdir $(cxf_target))] $$(notdir $$<)"
 	@$(test) $(CXX) $(CXF_CPPFLAGS) $(CXF_CXXFLAGS) -c $$< -o $$@
 endef
 
@@ -160,7 +165,7 @@ define cxf_build_static_library =
     $(eval override cxf_$(cxf_target)_lib:=$(CXFOUT)/$(1).a)
 
     $(cxf_$(cxf_target)_lib): $(cxf_objfiles)
-	@echo +++ [$(cxf_target)] Generating static library \'$$(notdir $$@)\'...
+	@$(echo) +++ [$(cxf_target)] Generating static library \'$$(notdir $$@)\'...
 	@$(test) $(AR) rcs $$@ $$^
 
     $(cxf_target): $(CXF_DEPENDS) $(cxf_$(cxf_target)_lib)
@@ -182,7 +187,7 @@ define cxf_build_executable =
     $(eval override cxf_program:=$(CXFOUT)/$(1)$(CXFEXE))
 
     $(cxf_program): $(cxf_objfiles) $(cxf_linkfiles)
-	@echo +++ [$(cxf_target)] Generating executable \'$$(notdir $$@)\'...
+	@$(echo) +++ [$(cxf_target)] Generating executable \'$$(notdir $$@)\'...
 	@$(test) $(CXX) -o $$@ $$^ $(LDFLAGS) $(CXF_LDFLAGS)
 
     .PHONY: _build_$(cxf_target)
