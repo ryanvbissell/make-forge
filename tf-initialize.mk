@@ -22,26 +22,42 @@ include $(CXFDIR)/_cxf-common.mk
 .DEFAULT_GOAL:=all
 all: _all
 
+define cxf_push =
+   $(eval  $(1)+= $(2))
+endef
+
+define cxf_pop =
+    $(eval $(1):=$(filter-out $(lastword $(1)),$(1)))
+endef
 
 
 define tf_register_test =
-    TF_SUB_TOPDEPS+= ${1}
+    $(eval TF_SUB_TOPDEPS+= ${1})
+endef
+
+
+define _tf_gen_runtarget =
+    ${1}: _build_$(cxf_target)
+	@echo "Running:  '$(cxf_target)' ..."
+	@$(cxf_program) >$(CXFOUT)/$(cxf_target).log 2>&1
 endef
 
 
 define tf_test_exitstatus =
     $(call tf_register_test,${1})
-    ${1}: _build_$(cxf_target)
-	@echo "Running:  '$$@' ..."
-	@$(cxf_program)
+    $(call _tf_gen_runtarget,$(1))
 endef
 
 
 define tf_test_sha1sum =
+    $(warning topdeps is still '$(TF_SUB_TOPDEPS)')
     $(call tf_register_test,${1})
-    ${1}: _build_$(cxf_target)
-	@echo "Running:  '$$@' ..."
-	@$(cxf_program) >$(CXFOUT)/$(cxf_target).log 2>&1
+    $(warning topdeps is still '$(TF_SUB_TOPDEPS)')
+    $(call tf_test_exitstatus,_exit_$(1))
+    $(warning topdeps is still '$(TF_SUB_TOPDEPS)')
+    $(eval TF_SUB_TOPDEPS:=$(filter-out $(lastword $(TF_SUB_TOPDEPS)),$(TF_SUB_TOPDEPS)))
+    $(warning topdeps is still '$(TF_SUB_TOPDEPS)')
+    ${1}: _exit_$(cxf_target)
 	@sha1sum $(CXFOUT)/$(cxf_target).log
 endef
 
