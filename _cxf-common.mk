@@ -188,7 +188,6 @@ define cxf_build_executable =
     $(eval override cxf_program:=$(cxf_testout)/$(1)$(CXFEXE))
 
     $(cxf_testout): | $(CXFOUT)
-	@echo "Creating '$$@'..."
 	@$(test) mkdir $$@
 
     $(cxf_program): $(cxf_objfiles) $(cxf_linkfiles)
