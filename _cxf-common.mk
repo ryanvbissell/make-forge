@@ -79,7 +79,7 @@ endef
 
 define cxf_declare_target =
     $(eval override cxf_target:=$(1))
-    $(eval override cxf_testout:=$(CXFOUT)/$(cxf_target))
+    $(eval override cxf_testout:=$(CXFOUT)/$(2)/$(1))
     $(eval override undefine cxf_srcfiles)
     $(eval override undefine cxf_objfiles)
     $(eval override undefine cxf_depfiles)
@@ -90,7 +90,7 @@ endef
 
 define cxf_reset_target =
     $(eval $(call cxf_initialize))
-    $(eval $(call cxf_declare_target,$(1)))
+    $(eval $(call cxf_declare_target,$(1),$(2)))
 endef
 
 
@@ -188,7 +188,7 @@ define cxf_build_executable =
     $(eval override cxf_program:=$(cxf_testout)/$(1)$(CXFEXE))
 
     $(cxf_testout): | $(CXFOUT)
-	@$(test) mkdir $$@
+	@$(test) mkdir -p $$@
 
     $(cxf_program): $(cxf_objfiles) $(cxf_linkfiles)
 	@$(echo) +++ [$(cxf_target)] Generating executable \'$$(notdir $$@)\'...

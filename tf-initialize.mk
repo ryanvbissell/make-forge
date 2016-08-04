@@ -25,7 +25,7 @@ all: _all
 
 
 define tf_register_test =
-    $(eval TF_SUB_TOPDEPS+= ${1})
+    $(eval override TF_SUB_TOPDEPS+= ${1})
     $(eval tf_logfile:=$(cxf_testout)/$(cxf_target).log)
 endef
 
@@ -56,7 +56,7 @@ endef
 
 
 define _tf_build_for_test =
-    $(eval $(call cxf_declare_target,$(1)))
+    $(eval $(call cxf_declare_target,$(1),$(TF_SUB_SECTION)))
     $(eval $(call cxf_add_sources,$(tf_testdir),$(2)))
     $(eval $(call cxf_build_executable,$(1)))
 endef
@@ -80,16 +80,17 @@ endef
 
 tf_topdeps:=
 define _tf_include =
-    override TF_SUB_TOPDEPS:=
+    $(eval override TF_SUB_TOPDEPS:=)
+    $(eval override TF_SUB_SECTION:=$(2))
     $(eval include ${1})
-    tf_topdeps+= ${TF_SUB_TOPDEPS}
+    $(eval tf_topdeps+= ${TF_SUB_TOPDEPS})
 endef
 
 
 define _tf_include_testdir =
     $(eval override tf_testdir:=$(abspath ${1}))
     $(eval override _tests=$(sort $(wildcard ${1}/[!_]*.mk)))
-    $(foreach _test,${_tests},$(call _tf_include,${_test}))
+    $(foreach _test,${_tests},$(call _tf_include,${_test},$(1)))
     $(eval override undefine _test)
     $(eval override undefine _tests)
     $(eval override undefine tf_testdir)
