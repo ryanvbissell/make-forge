@@ -57,18 +57,18 @@ endef
 
 define tf_declare_target =
     $(eval $(call cxf_declare_target,$(1)))
-    $(eval override cxf_outdir:=$(CXFOUT)/$(2)/$(1))
+    $(eval override cxf_outdir:=$(CXFOUT)/$(TF_SUB_SECTION)/$(1))
 endef
 
 
 define tf_reset_target =
     $(eval $(call cxf_initialize))
-    $(eval $(call tf_declare_target,$(1),$(2)))
+    $(eval $(call tf_declare_target,$(1)))
 endef
 
 
 define _tf_build_for_test =
-    $(eval $(call tf_declare_target,$(1),$(TF_SUB_SECTION)))
+    $(eval $(call tf_declare_target,$(1)))
     $(eval $(call cxf_add_sources,$(tf_testdir),$(2)))
     $(eval $(call cxf_build_executable,$(1)))
 endef
