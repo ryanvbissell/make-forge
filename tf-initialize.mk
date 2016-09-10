@@ -61,8 +61,13 @@ define tf_declare_target =
 endef
 
 
-define tf_reset_target =
+define tf_initialize =
     $(eval $(call cxf_initialize))
+endef
+
+
+define tf_reset_target =
+    $(eval $(call tf_initialize))
     $(eval $(call tf_declare_target,$(1)))
 endef
 
