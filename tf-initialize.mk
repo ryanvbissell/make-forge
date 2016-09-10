@@ -26,7 +26,7 @@ all: _all
 
 define tf_register_test =
     $(eval override TF_SUB_TOPDEPS+= ${1})
-    $(eval tf_logfile:=$(cxf_testout)/$(cxf_target).log)
+    $(eval tf_logfile:=$(cxf_outdir)/$(cxf_target).log)
 endef
 
 
@@ -55,8 +55,20 @@ define tf_test_sha1sum =
 endef
 
 
+define tf_declare_target =
+    $(eval $(call cxf_declare_target,$(1)))
+    $(eval override cxf_outdir:=$(CXFOUT)/$(2)/$(1))
+endef
+
+
+define tf_reset_target =
+    $(eval $(call cxf_initialize))
+    $(eval $(call tf_declare_target,$(1),$(2)))
+endef
+
+
 define _tf_build_for_test =
-    $(eval $(call cxf_declare_target,$(1),$(TF_SUB_SECTION)))
+    $(eval $(call tf_declare_target,$(1),$(TF_SUB_SECTION)))
     $(eval $(call cxf_add_sources,$(tf_testdir),$(2)))
     $(eval $(call cxf_build_executable,$(1)))
 endef
