@@ -27,7 +27,7 @@ all: _all
 
 define tf_register_test =
     $(eval override TF_SUB_TOPDEPS+= ${1})
-    $(eval tf_logfile:=$(cxf_outdir)/$(cxf_target).log)
+    $(eval tf_logfile:=$(mf_outdir)/$(cxf_target).log)
 endef
 
 
@@ -66,7 +66,7 @@ endef
 
 define tf_declare_target =
     $(eval $(call cxf_declare_target,$(1)))
-    $(eval override cxf_outdir:=$(CXFOUT)/$(TF_SUB_SECTION)/$(1))
+    $(eval override mf_outdir:=$(CXFOUT)/$(TF_SUB_SECTION)/$(1))
 endef
 
 
