@@ -194,9 +194,6 @@ define mf_build_executable =
     $(eval $(_mf_import_depfiles))
     $(eval override mf_program:=$(mf_outdir)/$(1)$(MFEXE))
 
-    $(mf_outdir): | $(MFOUT)
-	@$(test) mkdir -p $$@
-
     $(mf_program): $(mf_objfiles) $(mf_linkfiles)
 	@$(ECHO) +++ [$(mf_target)] Generating executable \'$$(notdir $$@)\'...
 	@$(test) $(CXX) -o $$@ $$^ $(LDFLAGS) $(MF_LDFLAGS)
