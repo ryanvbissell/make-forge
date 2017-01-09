@@ -2,10 +2,9 @@
 # Copyright (c) 2016, Ryan V. Bissell
 # All rights reserved.
 #
-# SPDX-License-Identifier: BSD-2-Clause
+# SPDX-License-Identifier: MIT
 # See the enclosed "LICENSE" file for exact license terms.
 #
-
 override myfile:=$(lastword $(MAKEFILE_LIST))
 override mydir:=$(dir $(MAKEFILE_LIST))
 

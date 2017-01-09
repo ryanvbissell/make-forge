@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2016, Ryan V. Bissell
+# Copyright (c) 2016-2017, Ryan V. Bissell
 # All rights reserved.
 #
-# SPDX-License-Identifier: BSD-2-Clause
+# SPDX-License-Identifier: MIT
 # See the enclosed "LICENSE" file for exact license terms.
 #
 
@@ -15,6 +15,7 @@ override CXF_TESTROOT:=$(patsubst %/,%,$(CXF_TESTROOT))
 
 override CXF_QUIET_BUILDS:=1
 override CXFOUT:=$(CXF_TESTROOT)/.out
+override cxf_numprocs=1
 include $(CXFDIR)/_cxf-common.mk
 
 
@@ -31,26 +32,34 @@ endef
 
 
 define _tf_gen_runtarget =
-    ${1}: _build_$(cxf_target)
-	@echo "Running [$(2)]:  '$(cxf_target)' ..."
-	@$(cxf_program) >$(tf_logfile) 2>&1
+    _announce_$(cxf_target):
+	@printf '%15s :  ' $(cxf_target)
+
+    ${1}: _announce_$(cxf_target) _build_$(cxf_target)
+	@printf 'Running [%-10s]...  ' $(2)
+	@$(TF_ENVVARS) $(cxf_program) >$(tf_logfile) 2>&1 || (echo "\033[0;31mFAILED with exit status '$$$$?'\033[0m"; exit 1)
 endef
 
 
 define tf_test_exitstatus =
     $(call tf_register_test,${1})
     $(call _tf_gen_runtarget,$(1),exitstatus)
+	@echo "PASS"
 endef
 
 
 define tf_test_sha1sum =
     $(call tf_register_test,${1})
-    $(call _tf_gen_runtarget,_run_$(1),sha1sum   )
+    $(call _tf_gen_runtarget,_run_$(1),sha1sum)
     ${1}: _run_$(cxf_target)
 	@TF_SHA1SUM=`sha1sum $(tf_logfile) | awk '{print $$$$1}'` && \
 	 if [ ! "$$$${TF_SHA1SUM}" = "$(2)" ]; then \
-	     echo "$(1): sha1 was '$$$${TF_SHA1SUM}', expected '$(2)'." 2>&1 ;\
+	     echo "\033[0;31mFAILED due to sha1 mismatch" ;\
+	     echo "$(1): sha1 was '$$$${TF_SHA1SUM}', expected '$(2)'.\033[0m" 2>&1 ;\
 	     false ;\
+	 else \
+	     echo "PASS";\
+	     true;\
 	 fi
 endef
 
@@ -63,6 +72,7 @@ endef
 
 define tf_initialize =
     $(eval $(call cxf_initialize))
+    $(eval override undefine TF_ENVVARS)
 endef
 
 

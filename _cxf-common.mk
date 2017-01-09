@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016, Ryan V. Bissell
+# Copyright (c) 2016-2017, Ryan V. Bissell
 # All rights reserved.
 #
 # SPDX-License-Identifier: MIT
@@ -25,15 +25,18 @@ $(CXFOUT):
 .PRECIOUS: $(CXFOUT)/%.d $(CXFOUT)/%.i
 
 
-
 # enable paralellism based on number of available processors
 # I believe this is the most portable solution (nearly POSIX)
 cxf_numprocs=$(shell getconf _NPROCESSORS_ONLN)
 override MAKEFLAGS+= --jobs=${cxf_numprocs}
+ifdef VERBOSE
+$(info V: This build will use $(cxf_numprocs) processor(s))
+endif
 
 # group parallel output on a per-target basis,
 # and squelch unhelpful output from Make
-override MAKEFLAGS+= --output-sync=target
+# TODO: the --output-sync line will make stderr undetectable by stderred
+#override MAKEFLAGS+= --output-sync=target
 override MAKEFLAGS+= --no-print-directory
 
 
@@ -64,9 +67,13 @@ else
     override append:=>>
 endif
 
-override echo:=echo
+ifdef DEBUG
+    override CXXFLAGS+= -ggdb3 -O0
+endif
+
+override ECHO:=echo
 ifdef CXF_QUIET_BUILDS
-    override echo:=>/dev/null echo
+    override ECHO:=>/dev/null echo
 endif
 
 
@@ -95,7 +102,7 @@ endef
 
 
 define _cxf_compile_c++ =
-	@$(echo) "+++ [$$(notdir $(cxf_target))] $$(notdir $$<)"
+	@$(ECHO) "+++ [$$(notdir $(cxf_target))] $$(notdir $$<)"
 	@$(test) $(CXX) $(CXF_CPPFLAGS) $(CXF_CXXFLAGS) -c $$< -o $$@
 endef
 
@@ -166,14 +173,14 @@ define cxf_build_static_library =
     $(eval override cxf_$(cxf_target)_lib:=$(cxf_outdir)/$(1).a)
 
     $(cxf_$(cxf_target)_lib): $(cxf_objfiles)
-	@$(echo) +++ [$(cxf_target)] Generating static library \'$$(notdir $$@)\'...
+	@$(ECHO) +++ [$(cxf_target)] Generating static library \'$$(notdir $$@)\'...
 	@$(test) $(AR) rcs $$@ $$^
 
     $(cxf_target): $(CXF_DEPENDS) $(cxf_$(cxf_target)_lib)
 
     .PHONY: _clean_$(cxf_target)
     _clean_$(cxf_target):
-	@echo +++ [$(cxf_target)] Cleaning...
+	@$(ECHO) +++ [$(cxf_target)] Cleaning...
 	@$(test) $(RM) $(cxf_objfiles)
 	@$(test) $(RM) $(cxf_depfiles)
 	@$(test) $(RM) $(cxf_$(cxf_target)_lib)
@@ -191,7 +198,7 @@ define cxf_build_executable =
 	@$(test) mkdir -p $$@
 
     $(cxf_program): $(cxf_objfiles) $(cxf_linkfiles)
-	@$(echo) +++ [$(cxf_target)] Generating executable \'$$(notdir $$@)\'...
+	@$(ECHO) +++ [$(cxf_target)] Generating executable \'$$(notdir $$@)\'...
 	@$(test) $(CXX) -o $$@ $$^ $(LDFLAGS) $(CXF_LDFLAGS)
 
     .PHONY: _build_$(cxf_target)
@@ -201,7 +208,7 @@ define cxf_build_executable =
 
     .PHONY: _clean_$(cxf_target)
     _clean_$(cxf_target):
-	@echo +++ [$(cxf_target)] Cleaning...
+	@$(ECHO) +++ [$(cxf_target)] Cleaning...
 	@$(test) $(RM) $(cxf_objfiles)
 	@$(test) $(RM) $(cxf_depfiles)
 	@$(test) $(RM) $(cxf_program)
@@ -212,7 +219,7 @@ endef
 
 
 # each release adds another digit of i^i
-cxf_version:=0 (beta)
+cxf_version:=0.2 (beta)
 version::
 	@echo "( cx-forge, version $(cxf_version) )"
 	@echo ""
