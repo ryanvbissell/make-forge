@@ -10,11 +10,11 @@ ifndef CXF_COMMON_INCLUDE_GUARD
 override CXF_COMMON_INCLUDE_GUARD:=1
 
 cxf_myname:=$(notdir $(lastword $(MAKEFILE_LIST)))
-ifndef CXFOUT
-$(error You must define 'CXFOUT' before including $(cxf_myname))
+ifndef MFOUT
+$(error You must define 'MFOUT' before including $(cxf_myname))
 endif
-$(CXFOUT):
-	@$(test) mkdir -p $(CXFOUT)
+$(MFOUT):
+	@$(test) mkdir -p $(MFOUT)
 
 
 .PHONY: clean
@@ -22,7 +22,7 @@ $(CXFOUT):
 
 # .d files are precious because they serve to speed up subsequent builds.
 # .i files are precious because the user specifically asked for them.
-.PRECIOUS: $(CXFOUT)/%.d $(CXFOUT)/%.i
+.PRECIOUS: $(MFOUT)/%.d $(MFOUT)/%.i
 
 
 # enable paralellism based on number of available processors
@@ -86,7 +86,7 @@ endef
 
 define cxf_declare_target =
     $(eval override cxf_target:=$(1))
-    $(eval override cxf_outdir:=$(CXFOUT))
+    $(eval override cxf_outdir:=$(MFOUT))
     $(eval override undefine cxf_srcfiles)
     $(eval override undefine cxf_objfiles)
     $(eval override undefine cxf_depfiles)
@@ -186,7 +186,7 @@ define cxf_build_static_library =
 	@$(test) $(RM) $(cxf_$(cxf_target)_lib)
 
     clean:: _clean_$(cxf_target)
-	@[ -e $(CXFOUT) ] && $(test) rmdir --ignore-fail-on-non-empty $(CXFOUT)
+	@[ -e $(MFOUT) ] && $(test) rmdir --ignore-fail-on-non-empty $(MFOUT)
 endef
 
 
@@ -194,7 +194,7 @@ define cxf_build_executable =
     $(eval $(_cxf_import_depfiles))
     $(eval override cxf_program:=$(cxf_outdir)/$(1)$(CXFEXE))
 
-    $(cxf_outdir): | $(CXFOUT)
+    $(cxf_outdir): | $(MFOUT)
 	@$(test) mkdir -p $$@
 
     $(cxf_program): $(cxf_objfiles) $(cxf_linkfiles)
@@ -214,7 +214,7 @@ define cxf_build_executable =
 	@$(test) $(RM) $(cxf_program)
 
     clean:: _clean_$(cxf_target)
-	@[ -e $(CXFOUT) ] && $(test) rmdir --ignore-fail-on-non-empty $(CXFOUT)
+	@[ -e $(MFOUT) ] && $(test) rmdir --ignore-fail-on-non-empty $(MFOUT)
 endef
 
 

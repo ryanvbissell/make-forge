@@ -17,7 +17,6 @@ endif
 
 # superior makefiles need to be able to override MFOUT
 MFOUT:=$(MF_PROJECT_DIR)/out
-override CXFOUT:=$(MFOUT)
 include $(mfdir)/_cxf-common.mk
 
 
