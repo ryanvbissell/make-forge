@@ -221,7 +221,7 @@ endef
 # each release adds another digit of i^i
 mf_version:=0.2 (beta)
 version::
-	@echo "( cx-forge, version $(mf_version) )"
+	@echo "( build/test system: MAKE-FORGE, version $(mf_version) )"
 	@echo ""
 
 
