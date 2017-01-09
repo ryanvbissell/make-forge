@@ -9,7 +9,7 @@ override myfile:=$(lastword $(MAKEFILE_LIST))
 override mydir:=$(dir $(MAKEFILE_LIST))
 
 override TFDIR:=$(dir $(realpath $(myfile)))
-override CXF_TESTROOT:=$(dir $(abspath $(myfile)))
+override MF_TESTROOT:=$(dir $(abspath $(myfile)))
 
 
 include $(TFDIR)/tf-initialize.mk

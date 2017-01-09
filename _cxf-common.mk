@@ -6,8 +6,8 @@
 # See the enclosed "LICENSE" file for exact license terms.
 #
 
-ifndef CXF_COMMON_INCLUDE_GUARD
-override CXF_COMMON_INCLUDE_GUARD:=1
+ifndef MF_COMMON_INCLUDE_GUARD
+override MF_COMMON_INCLUDE_GUARD:=1
 
 cxf_myname:=$(notdir $(lastword $(MAKEFILE_LIST)))
 ifndef MFOUT
@@ -42,9 +42,9 @@ override MAKEFLAGS+= --no-print-directory
 
 
 # TODO: these should be specific to the host OS
-override CXFOBJ:=o
-override CXFLIB:=a
-override CXFEXE:=
+override MFOBJ:=o
+override MFLIB:=a
+override MFEXE:=
 
 
 # TODO: some of these may be specific to the host OS
@@ -72,15 +72,15 @@ ifdef DEBUG
 endif
 
 override ECHO:=echo
-ifdef CXF_QUIET_BUILDS
+ifdef MF_QUIET_BUILDS
     override ECHO:=>/dev/null echo
 endif
 
 
 define cxf_initialize =
-    $(eval override CXF_LDFLAGS:=$(LDFLAGS))
-    $(eval override CXF_CPPFLAGS:=$(CPPFLAGS))
-    $(eval override CXF_CXXFLAGS:=$(CXXFLAGS))
+    $(eval override MF_LDFLAGS:=$(LDFLAGS))
+    $(eval override MF_CPPFLAGS:=$(CPPFLAGS))
+    $(eval override MF_CXXFLAGS:=$(CXXFLAGS))
 endef
 
 
@@ -103,7 +103,7 @@ endef
 
 define _cxf_compile_c++ =
 	@$(ECHO) "+++ [$$(notdir $(cxf_target))] $$(notdir $$<)"
-	@$(test) $(CXX) $(CXF_CPPFLAGS) $(CXF_CXXFLAGS) -c $$< -o $$@
+	@$(test) $(CXX) $(MF_CPPFLAGS) $(MF_CXXFLAGS) -c $$< -o $$@
 endef
 
 
@@ -119,7 +119,7 @@ endef
 #    sed:      add trailing colons (and blank lines)
 #    sed:      remove lines containing only a colon
 define _cxf_gen_dependencies =
-	@$(test2) $(CXX) -MM $(CXF_CPPFLAGS) $(CXF_CXXFLAGS) $$< $(redir)$(mf_outdir)/$(1).d
+	@$(test2) $(CXX) -MM $(MF_CPPFLAGS) $(MF_CXXFLAGS) $$< $(redir)$(mf_outdir)/$(1).d
 	@$(test2) mv -f $(mf_outdir)/$(1).d $(mf_outdir)/$(1).d.tmp
 	@$(test2) sed -e 's|.*:|$(mf_outdir)/$(1).o:|' $(indir)$(mf_outdir)/$(1).d.tmp $(redir)$(mf_outdir)/$(1).d
 	@$(test2) echo "" $(append)$(mf_outdir)/$(1).d
@@ -134,7 +134,7 @@ endef
 
 
 define _cxf_gen_static_pattern_rule
-    $(1): $(mf_outdir)/%.$(CXFOBJ): $(2)/%$(3) | $(mf_outdir)
+    $(1): $(mf_outdir)/%.$(MFOBJ): $(2)/%$(3) | $(mf_outdir)
 	@$(call _cxf_compile_c++)
 	@$(call _cxf_gen_dependencies,$$*)
 endef
@@ -143,7 +143,7 @@ endef
 define cxf_add_sources =
     $(eval override _src:=$(wildcard $(1)/$(2)))
     $(eval override _ext:=$(suffix $(2)))
-    $(eval override _obj:=$(subst $(_ext),.$(CXFOBJ),$(_src)))
+    $(eval override _obj:=$(subst $(_ext),.$(MFOBJ),$(_src)))
     $(eval override _obj:=$(subst $(1),$(mf_outdir),$(_obj)))
     $(eval override cxf_srcfiles+= $(_src))
     $(eval override cxf_objfiles+= $(_obj))
@@ -163,7 +163,7 @@ endef
 
 
 define _cxf_import_depfiles =
-    $(eval override cxf_depfiles:=$(cxf_objfiles:.$(CXFOBJ)=.d))
+    $(eval override cxf_depfiles:=$(cxf_objfiles:.$(MFOBJ)=.d))
     -include $(cxf_depfiles)
 endef
 
@@ -176,7 +176,7 @@ define cxf_build_static_library =
 	@$(ECHO) +++ [$(cxf_target)] Generating static library \'$$(notdir $$@)\'...
 	@$(test) $(AR) rcs $$@ $$^
 
-    $(cxf_target): $(CXF_DEPENDS) $(cxf_$(cxf_target)_lib)
+    $(cxf_target): $(MF_DEPENDS) $(cxf_$(cxf_target)_lib)
 
     .PHONY: _clean_$(cxf_target)
     _clean_$(cxf_target):
@@ -192,14 +192,14 @@ endef
 
 define cxf_build_executable =
     $(eval $(_cxf_import_depfiles))
-    $(eval override cxf_program:=$(mf_outdir)/$(1)$(CXFEXE))
+    $(eval override cxf_program:=$(mf_outdir)/$(1)$(MFEXE))
 
     $(mf_outdir): | $(MFOUT)
 	@$(test) mkdir -p $$@
 
     $(cxf_program): $(cxf_objfiles) $(cxf_linkfiles)
 	@$(ECHO) +++ [$(cxf_target)] Generating executable \'$$(notdir $$@)\'...
-	@$(test) $(CXX) -o $$@ $$^ $(LDFLAGS) $(CXF_LDFLAGS)
+	@$(test) $(CXX) -o $$@ $$^ $(LDFLAGS) $(MF_LDFLAGS)
 
     .PHONY: _build_$(cxf_target)
     _build_$(cxf_target): $(cxf_deptargets) $(cxf_program)
@@ -227,4 +227,4 @@ version::
 
 $(eval $(call cxf_initialize))
 
-endif  # CXF_COMMON_INCLUDE_GUARD
+endif  # MF_COMMON_INCLUDE_GUARD

@@ -11,10 +11,10 @@ override TF_INCLUDE_GUARD:=1
 
 # remove trailing path separators from these input paths
 override TFDIR:=$(patsubst %/,%,$(TFDIR))
-override CXF_TESTROOT:=$(patsubst %/,%,$(CXF_TESTROOT))
+override MF_TESTROOT:=$(patsubst %/,%,$(MF_TESTROOT))
 
-override CXF_QUIET_BUILDS:=1
-override CXFOUT:=$(CXF_TESTROOT)/.out
+override MF_QUIET_BUILDS:=1
+override MFOUT:=$(MF_TESTROOT)/.out
 override cxf_numprocs=1
 include $(TFDIR)/_cxf-common.mk
 
@@ -66,7 +66,7 @@ endef
 
 define tf_declare_target =
     $(eval $(call cxf_declare_target,$(1)))
-    $(eval override mf_outdir:=$(CXFOUT)/$(TF_SUB_SECTION)/$(1))
+    $(eval override mf_outdir:=$(MFOUT)/$(TF_SUB_SECTION)/$(1))
 endef
 
 
