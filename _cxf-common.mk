@@ -9,9 +9,9 @@
 ifndef MF_COMMON_INCLUDE_GUARD
 override MF_COMMON_INCLUDE_GUARD:=1
 
-cxf_myname:=$(notdir $(lastword $(MAKEFILE_LIST)))
+mf_myname:=$(notdir $(lastword $(MAKEFILE_LIST)))
 ifndef MFOUT
-$(error You must define 'MFOUT' before including $(cxf_myname))
+$(error You must define 'MFOUT' before including $(mf_myname))
 endif
 $(MFOUT):
 	@$(test) mkdir -p $(MFOUT)
@@ -27,10 +27,10 @@ $(MFOUT):
 
 # enable paralellism based on number of available processors
 # I believe this is the most portable solution (nearly POSIX)
-cxf_numprocs=$(shell getconf _NPROCESSORS_ONLN)
-override MAKEFLAGS+= --jobs=${cxf_numprocs}
+mf_numprocs=$(shell getconf _NPROCESSORS_ONLN)
+override MAKEFLAGS+= --jobs=${mf_numprocs}
 ifdef VERBOSE
-$(info V: This build will use $(cxf_numprocs) processor(s))
+$(info V: This build will use $(mf_numprocs) processor(s))
 endif
 
 # group parallel output on a per-target basis,
@@ -77,32 +77,32 @@ ifdef MF_QUIET_BUILDS
 endif
 
 
-define cxf_initialize =
+define mf_initialize =
     $(eval override MF_LDFLAGS:=$(LDFLAGS))
     $(eval override MF_CPPFLAGS:=$(CPPFLAGS))
     $(eval override MF_CXXFLAGS:=$(CXXFLAGS))
 endef
 
 
-define cxf_declare_target =
-    $(eval override cxf_target:=$(1))
+define mf_declare_target =
+    $(eval override mf_target:=$(1))
     $(eval override mf_outdir:=$(MFOUT))
-    $(eval override undefine cxf_srcfiles)
-    $(eval override undefine cxf_objfiles)
-    $(eval override undefine cxf_depfiles)
-    $(eval override undefine cxf_libfiles)
-    $(eval override undefine cxf_linkfiles)
-    $(eval override undefine cxf_deptargets)
+    $(eval override undefine mf_srcfiles)
+    $(eval override undefine mf_objfiles)
+    $(eval override undefine mf_depfiles)
+    $(eval override undefine mf_libfiles)
+    $(eval override undefine mf_linkfiles)
+    $(eval override undefine mf_deptargets)
 endef
 
-define cxf_reset_target =
-    $(eval $(call cxf_initialize))
-    $(eval $(call cxf_declare_target,$(1)))
+define mf_reset_target =
+    $(eval $(call mf_initialize))
+    $(eval $(call mf_declare_target,$(1)))
 endef
 
 
-define _cxf_compile_c++ =
-	@$(ECHO) "+++ [$$(notdir $(cxf_target))] $$(notdir $$<)"
+define _mf_compile_c++ =
+	@$(ECHO) "+++ [$$(notdir $(mf_target))] $$(notdir $$<)"
 	@$(test) $(CXX) $(MF_CPPFLAGS) $(MF_CXXFLAGS) -c $$< -o $$@
 endef
 
@@ -118,7 +118,7 @@ endef
 #    sed:      strip leading spaces
 #    sed:      add trailing colons (and blank lines)
 #    sed:      remove lines containing only a colon
-define _cxf_gen_dependencies =
+define _mf_gen_dependencies =
 	@$(test2) $(CXX) -MM $(MF_CPPFLAGS) $(MF_CXXFLAGS) $$< $(redir)$(mf_outdir)/$(1).d
 	@$(test2) mv -f $(mf_outdir)/$(1).d $(mf_outdir)/$(1).d.tmp
 	@$(test2) sed -e 's|.*:|$(mf_outdir)/$(1).o:|' $(indir)$(mf_outdir)/$(1).d.tmp $(redir)$(mf_outdir)/$(1).d
@@ -133,98 +133,98 @@ define _cxf_gen_dependencies =
 endef
 
 
-define _cxf_gen_static_pattern_rule
+define _mf_gen_static_pattern_rule
     $(1): $(mf_outdir)/%.$(MFOBJ): $(2)/%$(3) | $(mf_outdir)
-	@$(call _cxf_compile_c++)
-	@$(call _cxf_gen_dependencies,$$*)
+	@$(call _mf_compile_c++)
+	@$(call _mf_gen_dependencies,$$*)
 endef
 
 
-define cxf_add_sources =
+define mf_add_sources =
     $(eval override _src:=$(wildcard $(1)/$(2)))
     $(eval override _ext:=$(suffix $(2)))
     $(eval override _obj:=$(subst $(_ext),.$(MFOBJ),$(_src)))
     $(eval override _obj:=$(subst $(1),$(mf_outdir),$(_obj)))
-    $(eval override cxf_srcfiles+= $(_src))
-    $(eval override cxf_objfiles+= $(_obj))
-    $(eval $(call _cxf_gen_static_pattern_rule,$(_obj),$(1),$(_ext)))
+    $(eval override mf_srcfiles+= $(_src))
+    $(eval override mf_objfiles+= $(_obj))
+    $(eval $(call _mf_gen_static_pattern_rule,$(_obj),$(1),$(_ext)))
     $(eval undefine _src)
     $(eval undefine _ext)
     $(eval undefine _obj)
 endef
 
 
-define cxf_lib_dependency =
-    $(eval override _lib:=$(cxf_$(1)_lib))
-    $(eval override cxf_deptargets+= $(1))
-    $(eval override cxf_linkfiles+= $(_lib))
+define mf_lib_dependency =
+    $(eval override _lib:=$(mf_$(1)_lib))
+    $(eval override mf_deptargets+= $(1))
+    $(eval override mf_linkfiles+= $(_lib))
     $(eval undefine _lib)
 endef
 
 
-define _cxf_import_depfiles =
-    $(eval override cxf_depfiles:=$(cxf_objfiles:.$(MFOBJ)=.d))
-    -include $(cxf_depfiles)
+define _mf_import_depfiles =
+    $(eval override mf_depfiles:=$(mf_objfiles:.$(MFOBJ)=.d))
+    -include $(mf_depfiles)
 endef
 
 
-define cxf_build_static_library =
-    $(eval $(_cxf_import_depfiles))
-    $(eval override cxf_$(cxf_target)_lib:=$(mf_outdir)/$(1).a)
+define mf_build_static_library =
+    $(eval $(_mf_import_depfiles))
+    $(eval override mf_$(mf_target)_lib:=$(mf_outdir)/$(1).a)
 
-    $(cxf_$(cxf_target)_lib): $(cxf_objfiles)
-	@$(ECHO) +++ [$(cxf_target)] Generating static library \'$$(notdir $$@)\'...
+    $(mf_$(mf_target)_lib): $(mf_objfiles)
+	@$(ECHO) +++ [$(mf_target)] Generating static library \'$$(notdir $$@)\'...
 	@$(test) $(AR) rcs $$@ $$^
 
-    $(cxf_target): $(MF_DEPENDS) $(cxf_$(cxf_target)_lib)
+    $(mf_target): $(MF_DEPENDS) $(mf_$(mf_target)_lib)
 
-    .PHONY: _clean_$(cxf_target)
-    _clean_$(cxf_target):
-	@$(ECHO) +++ [$(cxf_target)] Cleaning...
-	@$(test) $(RM) $(cxf_objfiles)
-	@$(test) $(RM) $(cxf_depfiles)
-	@$(test) $(RM) $(cxf_$(cxf_target)_lib)
+    .PHONY: _clean_$(mf_target)
+    _clean_$(mf_target):
+	@$(ECHO) +++ [$(mf_target)] Cleaning...
+	@$(test) $(RM) $(mf_objfiles)
+	@$(test) $(RM) $(mf_depfiles)
+	@$(test) $(RM) $(mf_$(mf_target)_lib)
 
-    clean:: _clean_$(cxf_target)
+    clean:: _clean_$(mf_target)
 	@[ -e $(MFOUT) ] && $(test) rmdir --ignore-fail-on-non-empty $(MFOUT)
 endef
 
 
-define cxf_build_executable =
-    $(eval $(_cxf_import_depfiles))
-    $(eval override cxf_program:=$(mf_outdir)/$(1)$(MFEXE))
+define mf_build_executable =
+    $(eval $(_mf_import_depfiles))
+    $(eval override mf_program:=$(mf_outdir)/$(1)$(MFEXE))
 
     $(mf_outdir): | $(MFOUT)
 	@$(test) mkdir -p $$@
 
-    $(cxf_program): $(cxf_objfiles) $(cxf_linkfiles)
-	@$(ECHO) +++ [$(cxf_target)] Generating executable \'$$(notdir $$@)\'...
+    $(mf_program): $(mf_objfiles) $(mf_linkfiles)
+	@$(ECHO) +++ [$(mf_target)] Generating executable \'$$(notdir $$@)\'...
 	@$(test) $(CXX) -o $$@ $$^ $(LDFLAGS) $(MF_LDFLAGS)
 
-    .PHONY: _build_$(cxf_target)
-    _build_$(cxf_target): $(cxf_deptargets) $(cxf_program)
+    .PHONY: _build_$(mf_target)
+    _build_$(mf_target): $(mf_deptargets) $(mf_program)
 
-    $(cxf_target): _build_$(cxf_target)
+    $(mf_target): _build_$(mf_target)
 
-    .PHONY: _clean_$(cxf_target)
-    _clean_$(cxf_target):
-	@$(ECHO) +++ [$(cxf_target)] Cleaning...
-	@$(test) $(RM) $(cxf_objfiles)
-	@$(test) $(RM) $(cxf_depfiles)
-	@$(test) $(RM) $(cxf_program)
+    .PHONY: _clean_$(mf_target)
+    _clean_$(mf_target):
+	@$(ECHO) +++ [$(mf_target)] Cleaning...
+	@$(test) $(RM) $(mf_objfiles)
+	@$(test) $(RM) $(mf_depfiles)
+	@$(test) $(RM) $(mf_program)
 
-    clean:: _clean_$(cxf_target)
+    clean:: _clean_$(mf_target)
 	@[ -e $(MFOUT) ] && $(test) rmdir --ignore-fail-on-non-empty $(MFOUT)
 endef
 
 
 # each release adds another digit of i^i
-cxf_version:=0.2 (beta)
+mf_version:=0.2 (beta)
 version::
-	@echo "( cx-forge, version $(cxf_version) )"
+	@echo "( cx-forge, version $(mf_version) )"
 	@echo ""
 
 
-$(eval $(call cxf_initialize))
+$(eval $(call mf_initialize))
 
 endif  # MF_COMMON_INCLUDE_GUARD

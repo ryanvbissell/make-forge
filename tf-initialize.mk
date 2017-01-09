@@ -15,7 +15,7 @@ override MF_TESTROOT:=$(patsubst %/,%,$(MF_TESTROOT))
 
 override MF_QUIET_BUILDS:=1
 override MFOUT:=$(MF_TESTROOT)/.out
-override cxf_numprocs=1
+override mf_numprocs=1
 include $(TFDIR)/_cxf-common.mk
 
 
@@ -27,17 +27,17 @@ all: _all
 
 define tf_register_test =
     $(eval override TF_SUB_TOPDEPS+= ${1})
-    $(eval tf_logfile:=$(mf_outdir)/$(cxf_target).log)
+    $(eval tf_logfile:=$(mf_outdir)/$(mf_target).log)
 endef
 
 
 define _tf_gen_runtarget =
-    _announce_$(cxf_target):
-	@printf '%15s :  ' $(cxf_target)
+    _announce_$(mf_target):
+	@printf '%15s :  ' $(mf_target)
 
-    ${1}: _announce_$(cxf_target) _build_$(cxf_target)
+    ${1}: _announce_$(mf_target) _build_$(mf_target)
 	@printf 'Running [%-10s]...  ' $(2)
-	@$(TF_ENVVARS) $(cxf_program) >$(tf_logfile) 2>&1 || (echo "\033[0;31mFAILED with exit status '$$$$?'\033[0m"; exit 1)
+	@$(TF_ENVVARS) $(mf_program) >$(tf_logfile) 2>&1 || (echo "\033[0;31mFAILED with exit status '$$$$?'\033[0m"; exit 1)
 endef
 
 
@@ -51,7 +51,7 @@ endef
 define tf_test_sha1sum =
     $(call tf_register_test,${1})
     $(call _tf_gen_runtarget,_run_$(1),sha1sum)
-    ${1}: _run_$(cxf_target)
+    ${1}: _run_$(mf_target)
 	@TF_SHA1SUM=`sha1sum $(tf_logfile) | awk '{print $$$$1}'` && \
 	 if [ ! "$$$${TF_SHA1SUM}" = "$(2)" ]; then \
 	     echo "\033[0;31mFAILED due to sha1 mismatch" ;\
@@ -65,13 +65,13 @@ endef
 
 
 define tf_declare_target =
-    $(eval $(call cxf_declare_target,$(1)))
+    $(eval $(call mf_declare_target,$(1)))
     $(eval override mf_outdir:=$(MFOUT)/$(TF_SUB_SECTION)/$(1))
 endef
 
 
 define tf_initialize =
-    $(eval $(call cxf_initialize))
+    $(eval $(call mf_initialize))
     $(eval override undefine TF_ENVVARS)
 endef
 
@@ -84,8 +84,8 @@ endef
 
 define _tf_build_for_test =
     $(eval $(call tf_declare_target,$(1)))
-    $(eval $(call cxf_add_sources,$(tf_testdir),$(2)))
-    $(eval $(call cxf_build_executable,$(1)))
+    $(eval $(call mf_add_sources,$(tf_testdir),$(2)))
+    $(eval $(call mf_build_executable,$(1)))
 endef
 
 
