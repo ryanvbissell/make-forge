@@ -17,7 +17,7 @@ endif
 
 # superior makefiles need to be able to override MFOUT
 MFOUT:=$(MF_PROJECT_DIR)/out
-include $(mfdir)/_cxf-common.mk
+include $(mfdir)/_forge-common.incl
 
 
 # this will be the default make-target unless you set .DEFAULT_GOAL

@@ -16,7 +16,7 @@ override MF_TESTROOT:=$(patsubst %/,%,$(MF_TESTROOT))
 override MF_QUIET_BUILDS:=1
 override MFOUT:=$(MF_TESTROOT)/.out
 override mf_numprocs=1
-include $(TFDIR)/_cxf-common.mk
+include $(TFDIR)/_forge-common.incl
 
 
 .PHONY: _phony
