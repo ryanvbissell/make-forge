@@ -10,13 +10,13 @@ ifndef TF_INCLUDE_GUARD
 override TF_INCLUDE_GUARD:=1
 
 # remove trailing path separators from these input paths
-override CXFDIR:=$(patsubst %/,%,$(CXFDIR))
+override TFDIR:=$(patsubst %/,%,$(TFDIR))
 override CXF_TESTROOT:=$(patsubst %/,%,$(CXF_TESTROOT))
 
 override CXF_QUIET_BUILDS:=1
 override CXFOUT:=$(CXF_TESTROOT)/.out
 override cxf_numprocs=1
-include $(CXFDIR)/_cxf-common.mk
+include $(TFDIR)/_cxf-common.mk
 
 
 .PHONY: _phony

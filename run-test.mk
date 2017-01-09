@@ -8,11 +8,11 @@
 override myfile:=$(lastword $(MAKEFILE_LIST))
 override mydir:=$(dir $(MAKEFILE_LIST))
 
-override CXFDIR:=$(dir $(realpath $(myfile)))
+override TFDIR:=$(dir $(realpath $(myfile)))
 override CXF_TESTROOT:=$(dir $(abspath $(myfile)))
 
 
-include $(CXFDIR)/tf-initialize.mk
+include $(TFDIR)/tf-initialize.mk
 
 
 tf_subdirs:=$(sort $(wildcard */))
