@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016, Ryan V. Bissell
+# Copyright (c) 2016-2017, Ryan V. Bissell
 # All rights reserved.
 #
 # SPDX-License-Identifier: MIT
