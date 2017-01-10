@@ -180,13 +180,12 @@ define mf_build_static_library =
 
     .PHONY: _clean_$(mf_target)
     _clean_$(mf_target):
-	@$(ECHO) +++ [$(mf_target)] Cleaning...
-	@$(test) $(RM) $(mf_objfiles)
-	@$(test) $(RM) $(mf_depfiles)
-	@$(test) $(RM) $(mf_$(mf_target)_lib)
+	@([ -e $(MFOUT) ] && $(ECHO) "+++ [$(mf_target)] Cleaning...") || true
+	@$(test) ([ -e $(MFOUT) ] && $(RM) $(mf_objfiles)) || true
+	@$(test) ([ -e $(MFOUT) ] && $(RM) $(mf_depfiles)) || true
+	@$(test) ([ -e $(MFOUT) ] && $(RM) $(mf_$(mf_target)_lib)) || true
 
-    clean:: _clean_$(mf_target)
-	@[ -e $(MFOUT) ] && $(test) rmdir --ignore-fail-on-non-empty $(MFOUT)
+    $(eval override mf_clean_targets+=_clean_$(mf_target))
 endef
 
 
@@ -205,14 +204,19 @@ define mf_build_executable =
 
     .PHONY: _clean_$(mf_target)
     _clean_$(mf_target):
-	@$(ECHO) +++ [$(mf_target)] Cleaning...
-	@$(test) $(RM) $(mf_objfiles)
-	@$(test) $(RM) $(mf_depfiles)
-	@$(test) $(RM) $(mf_program)
+	@([ -e $(MFOUT) ] && $(ECHO) "+++ [$(mf_target)] Cleaning...") || true
+	@$(test) ([ -e $(MFOUT) ] && $(RM) $(mf_objfiles)) || true
+	@$(test) ([ -e $(MFOUT) ] && $(RM) $(mf_depfiles)) || true
+	@$(test) ([ -e $(MFOUT) ] && $(RM) $(mf_program)) || true
 
-    clean:: _clean_$(mf_target)
-	@[ -e $(MFOUT) ] && $(test) rmdir --ignore-fail-on-non-empty $(MFOUT)
+    $(eval override mf_clean_targets+=_clean_$(mf_target))
 endef
+
+
+.SECONDEXPANSION:
+clean:: $$(mf_clean_targets)
+	@([ -e $(MFOUT) ] && echo "+++ [$(notdir $(MFOUT))] Removing...") || true
+	@([ -e $(MFOUT) ] && $(test) rmdir --ignore-fail-on-non-empty $(MFOUT)) || true
 
 
 # each release adds another digit of i^i
