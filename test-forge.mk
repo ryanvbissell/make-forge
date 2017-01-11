@@ -67,6 +67,10 @@ endef
 define tf_declare_target =
     $(eval $(call mf_declare_target,$(1)))
     $(eval override mf_outdir:=$(MFOUT)/$(TF_SUB_SECTION)/$(1))
+
+    $(mf_outdir):
+	@mkdir -p $(mf_outdir)
+
 endef
 
 
