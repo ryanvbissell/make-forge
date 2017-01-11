@@ -39,4 +39,17 @@ define _mf_display_help =
 	@echo ""
 endef
 
+
+# TODO, this was moved here from _forge-common, so that 'clean'
+# would not appear as a target for test-forge.  I would *like* for
+# 'clean' to be available for test-forge, but presently there is a
+# problem with cleaning the individual tests' .log files, that must
+# be addressed first.
+.SECONDEXPANSION:
+clean:: $$(mf_clean_targets)
+	@([ -e $(MFOUT) ] && echo "+++ [$(notdir $(MFOUT))] Removing...") || true
+	@([ -e $(MFOUT) ] && $(test) rmdir --ignore-fail-on-non-empty $(MFOUT)) || true
+
+
+
 endif  # MF_INCLUDE_GUARD

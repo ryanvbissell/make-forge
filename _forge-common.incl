@@ -17,7 +17,8 @@ $(MFOUT):
 	@$(test) mkdir -p $(MFOUT)
 
 
-.PHONY: clean
+# TODO, see make-forge.mk
+########.PHONY: clean
 
 
 # .d files are precious because they serve to speed up subsequent builds.
@@ -211,12 +212,6 @@ define mf_build_executable =
 
     $(eval override mf_clean_targets+=_clean_$(mf_target))
 endef
-
-
-.SECONDEXPANSION:
-clean:: $$(mf_clean_targets)
-	@([ -e $(MFOUT) ] && echo "+++ [$(notdir $(MFOUT))] Removing...") || true
-	@([ -e $(MFOUT) ] && $(test) rmdir --ignore-fail-on-non-empty $(MFOUT)) || true
 
 
 # each release adds another digit of i^i
