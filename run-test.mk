@@ -12,7 +12,7 @@ override TFDIR:=$(dir $(realpath $(myfile)))
 override MF_TESTROOT:=$(dir $(abspath $(myfile)))
 
 
-include $(TFDIR)/tf-initialize.mk
+include $(TFDIR)/test-forge.mk
 
 
 tf_subdirs:=$(sort $(wildcard */))
