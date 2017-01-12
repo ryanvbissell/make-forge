@@ -37,7 +37,7 @@ define _tf_gen_runtarget =
 
     ${1}: _announce_$(mf_target) _build_$(mf_target)
 	@printf 'Running [%-10s]...  ' $(2)
-	@$(TF_ENVVARS) $(mf_program) >$(tf_logfile) 2>&1 || (echo "\033[0;31mFAILED with exit status '$$$$?'\033[0m"; exit 1)
+	@$(TF_ENVVARS) $(mf_program) $(mf_outdir) >$(tf_logfile) 2>&1 || (echo "\033[0;31mFAILED with exit status '$$$$?'\033[0m"; exit 1)
 endef
 
 
