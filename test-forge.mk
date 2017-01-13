@@ -64,25 +64,21 @@ define tf_test_sha1sum =
 endef
 
 
-define tf_declare_target =
-    $(eval $(call __mf_declare_target,$(1)))
-    $(eval override mf_outdir:=$(MFOUT)/$(TF_SUB_SECTION)/$(1))
-
-    $(mf_outdir):
-	@mkdir -p $(mf_outdir)
-
-endef
-
-
-define tf_initialize =
+# INTERNAL: initializes internal state
+define __tf_initialize =
     $(eval $(call __mf_initialize))
     $(eval override undefine TF_ENVVARS)
 endef
 
 
-define tf_reset_target =
-    $(eval $(call tf_initialize))
-    $(eval $(call tf_declare_target,$(1)))
+# re-initializes, accepts target-name, prepares for target attributes
+define tf_declare_target =
+    $(eval $(call __tf_initialize))
+    $(eval $(call mf_declare_target,$(1)))
+    $(eval override mf_outdir:=$(MFOUT)/$(TF_SUB_SECTION)/$(1))
+
+    $(mf_outdir):
+	@mkdir -p $(mf_outdir)
 endef
 
 

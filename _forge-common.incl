@@ -79,17 +79,10 @@ endif
 
 
 # INTERNAL: initializes internal state
-# post-condition: ready to accept target declaration (mf_reset_target)
 define __mf_initialize =
     $(eval override MF_LDFLAGS:=$(LDFLAGS))
     $(eval override MF_CPPFLAGS:=$(CPPFLAGS))
     $(eval override MF_CXXFLAGS:=$(CXXFLAGS))
-endef
-
-
-define __mf_declare_target =
-    $(eval override mf_target:=$(1))
-    $(eval override mf_outdir:=$(MFOUT))
     $(eval override undefine mf_srcfiles)
     $(eval override undefine mf_objfiles)
     $(eval override undefine mf_depfiles)
@@ -99,9 +92,11 @@ define __mf_declare_target =
 endef
 
 
-define mf_reset_target =
+# re-initializes, accepts target-name, prepares for target attributes
+define mf_declare_target =
     $(eval $(call __mf_initialize))
-    $(eval $(call __mf_declare_target,$(1)))
+    $(eval override mf_target:=$(1))
+    $(eval override mf_outdir:=$(MFOUT))
 endef
 
 
