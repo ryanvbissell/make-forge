@@ -78,14 +78,16 @@ ifdef MF_QUIET_BUILDS
 endif
 
 
-define mf_initialize =
+# INTERNAL: initializes internal state
+# post-condition: ready to accept target declaration (mf_reset_target)
+define __mf_initialize =
     $(eval override MF_LDFLAGS:=$(LDFLAGS))
     $(eval override MF_CPPFLAGS:=$(CPPFLAGS))
     $(eval override MF_CXXFLAGS:=$(CXXFLAGS))
 endef
 
 
-define mf_declare_target =
+define __mf_declare_target =
     $(eval override mf_target:=$(1))
     $(eval override mf_outdir:=$(MFOUT))
     $(eval override undefine mf_srcfiles)
@@ -96,9 +98,10 @@ define mf_declare_target =
     $(eval override undefine mf_deptargets)
 endef
 
+
 define mf_reset_target =
-    $(eval $(call mf_initialize))
-    $(eval $(call mf_declare_target,$(1)))
+    $(eval $(call __mf_initialize))
+    $(eval $(call __mf_declare_target,$(1)))
 endef
 
 
@@ -221,6 +224,6 @@ version::
 	@echo ""
 
 
-$(eval $(call mf_initialize))
+$(eval $(call __mf_initialize))
 
 endif  # MF_COMMON_INCLUDE_GUARD
