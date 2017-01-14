@@ -181,14 +181,16 @@ define mf_static_dependencies =
 endef
 
 
-define _mf_import_depfiles =
+# INTERNAL: support routine for mf_build_xxxxx routines
+# includes (when present) all .d files that match the target's objfiles
+define __mf_import_depfiles =
     $(eval override mf_depfiles:=$(mf_objfiles:.$(MFOBJ)=.d))
     -include $(mf_depfiles)
 endef
 
 
 define mf_build_static_library =
-    $(eval $(_mf_import_depfiles))
+    $(eval $(__mf_import_depfiles))
     $(eval override mf_$(mf_target)_lib:=$(mf_outdir)/$(1).a)
 
     $(mf_$(mf_target)_lib): $(mf_objfiles)
@@ -209,7 +211,7 @@ endef
 
 
 define mf_build_executable =
-    $(eval $(_mf_import_depfiles))
+    $(eval $(__mf_import_depfiles))
     $(eval override mf_program:=$(mf_outdir)/$(1)$(MFEXE))
 
     $(mf_program): $(mf_objfiles) $(mf_linkfiles)
