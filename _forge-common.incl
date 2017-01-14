@@ -193,10 +193,13 @@ endef
 
 # this ends the target definition for a static library
 define mf_build_static_library =
-    $(eval override _libstem:=$(1))
-    $(eval $(__mf_import_depfiles))
-    $(eval override mf_$(mf_target)_libfile:=$(mf_outdir)/$(_libstem).$(MFLIB))
+    $(eval override _stem:=$(1))
 
+    $(eval $(__mf_import_depfiles))
+    $(eval override mf_$(mf_target)_libfile:=$(mf_outdir)/$(_stem).$(MFLIB))
+
+    # the name of the variable that holds this target name must be unique,
+    # because it is referred to by __mf_lib_dependency
     $(mf_$(mf_target)_libfile): $(mf_objfiles)
 	@$(ECHO) +++ [$(mf_target)] Generating static library \'$$(notdir $$@)\'...
 	@$(test) $(AR) rcs $$@ $$^
@@ -211,22 +214,22 @@ define mf_build_static_library =
 	@$(test) ([ -e $(MFOUT) ] && $(RM) $(mf_$(mf_target)_libfile)) || true
 
     $(eval override mf_clean_targets+=_clean_$(mf_target))
-    $(eval undefine _libstem)
+    $(eval undefine _stem)
 endef
 
 
 # this ends the target definition for an executable
 define mf_build_executable =
-    $(eval override _exestem:=$(1))
+    $(eval override _stem:=$(1))
     $(eval $(__mf_import_depfiles))
-    $(eval override mf_program:=$(mf_outdir)/$(1)$(MFEXE))
+    $(eval override _exefile:=$(mf_outdir)/$(_stem)$(MFEXE))
 
-    $(mf_program): $(mf_objfiles) $(mf_linkfiles)
+    $(_exefile): $(mf_objfiles) $(mf_linkfiles)
 	@$(ECHO) +++ [$(mf_target)] Generating executable \'$$(notdir $$@)\'...
 	@$(test) $(CXX) -o $$@ $$^ $(LDFLAGS) $(MF_LDFLAGS)
 
     .PHONY: _build_$(mf_target)
-    _build_$(mf_target): $(mf_deptargets) $(mf_program)
+    _build_$(mf_target): $(mf_deptargets) $(_exefile)
 
     $(mf_target): _build_$(mf_target)
 
@@ -235,10 +238,10 @@ define mf_build_executable =
 	@([ -e $(MFOUT) ] && $(ECHO) "+++ [$(mf_target)] Cleaning...") || true
 	@$(test) ([ -e $(MFOUT) ] && $(RM) $(mf_objfiles)) || true
 	@$(test) ([ -e $(MFOUT) ] && $(RM) $(mf_depfiles)) || true
-	@$(test) ([ -e $(MFOUT) ] && $(RM) $(mf_program)) || true
+	@$(test) ([ -e $(MFOUT) ] && $(RM) $(_exefile)) || true
 
     $(eval override mf_clean_targets+=_clean_$(mf_target))
-    $(eval undefine _exestem)
+    $(eval undefine _stem)
 endef
 
 
