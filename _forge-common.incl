@@ -201,7 +201,7 @@ define mf_build_static_library =
 	@$(ECHO) +++ [$(mf_target)] Generating static library \'$$(notdir $$@)\'...
 	@$(test) $(AR) rcs $$@ $$^
 
-    $(mf_target): $(MF_DEPENDS) $(mf_$(mf_target)_libfile)
+    $(mf_target): $(mf_$(mf_target)_libfile)
 
     .PHONY: _clean_$(mf_target)
     _clean_$(mf_target):
