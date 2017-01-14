@@ -228,10 +228,7 @@ define mf_build_executable =
 	@$(ECHO) +++ [$(mf_target)] Generating executable \'$$(notdir $$@)\'...
 	@$(test) $(CXX) -o $$@ $$^ $(LDFLAGS) $(MF_LDFLAGS)
 
-    .PHONY: _build_$(mf_target)
-    _build_$(mf_target): $(mf_deptargets) $(_exefile)
-
-    $(mf_target): _build_$(mf_target)
+    $(mf_target): $(mf_deptargets) $(_exefile)
 
     .PHONY: _clean_$(mf_target)
     _clean_$(mf_target):
