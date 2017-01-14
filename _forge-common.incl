@@ -191,6 +191,27 @@ define __mf_import_depfiles =
 endef
 
 
+# INTERNAL: used to generate clean-targets
+define __mf_delete_mfout_files =
+    $(eval override _name:=$(1))
+	@$(test) ([ -e $(MFOUT) ] && $(RM) $($(_name))) || true
+endef
+
+
+# INTERNAL: used to generate clean-targets
+define __mf_gen_cleantarget =
+    $(eval override _target:=$(1))
+    $(eval override _varnames:=$(2))
+
+    .PHONY: _clean_$(_target)
+    _clean_$(_target):
+	@([ -e $(MFOUT) ] && $(ECHO) "+++ [$(_target)] Cleaning...") || true
+	$(foreach _var,$(_varnames),$(call __mf_delete_mfout_files,$(_var)))
+
+    $(eval override mf_clean_targets+=_clean_$(_target))
+endef
+
+
 # this ends the target definition for a static library
 define mf_build_static_library =
     $(eval override _stem:=$(1))
@@ -206,14 +227,8 @@ define mf_build_static_library =
 
     $(mf_target): $(mf_$(mf_target)_libfile)
 
-    .PHONY: _clean_$(mf_target)
-    _clean_$(mf_target):
-	@([ -e $(MFOUT) ] && $(ECHO) "+++ [$(mf_target)] Cleaning...") || true
-	@$(test) ([ -e $(MFOUT) ] && $(RM) $(mf_objfiles)) || true
-	@$(test) ([ -e $(MFOUT) ] && $(RM) $(mf_depfiles)) || true
-	@$(test) ([ -e $(MFOUT) ] && $(RM) $(mf_$(mf_target)_libfile)) || true
+    $(eval $(call __mf_gen_cleantarget,$(mf_target),mf_objfiles mf_depfiles mf_$(mf_target)_libfile))
 
-    $(eval override mf_clean_targets+=_clean_$(mf_target))
     $(eval undefine _stem)
 endef
 
@@ -230,14 +245,8 @@ define mf_build_executable =
 
     $(mf_target): $(mf_deptargets) $(_exefile)
 
-    .PHONY: _clean_$(mf_target)
-    _clean_$(mf_target):
-	@([ -e $(MFOUT) ] && $(ECHO) "+++ [$(mf_target)] Cleaning...") || true
-	@$(test) ([ -e $(MFOUT) ] && $(RM) $(mf_objfiles)) || true
-	@$(test) ([ -e $(MFOUT) ] && $(RM) $(mf_depfiles)) || true
-	@$(test) ([ -e $(MFOUT) ] && $(RM) $(_exefile)) || true
+    $(eval $(call __mf_gen_cleantarget,$(mf_target),mf_objfiles mf_depfiles _exefile))
 
-    $(eval override mf_clean_targets+=_clean_$(mf_target))
     $(eval undefine _stem)
 endef
 
