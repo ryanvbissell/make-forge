@@ -153,11 +153,16 @@ define mf_add_sources =
 endef
 
 
-define mf_lib_dependency =
+define __mf_lib_dependency =
     $(eval override _lib:=$(mf_$(1)_lib))
     $(eval override mf_deptargets+= $(1))
     $(eval override mf_linkfiles+= $(_lib))
     $(eval undefine _lib)
+endef
+
+
+define mf_static_dependencies =
+    $(foreach lib,$(1),$(eval $(call __mf_lib_dependency,$(lib))))
 endef
 
 
