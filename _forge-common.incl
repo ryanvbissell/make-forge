@@ -165,10 +165,12 @@ endef
 
 # INTERNAL: support routine for mf_static_dependencies
 define __mf_lib_dependency =
-    $(eval override _lib:=$(mf_$(1)_lib))
-    $(eval override mf_deptargets+= $(1))
-    $(eval override mf_linkfiles+= $(_lib))
-    $(eval undefine _lib)
+    $(eval override _target=$(1))
+    $(eval override _libfile:=$(mf_$(_target)_libfile))
+    $(eval override mf_deptargets+= $(_target))
+    $(eval override mf_linkfiles+= $(_libfile))
+    $(eval undefine _libfile)
+    $(eval undefine _target)
 endef
 
 
@@ -189,24 +191,27 @@ define __mf_import_depfiles =
 endef
 
 
+# this ends the target definition for a static library
 define mf_build_static_library =
+    $(eval override _libstem:=$(1))
     $(eval $(__mf_import_depfiles))
-    $(eval override mf_$(mf_target)_lib:=$(mf_outdir)/$(1).a)
+    $(eval override mf_$(mf_target)_libfile:=$(mf_outdir)/$(_libstem).$(MFLIB))
 
-    $(mf_$(mf_target)_lib): $(mf_objfiles)
+    $(mf_$(mf_target)_libfile): $(mf_objfiles)
 	@$(ECHO) +++ [$(mf_target)] Generating static library \'$$(notdir $$@)\'...
 	@$(test) $(AR) rcs $$@ $$^
 
-    $(mf_target): $(MF_DEPENDS) $(mf_$(mf_target)_lib)
+    $(mf_target): $(MF_DEPENDS) $(mf_$(mf_target)_libfile)
 
     .PHONY: _clean_$(mf_target)
     _clean_$(mf_target):
 	@([ -e $(MFOUT) ] && $(ECHO) "+++ [$(mf_target)] Cleaning...") || true
 	@$(test) ([ -e $(MFOUT) ] && $(RM) $(mf_objfiles)) || true
 	@$(test) ([ -e $(MFOUT) ] && $(RM) $(mf_depfiles)) || true
-	@$(test) ([ -e $(MFOUT) ] && $(RM) $(mf_$(mf_target)_lib)) || true
+	@$(test) ([ -e $(MFOUT) ] && $(RM) $(mf_$(mf_target)_libfile)) || true
 
     $(eval override mf_clean_targets+=_clean_$(mf_target))
+    $(eval undefine _libstem)
 endef
 
 
