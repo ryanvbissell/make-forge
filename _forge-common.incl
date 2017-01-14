@@ -243,7 +243,7 @@ endef
 
 
 # each release adds another digit of i^i
-mf_version:=0.2 (beta)
+mf_version:=0.2078... (beta release "i^i")
 version::
 	@echo "( build/test system: MAKE-FORGE, version $(mf_version) )"
 	@echo ""
