@@ -163,6 +163,7 @@ define mf_add_sources =
 endef
 
 
+# INTERNAL: support routine for mf_static_dependencies
 define __mf_lib_dependency =
     $(eval override _lib:=$(mf_$(1)_lib))
     $(eval override mf_deptargets+= $(1))
@@ -171,8 +172,12 @@ define __mf_lib_dependency =
 endef
 
 
+# declare this target's static-lib linkage dependencies
+# ($(1) should be a space-delimited list of targets)
 define mf_static_dependencies =
-    $(foreach lib,$(1),$(eval $(call __mf_lib_dependency,$(lib))))
+    $(eval override _targets=$(1))
+    $(foreach target,$(_targets),$(eval $(call __mf_lib_dependency,$(target))))
+    $(eval undefine _targets)
 endef
 
 
