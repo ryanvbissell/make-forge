@@ -198,8 +198,8 @@ define mf_build_static_library =
     $(eval $(__mf_import_depfiles))
     $(eval override mf_$(mf_target)_libfile:=$(mf_outdir)/$(_stem).$(MFLIB))
 
-    # the name of the variable that holds this target name must be unique,
-    # because it is referred to by __mf_lib_dependency
+    # the name of the variable that holds this target name must
+    # be unique, because it is referenced by __mf_lib_dependency
     $(mf_$(mf_target)_libfile): $(mf_objfiles)
 	@$(ECHO) +++ [$(mf_target)] Generating static library \'$$(notdir $$@)\'...
 	@$(test) $(AR) rcs $$@ $$^
