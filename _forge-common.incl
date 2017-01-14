@@ -107,28 +107,28 @@ define __mf_compile_c++ =
 endef
 
 
-# this will generate source/header dependency info
+# INTERNAL: generate source/header dependency info
 #    sed:      use FQPN for target
 # additionally, the following ensures that the build still succeeds
 # if source files get renamed while .d files exist:
 #    echo:     add blank line
-#    sed:      strip the target (up-to and including colon)
-#    sed:      remove any continuation backslash
+#    sed:    - strip the target (up-to and including colon)
+#            - remove any continuation backslash
 #    fmt -1:   list 'words' (files) one per line
-#    sed:      strip leading spaces
-#    sed:      add trailing colons (and blank lines)
-#    sed:      remove lines containing only a colon
-define _mf_gen_dependencies =
+#    sed:    - strip leading spaces
+#            - add trailing colons (and blank lines)
+#            - remove lines containing only a colon
+define __mf_gen_dependencies =
 	@$(test2) $(CXX) -MM $(MF_CPPFLAGS) $(MF_CXXFLAGS) $$< $(redir)$(mf_outdir)/$(1).d
 	@$(test2) mv -f $(mf_outdir)/$(1).d $(mf_outdir)/$(1).d.tmp
 	@$(test2) sed -e 's|.*:|$(mf_outdir)/$(1).o:|' $(indir)$(mf_outdir)/$(1).d.tmp $(redir)$(mf_outdir)/$(1).d
 	@$(test2) echo "" $(append)$(mf_outdir)/$(1).d
 	@$(test2) sed -e 's/.*://' \
-	             -e 's/\\$$$$//' $(indir)$(mf_outdir)/$(1).d.tmp $(pipe) \
+	              -e 's/\\$$$$//' $(indir)$(mf_outdir)/$(1).d.tmp $(pipe) \
 	 $(test2) fmt -1 $(pipe) \
 	 $(test2) sed -e 's/^ *//' \
-	             -e 's/$$$$/:\n/' \
-	             -e 's/^:.*$$$$/\n/' $(append)$(mf_outdir)/$(1).d
+	              -e 's/$$$$/:\n/' \
+	              -e 's/^:.*$$$$/\n/' $(append)$(mf_outdir)/$(1).d
 	@$(test2) $(RM) $(mf_outdir)/$(1).d.tmp
 endef
 
@@ -136,7 +136,7 @@ endef
 define _mf_gen_static_pattern_rule
     $(1): $(mf_outdir)/%.$(MFOBJ): $(2)/%$(3) | $(mf_outdir)
 	@$(call __mf_compile_c++)
-	@$(call _mf_gen_dependencies,$$*)
+	@$(call __mf_gen_dependencies,$$*)
 endef
 
 
