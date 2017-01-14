@@ -100,7 +100,8 @@ define mf_declare_target =
 endef
 
 
-define _mf_compile_c++ =
+# INTERNAL: compile a C++ source file
+define __mf_compile_c++ =
 	@$(ECHO) "+++ [$$(notdir $(mf_target))] $$(notdir $$<)"
 	@$(test) $(CXX) $(MF_CPPFLAGS) $(MF_CXXFLAGS) -c $$< -o $$@
 endef
@@ -134,7 +135,7 @@ endef
 
 define _mf_gen_static_pattern_rule
     $(1): $(mf_outdir)/%.$(MFOBJ): $(2)/%$(3) | $(mf_outdir)
-	@$(call _mf_compile_c++)
+	@$(call __mf_compile_c++)
 	@$(call _mf_gen_dependencies,$$*)
 endef
 
