@@ -215,7 +215,9 @@ define mf_build_static_library =
 endef
 
 
+# this ends the target definition for an executable
 define mf_build_executable =
+    $(eval override _exestem:=$(1))
     $(eval $(__mf_import_depfiles))
     $(eval override mf_program:=$(mf_outdir)/$(1)$(MFEXE))
 
@@ -236,6 +238,7 @@ define mf_build_executable =
 	@$(test) ([ -e $(MFOUT) ] && $(RM) $(mf_program)) || true
 
     $(eval override mf_clean_targets+=_clean_$(mf_target))
+    $(eval undefine _exestem)
 endef
 
 
