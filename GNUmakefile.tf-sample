@@ -8,8 +8,17 @@
 override _myname:=$(notdir $(lastword $(MAKEFILE_LIST)))
 override _mydir:=$(dir $(lastword $(MAKEFILE_LIST)))
 
-override TFDIR:=$(dir $(realpath $(_myname)))
-override MF_TESTROOT:=$(dir $(abspath $(_myname)))
+# INSTRUCTIONS:
+#  - Copy this file to the base directory for your tests, renaming it
+#    to 'GNUmakefile'.  Then define TFDIR below to point back to the
+#    directory where test-forge is installed.
+#  - It is recommended that you not use the 'override' directive when
+#    defining TFDIR below, as sometimes it is useful to override TFDIR
+#    on the make command-line, when test-forge is used by both a main
+#    project, and its submodules.
+TFDIR:=
+
+override MF_TESTROOT:=$(abspath $(_mydir)))
 
 ifeq ("$(wildcard $(TFDIR)/test-forge.mk)","")
     $(info $(shell echo "\033[0;31mCannot find file 'test-forge.mk'"))
