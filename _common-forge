@@ -31,7 +31,7 @@ $(MFOUT):
 # enable paralellism based on number of available processors
 # I believe this is the most portable solution (nearly POSIX)
 mf_numprocs=$(shell getconf _NPROCESSORS_ONLN)
-override MAKEFLAGS+= --jobs=${mf_numprocs}
+override MAKEFLAGS+= --jobs=$(mf_numprocs)
 ifdef VERBOSE
 $(info V: This build will use $(mf_numprocs) processor(s))
 endif

@@ -63,7 +63,7 @@ define __tf_gen_runtarget =
     _announce_$(1):
 	@printf '%15s :  ' $(1)
 
-    _run_${1}: _announce_$(1) $(mf_target)
+    _run_$(1): _announce_$(1) $(mf_target)
 	@printf 'Running [%-10s]...  ' $(2)
 	@$(TF_ENVVARS) $(mf_program) $(mf_outdir) >$(tf_logfile) 2>&1 || (echo "\033[0;31mFAILED with exit status '$$$$?'\033[0m"; exit 1)
 endef
@@ -102,21 +102,21 @@ tf_topdeps:=
 define _tf_include =
     $(eval override TF_SUB_TOPDEPS:=)
     $(eval override TF_SUB_SECTION:=$(2))
-    $(eval include ${1})
-    $(eval tf_topdeps+= ${TF_SUB_TOPDEPS})
+    $(eval include $(1))
+    $(eval tf_topdeps+= $(TF_SUB_TOPDEPS))
 endef
 
 
 define _tf_include_testdir =
-    $(eval override tf_testdir:=$(abspath ${1}))
-    $(eval override _tests=$(sort $(wildcard ${1}/[!_]*.mk)))
-    $(foreach _test,${_tests},$(call _tf_include,${_test},$(1)))
+    $(eval override tf_testdir:=$(abspath $(1)))
+    $(eval override _tests=$(sort $(wildcard $(1)/[!_]*.mk)))
+    $(foreach _test,$(_tests),$(call _tf_include,$(_test),$(1)))
     $(eval override undefine _tests)
 endef
 
 
 define tf_include_testdirs =
-    $(foreach dir,${1},$(call _tf_include_testdir,${dir}))
+    $(foreach dir,$(1),$(call _tf_include_testdir,$(dir)))
 endef
 
 
