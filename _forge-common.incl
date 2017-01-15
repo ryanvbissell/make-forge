@@ -108,6 +108,10 @@ endef
 
 
 # INTERNAL: generate source/header dependency info
+#
+# This is based on Scott McPeak's "Autodependencies with GNU make"
+# described at http://scottmcpeak.com/autodepend/autodepend.html
+#
 #    $(CXX):   use compiler to generate .d file
 #    mv:       rename .d file to .d.tmp
 # transform .d.tmp into a usable .d with:
