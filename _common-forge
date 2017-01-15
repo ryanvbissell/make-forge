@@ -233,6 +233,8 @@ define mf_build_static_library =
     $(eval $(__mf_import_depfiles))
     $(eval override mf_$(mf_target)_libfile:=$(mf_outdir)/$(_stem).$(mflib))
 
+    $(eval override mf_objfiles:=$(sort $(mf_objfiles)))
+
     # the name of the variable that holds this target name must
     # be unique, because it is referenced by __mf_lib_dependency
     $(mf_$(mf_target)_libfile): $(mf_objfiles)
@@ -253,6 +255,9 @@ define mf_build_executable =
     $(eval override mf_program:=$(mf_outdir)/$(_stem)$(mfexe))
 
     $(eval $(__mf_import_depfiles))
+
+    $(eval override mf_objfiles:=$(sort $(mf_objfiles)))
+    $(eval override mf_linkfiles:=$(sort $(mf_linkfiles)))
 
     $(mf_program): $(mf_objfiles) $(mf_linkfiles)
 	@$(echo) +++ [$(mf_target)] Generating executable \'$$(notdir $$@)\'...
