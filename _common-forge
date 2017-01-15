@@ -250,19 +250,18 @@ endef
 # this ends the target definition for an executable
 define mf_build_executable =
     $(eval override _stem:=$(1))
-    $(eval override _exefile:=$(mf_outdir)/$(_stem)$(mfexe))
+    $(eval override mf_program:=$(mf_outdir)/$(_stem)$(mfexe))
 
     $(eval $(__mf_import_depfiles))
 
-    $(_exefile): $(mf_objfiles) $(mf_linkfiles)
+    $(mf_program): $(mf_objfiles) $(mf_linkfiles)
 	@$(echo) +++ [$(mf_target)] Generating executable \'$$(notdir $$@)\'...
 	@$(test) $(CXX) -o $$@ $$^ $(LDFLAGS)
 
-    $(mf_target): $(mf_deptargets) $(_exefile)
+    $(mf_target): $(mf_deptargets) $(mf_program)
 
-    $(eval $(call __mf_gen_cleantarget,$(mf_target),mf_objfiles mf_depfiles _exefile))
+    $(eval $(call __mf_gen_cleantarget,$(mf_target),mf_objfiles mf_depfiles mf_program))
 
-    $(eval undefine _exefile)
     $(eval undefine _stem)
 endef
 
