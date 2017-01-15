@@ -30,11 +30,12 @@ endif
 include $(TFDIR)/test-forge.mk
 
 
-tf_subdirs:=$(sort $(wildcard */))
-tf_subdirs:=$(patsubst %/,%,$(tf_subdirs))
-$(info === Importing tests ...)
-$(eval $(call tf_include_testdirs,$(tf_subdirs)))
+# if you are willing & able to lay out your tests in the manner
+# recommended in the documentation, then the following should
+# "just work" for you.  Otherwise, you will need to read up on
+#   - tf_topdeps
+#   - tf_include
 
-_all: $(tf_topdeps)
+$(eval $(call tf_import_testdirs))
 
 

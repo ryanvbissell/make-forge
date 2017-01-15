@@ -33,7 +33,7 @@ include $(TFDIR)/_forge-common.incl
 .PHONY: _phony
 
 .DEFAULT_GOAL:=all
-all: _all
+all:: _all
 
 
 define tf_register_test =
@@ -137,6 +137,16 @@ endef
 
 define tf_include_testdirs =
     $(foreach dir,${1},$(call _tf_include_testdir,${dir}))
+endef
+
+
+define tf_import_testdirs =
+    tf_subdirs:=$(sort $(wildcard */))
+    tf_subdirs:=$(patsubst %/,%,$(tf_subdirs))
+    $(info === Importing tests ...)
+    $(eval $(call tf_include_testdirs,$(tf_subdirs)))
+
+    all: $(tf_topdeps)
 endef
 
 
