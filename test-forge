@@ -31,7 +31,6 @@ include $(TFDIR)/_common-forge
 
 
 .DEFAULT_GOAL:=all
-all:: _all
 
 
 define tf_register_test =
@@ -139,12 +138,12 @@ endef
 
 
 define tf_import_testdirs =
-    tf_subdirs:=$(sort $(wildcard */))
-    tf_subdirs:=$(patsubst %/,%,$(tf_subdirs))
+    $(eval override _subdirs:=$(sort $(wildcard */)))
+    $(eval override _subdirs:=$(_subdirs:%/=%))
     $(info === Importing tests ...)
-    $(eval $(call tf_include_testdirs,$(tf_subdirs)))
+    $(eval $(call tf_include_testdirs,$(_subdirs)))
 
-    all: $(tf_topdeps)
+    all:: $(tf_topdeps)
 endef
 
 
