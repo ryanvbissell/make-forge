@@ -33,6 +33,13 @@ include $(TFDIR)/_common-forge
 .DEFAULT_GOAL:=all
 
 
+# create some test-forge aliases for needed make-forge routines
+tf_add_sources = $(call mf_add_sources,$(1),$(2),$(3))
+tf_build_executable = $(call mf_build_executable,$(1),$(2),$(3))
+tf_build_static_library = $(call mf_build_static_library,$(1))
+tf_static_dependencies = $(call mf_static_dependencies,$(1))
+
+
 # INTERNAL: initializes internal state
 define __tf_initialize =
     $(eval override undefine TF_ENVVARS)
