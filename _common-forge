@@ -201,7 +201,7 @@ endef
 # INTERNAL: used to generate clean-targets
 define __mf_delete_mfout_files =
     $(eval override _name:=$(1))
-	@$(test) ([ -e $(MFOUT) ] && $(RM) $($(_name))) || true
+	@([ -e $(MFOUT) ] && $(test) $(RM) $($(_name))) || true
 endef
 
 
