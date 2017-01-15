@@ -5,12 +5,17 @@
 # SPDX-License-Identifier: MIT
 # See the enclosed "LICENSE" file for exact license terms.
 #
-override myfile:=$(lastword $(MAKEFILE_LIST))
-override mydir:=$(dir $(MAKEFILE_LIST))
+override _myname:=$(notdir $(lastword $(MAKEFILE_LIST)))
+override _mydir:=$(dir $(lastword $(MAKEFILE_LIST)))
 
-override TFDIR:=$(dir $(realpath $(myfile)))
-override MF_TESTROOT:=$(dir $(abspath $(myfile)))
+override TFDIR:=$(dir $(realpath $(_myname)))
+override MF_TESTROOT:=$(dir $(abspath $(_myname)))
 
+ifeq ("$(wildcard $(TFDIR)/test-forge.mk)","")
+    $(info $(shell echo "\033[0;31mCannot find file 'test-forge.mk'"))
+    $(info $(shell echo "Did you forget to use 'make TFDIR=<path>', when in a submodule?\033[0m"))
+    $(error Aborting)
+endif
 
 include $(TFDIR)/test-forge.mk
 

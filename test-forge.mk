@@ -6,16 +6,27 @@
 # See the enclosed "LICENSE" file for exact license terms.
 #
 
-ifndef TF_INCLUDE_GUARD
-override TF_INCLUDE_GUARD:=1
+ifndef __tf_include_guard
+override __tf_include_guard:=1
+
+override _tfname:=$(notdir $(lastword $(MAKEFILE_LIST)))
+
+ifndef TFDIR
+    $(error You must define 'TFDIR' before including $(_tfname))
+endif
+ifndef TF_TESTROOT
+    $(error You must define 'TF_TESTROOT' before including $(_tfname))
+endif
 
 # remove trailing path separators from these input paths
-override TFDIR:=$(patsubst %/,%,$(TFDIR))
-override MF_TESTROOT:=$(patsubst %/,%,$(MF_TESTROOT))
+override TFDIR:=$(TFDIR:%/=%)
+override MF_TESTROOT:=$(MF_TESTROOT:%/=%)
 
-override MF_QUIET_BUILDS:=1
+
+
 override MFOUT:=$(MF_TESTROOT)/.out
-override mf_numprocs=1
+override MF_QUIET_BUILDS:=1
+override mf_numprocs:=1
 include $(TFDIR)/_forge-common.incl
 
 
@@ -129,4 +140,4 @@ define tf_include_testdirs =
 endef
 
 
-endif  # TF_INCLUDE_GUARD
+endif  # __tf_include_guard
