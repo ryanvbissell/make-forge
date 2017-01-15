@@ -3,7 +3,7 @@
 # All rights reserved.
 #
 # SPDX-License-Identifier: MIT
-# See the enclosed "LICENSE" file for exact license terms.
+# See the enclosed "LICENSE.forge" file for exact license terms.
 #
 
 ifndef __tf_include_guard
