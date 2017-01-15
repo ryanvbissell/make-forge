@@ -19,7 +19,7 @@ MFOUT:=$(MF_PROJECT_DIR)/out
 
 override _mfdir:=$(dir $(lastword $(MAKEFILE_LIST)))
 override _mfdir:=$(_mfdir:%/=%)
-include $(_mfdir)/_forge-common.incl
+include $(_mfdir)/_common-forge
 
 
 # this will be the default make-target unless you set .DEFAULT_GOAL

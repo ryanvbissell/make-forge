@@ -27,7 +27,7 @@ override MF_TESTROOT:=$(MF_TESTROOT:%/=%)
 override MFOUT:=$(MF_TESTROOT)/.out
 override MF_QUIET_BUILDS:=1
 override mf_numprocs:=1
-include $(TFDIR)/_forge-common.incl
+include $(TFDIR)/_common-forge
 
 
 .PHONY: _phony
