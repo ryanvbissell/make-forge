@@ -75,9 +75,9 @@ ifdef DEBUG
     override CXXFLAGS+= -ggdb3 -O0
 endif
 
-override ECHO:=echo
+override echo:=echo
 ifdef MF_QUIET_BUILDS
-    override ECHO:=>/dev/null echo
+    override echo:=>/dev/null echo
 endif
 
 
@@ -105,7 +105,7 @@ endef
 
 # INTERNAL: compile a C++ source file
 define __mf_compile_c++ =
-	@$(ECHO) "+++ [$$(notdir $(mf_target))] $$(notdir $$<)"
+	@$(echo) "+++ [$$(notdir $(mf_target))] $$(notdir $$<)"
 	@$(test) $(CXX) $(MF_CPPFLAGS) $(MF_CXXFLAGS) -c $$< -o $$@
 endef
 
@@ -212,7 +212,7 @@ define __mf_gen_cleantarget =
 
     .PHONY: _clean_$(_target)
     _clean_$(_target):
-	@([ -e $(MFOUT) ] && $(ECHO) "+++ [$(_target)] Cleaning...") || true
+	@([ -e $(MFOUT) ] && $(echo) "+++ [$(_target)] Cleaning...") || true
 	$(foreach _var,$(_varnames),$(call __mf_delete_mfout_files,$(_var)))
 
     $(eval override mf_clean_targets+=_clean_$(_target))
@@ -229,7 +229,7 @@ define mf_build_static_library =
     # the name of the variable that holds this target name must
     # be unique, because it is referenced by __mf_lib_dependency
     $(mf_$(mf_target)_libfile): $(mf_objfiles)
-	@$(ECHO) +++ [$(mf_target)] Generating static library \'$$(notdir $$@)\'...
+	@$(echo) +++ [$(mf_target)] Generating static library \'$$(notdir $$@)\'...
 	@$(test) $(AR) rcs $$@ $$^
 
     $(mf_target): $(mf_$(mf_target)_libfile)
@@ -248,7 +248,7 @@ define mf_build_executable =
     $(eval $(__mf_import_depfiles))
 
     $(_exefile): $(mf_objfiles) $(mf_linkfiles)
-	@$(ECHO) +++ [$(mf_target)] Generating executable \'$$(notdir $$@)\'...
+	@$(echo) +++ [$(mf_target)] Generating executable \'$$(notdir $$@)\'...
 	@$(test) $(CXX) -o $$@ $$^ $(LDFLAGS) $(MF_LDFLAGS)
 
     $(mf_target): $(mf_deptargets) $(_exefile)

@@ -50,7 +50,7 @@ endef
 # be addressed first.
 .SECONDEXPANSION:
 clean:: $$(mf_clean_targets)
-	@([ -e $(MFOUT) ] && echo "+++ [$(notdir $(MFOUT))] Removing...") || true
+	@([ -e $(MFOUT) ] && $(echo) "+++ [$(notdir $(MFOUT))] Removing...") || true
 	@([ -e $(MFOUT) ] && $(test) rmdir --ignore-fail-on-non-empty $(MFOUT)) || true
 
 
