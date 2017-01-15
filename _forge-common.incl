@@ -1,3 +1,4 @@
+# vim: set ft=make:
 #
 # Copyright (c) 2016-2017, Ryan V. Bissell
 # All rights reserved.
