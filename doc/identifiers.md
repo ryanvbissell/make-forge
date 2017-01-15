@@ -33,7 +33,7 @@ These track internal state of make-forge, and should not normally be
 referenced or modified by users of make-forge.
 
 
-#### __mf_function
+#### __mf_function & __mf_include_guard
 These are private implementation details of make-forge, and should not
 be invoked directly by users of make-forge
 
