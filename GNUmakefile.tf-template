@@ -19,15 +19,15 @@ override _mydir:=$(dir $(lastword $(MAKEFILE_LIST)))
 #    project, and its submodules.
 TFDIR:=
 
-override MF_TESTROOT:=$(abspath $(_mydir)))
+override TF_TESTROOT:=$(abspath $(_mydir)))
 
-ifeq ("$(wildcard $(TFDIR)/test-forge.mk)","")
-    $(info $(shell echo "\033[0;31mCannot find file 'test-forge.mk'"))
+ifeq ("$(wildcard $(TFDIR)/test-forge)","")
+    $(info $(shell echo "\033[0;31mCannot find file 'test-forge'"))
     $(info $(shell echo "Did you forget to use 'make TFDIR=<path>', when in a submodule?\033[0m"))
     $(error Aborting)
 endif
 
-include $(TFDIR)/test-forge.mk
+include $(TFDIR)/test-forge
 
 
 # if you are willing & able to lay out your tests in the manner
