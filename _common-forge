@@ -81,11 +81,18 @@ ifdef MF_QUIET_BUILDS
 endif
 
 
+# save off the original values of CXXFLAGS, etc, so that we
+# can restore them a the start of every target declaration
+override MF_LDFLAGS:=$(LDFLAGS)
+override MF_CPPFLAGS:=$(CPPFLAGS)
+override MF_CXXFLAGS:=$(CXXFLAGS)
+
+
 # INTERNAL: initializes internal state
 define __mf_initialize =
-    $(eval override MF_LDFLAGS:=$(LDFLAGS))
-    $(eval override MF_CPPFLAGS:=$(CPPFLAGS))
-    $(eval override MF_CXXFLAGS:=$(CXXFLAGS))
+    $(eval override LDFLAGS:=$(MF_LDFLAGS))
+    $(eval override CPPFLAGS:=$(MF_CPPFLAGS))
+    $(eval override CXXFLAGS:=$(MF_CXXFLAGS))
     $(eval override undefine mf_srcfiles)
     $(eval override undefine mf_objfiles)
     $(eval override undefine mf_depfiles)
@@ -106,7 +113,7 @@ endef
 # INTERNAL: compile a C++ source file
 define __mf_compile_c++ =
 	@$(echo) "+++ [$$(notdir $(mf_target))] $$(notdir $$<)"
-	@$(test) $(CXX) $(MF_CPPFLAGS) $(MF_CXXFLAGS) -c $$< -o $$@
+	@$(test) $(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $$< -o $$@
 endef
 
 
@@ -129,7 +136,7 @@ endef
 #            - add trailing colons (and blank lines)
 #            - remove lines containing only a colon
 define __mf_gen_dependencies =
-	@$(test2) $(CXX) -MM $(MF_CPPFLAGS) $(MF_CXXFLAGS) $$< $(redir)$(mf_outdir)/$(1).d
+	@$(test2) $(CXX) -MM $(CPPFLAGS) $(CXXFLAGS) $$< $(redir)$(mf_outdir)/$(1).d
 	@$(test2) mv -f $(mf_outdir)/$(1).d $(mf_outdir)/$(1).d.tmp
 	@$(test2) sed -e 's|.*:|$(mf_outdir)/$(1).o:|' $(indir)$(mf_outdir)/$(1).d.tmp $(redir)$(mf_outdir)/$(1).d
 	@$(test2) echo "" $(append)$(mf_outdir)/$(1).d
@@ -249,7 +256,7 @@ define mf_build_executable =
 
     $(_exefile): $(mf_objfiles) $(mf_linkfiles)
 	@$(echo) +++ [$(mf_target)] Generating executable \'$$(notdir $$@)\'...
-	@$(test) $(CXX) -o $$@ $$^ $(LDFLAGS) $(MF_LDFLAGS)
+	@$(test) $(CXX) -o $$@ $$^ $(LDFLAGS)
 
     $(mf_target): $(mf_deptargets) $(_exefile)
 
