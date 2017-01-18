@@ -1,0 +1,41 @@
+#
+# Copyright (c) 2017, Ryan V. Bissell
+# All rights reserved.
+#
+# SPDX-License-Identifier: MIT
+# See the enclosed "LICENSE.forge" file for exact license terms.
+#
+
+# TODO: work this out programmatically, in _common-forge
+override mf_opsys:=linux
+
+# normally, every time we invoke 'mf_declare_target', the regular
+# make envvars (CFLAGS, LDFLAGS, etc.) get reset back to their
+# original values and you must re-configure them as you need for
+# each and every target.  But if there are settings that you know
+# you will need in every target, you can add those to (example)
+# MF_CXXFLAGS ahead of all target declarations that need them,
+# and they will get them automatically.
+#
+# override MF_CXXFLAGS+=-std=c++11
+
+
+# describe how to build libfib.a
+$(eval $(call mf_declare_target,static))
+    override CPPFLAGS+=-I$(MF_PROJECT_DIR)/inc
+    $(eval $(call mf_add_sources,c++,$(MF_PROJECT_DIR)/src,lib*.c))
+$(eval $(call mf_build_static_library,libfib))
+
+
+# describe how to build libfib.so
+$(eval $(call mf_declare_target,shared))
+    $(eval $(call mf_set_object_suffix,PIC))
+    override CXXFLAGS+=-fPIC
+    override CPPFLAGS+=-I$(MF_PROJECT_DIR)/inc
+    $(eval $(call mf_add_sources,c++,$(MF_PROJECT_DIR)/src,lib*.c))
+$(eval $(call mf_build_shared_library,libfib))
+
+
+# raw make targets are still permitted
+all: static shared fibgen
+
