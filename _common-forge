@@ -121,17 +121,24 @@ define mf_declare_target =
 endef
 
 
+# ---------------------------------------------------------------------
+# Function:     mf_set_object_suffix(suffix)
+# Description:  Sets a filename stem suffix for every object file
+#               built for this build-target
+# ---------------------------------------------------------------------
 define mf_set_object_suffix =
     $(eval override mf_suffix:=_$(1))
 endef
 
 
-# INTERNAL: compile a C++ source file
+# ---------------------------------------------------------------------
+# INTERNAL:     __mf_compile_c++
+# Description:  compile a C++ source file
+# ---------------------------------------------------------------------
 define __mf_compile_c++ =
 	@$(echo) "+++ [$$(notdir $(mf_target))] $$(notdir $$<)"
 	@$(test) $(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $$< -o $$@
 endef
-
 
 
 # ---------------------------------------------------------------------
