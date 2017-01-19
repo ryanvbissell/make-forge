@@ -94,13 +94,13 @@ define __mf_initialize =
     $(eval override LDFLAGS:=$(MF_LDFLAGS))
     $(eval override CPPFLAGS:=$(MF_CPPFLAGS))
     $(eval override CXXFLAGS:=$(MF_CXXFLAGS))
-    $(eval override undefine mf_suffix)
-    $(eval override undefine mf_srcfiles)
-    $(eval override undefine mf_objfiles)
-    $(eval override undefine mf_depfiles)
-    $(eval override undefine mf_libfiles)
-    $(eval override undefine mf_linkfiles)
-    $(eval override undefine mf_deptargets)
+    $(eval override mf_suffix:=)
+    $(eval override mf_srcfiles:=)
+    $(eval override mf_objfiles:=)
+    $(eval override mf_depfiles:=)
+    $(eval override mf_libfiles:=)
+    $(eval override mf_linkfiles:=)
+    $(eval override mf_deptargets:=)
 endef
 
 
