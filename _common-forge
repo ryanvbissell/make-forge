@@ -30,7 +30,7 @@ $(MFOUT):
 
 # enable paralellism based on number of available processors
 # I believe this is the most portable solution (nearly POSIX)
-mf_numprocs=$(shell getconf _NPROCESSORS_ONLN)
+override mf_numprocs:=$(shell getconf _NPROCESSORS_ONLN)
 override MAKEFLAGS+= --jobs=$(mf_numprocs)
 ifdef VERBOSE
 $(info V: This build will use $(mf_numprocs) processor(s))
@@ -168,8 +168,8 @@ endef
 # declare which sources need to be built for the current target
 # (this may be invoked multiple times per target, as needed)
 define mf_add_sources =
-    $(eval override _lang=$(1))
-    $(eval override _dir=$(2))
+    $(eval override _lang:=$(1))
+    $(eval override _dir:=$(2))
     $(eval override _src:=$(wildcard $(_dir)/$(3)))
     $(eval override _ext:=$(suffix $(3)))
     $(eval override _obj:=$(subst $(_ext),$(mf_suffix).$(mfobj),$(_src)))
@@ -186,7 +186,7 @@ endef
 
 # INTERNAL: support routine for mf_static_dependencies
 define __mf_lib_dependency =
-    $(eval override _target=$(1))
+    $(eval override _target:=$(1))
     $(eval override _libfile:=$(mf_$(_target)_libfile))
     $(eval override mf_deptargets+= $(_target))
     $(eval override mf_linkfiles+= $(_libfile))
@@ -198,7 +198,7 @@ endef
 # declare this target's static-lib linkage dependencies
 # ($(1) should be a space-delimited list of targets)
 define mf_static_dependencies =
-    $(eval override _targets=$(1))
+    $(eval override _targets:=$(1))
     $(foreach target,$(_targets),$(eval $(call __mf_lib_dependency,$(target))))
     $(eval undefine _targets)
 endef

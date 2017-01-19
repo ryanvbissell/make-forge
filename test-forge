@@ -85,7 +85,7 @@ endef
 
 
 define tf_test_sha1sum =
-    $(eval override _sha1=$(2))
+    $(eval override _sha1:=$(2))
     $(call __tf_register_test,$(1))
     $(call __tf_gen_runtarget,$(1),sha1sum)
     $(1): _run_$(1)
@@ -116,7 +116,7 @@ endef
 
 define _tf_include_testdir =
     $(eval override tf_testdir:=$(abspath $(1)))
-    $(eval override _tests=$(sort $(wildcard $(1)/[!_]*.mk)))
+    $(eval override _tests:=$(sort $(wildcard $(1)/[!_]*.mk)))
     $(foreach _test,$(_tests),$(call _tf_include,$(_test),$(1)))
     $(eval override undefine _tests)
 endef
