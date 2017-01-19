@@ -14,7 +14,7 @@ SUPPORTED TARGETS:
 	*   help              -- this message
 	*   clean             -- erase cx-specific contents of CXOUT
 	*   static (default)  -- build libfib.$(mflib)
-	*   dynlib            -- build libfib.$(mfdll)
+	*   shared            -- build libfib.$(mfdll)
 	*   fibgen            -- build fibgen$(mfexe)
 SUPPORTED FLAGS:
 All of the usual (CPPFLAGS, CXXFLAGS, etc.) plus:
