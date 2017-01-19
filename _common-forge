@@ -245,32 +245,47 @@ define mf_static_dependencies =
 endef
 
 
-# INTERNAL: support routine for mf_build_xxxxx routines
-# includes (when present) all .d files that match the target's objfiles
+# ---------------------------------------------------------------------
+# INTERNAL:     __mf_import_depfiles
+# Description:  Support routine for mf_build_xxxxx routines
+#               Includes (when present) all .d files that match the
+#               target's objfiles
+# ---------------------------------------------------------------------
 define __mf_import_depfiles =
     $(eval override mf_depfiles:=$(mf_objfiles:.$(mfobj)=.d))
     -include $(mf_depfiles)
 endef
 
 
-# INTERNAL: used to generate clean-targets
+# ---------------------------------------------------------------------
+# INTERNAL:     __mf_delete_mfout_files
+# Description:  Helper routine to __mf_gen_cleantarget
+# ---------------------------------------------------------------------
 define __mf_delete_mfout_files =
     $(eval override _name:=$(1))
 	@([ -e $(MFOUT) ] && $(test) $(RM) $($(_name))) || true
 endef
 
 
-# INTERNAL: used to generate clean-targets
+# ---------------------------------------------------------------------
+# INTERNAL:     __mf_gen_cleantarget(target,filelist)
+# Description:  Generates a clean-target for the current-target, and
+#               adds it to the global list of clean-targets (to be
+#               used by target 'clean')
+# Arguments: 1: Name of the current-target (TODO: could just assume mf_target)
+# Arguments: 1: space-delimited list of files to be deleted
+# ---------------------------------------------------------------------
 define __mf_gen_cleantarget =
-    $(eval override _target:=$(1))
-    $(eval override _varnames:=$(2))
+    # TODO: just use mf_target instead of passing it in as arg?
+    $(eval override _mfgc_target:=$(1))
+    $(eval override _mfgc_varnames:=$(2))
 
-    .PHONY: _clean_$(_target)
-    _clean_$(_target):
-	@([ -e $(MFOUT) ] && $(echo) "+++ [$(_target)] Cleaning...") || true
-	$(foreach _var,$(_varnames),$(call __mf_delete_mfout_files,$(_var)))
+    .PHONY: _clean_$(_mfgc_target)
+    _clean_$(_mfgc_target):
+	@([ -e $(MFOUT) ] && $(echo) "+++ [$(_mfgc_target)] Cleaning...") || true
+	$(foreach _var,$(_mfgc_varnames),$(call __mf_delete_mfout_files,$(_var)))
 
-    $(eval override mf_clean_targets+=_clean_$(_target))
+    $(eval override mf_clean_targets+=_clean_$(_mfgc_target))
 endef
 
 
