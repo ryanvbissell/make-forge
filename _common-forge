@@ -161,7 +161,7 @@ endef
 define __mf_gen_static_pattern_rule_c++
     $(1): $(mf_outdir)/%$(mf_suffix).$(mfobj): $(2)/%$(3) | $(mf_outdir)
 	@$(call __mf_compile_c++)
-	@$(call __mf_gen_dependencies,$$*)
+	@$(call __mf_gen_dependencies,$$*$(mf_suffix))
 endef
 
 
