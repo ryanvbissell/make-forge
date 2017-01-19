@@ -206,8 +206,8 @@ define mf_add_sources =
     $(eval override _mfas_ext:=$(suffix $(3)))
     $(eval override _mfas_obj:=$(subst $(_mfas_ext),$(mf_suffix).$(mfobj),$(_mfas_src)))
     $(eval override _mfas_obj:=$(subst $(2),$(mf_outdir),$(_mfas_obj)))
-    $(eval override mf_srcfiles+= $(_mfas_src))
-    $(eval override mf_objfiles+= $(_mfas_obj))
+    $(eval override mf_srcfiles+=$(_mfas_src))
+    $(eval override mf_objfiles+=$(_mfas_obj))
     $(eval $(call __mf_gen_static_pattern_rule_$(1),$(_mfas_obj),$(2),$(_mfas_ext)))
     $(eval undefine _mfas_src)
     $(eval undefine _mfas_ext)
@@ -215,23 +215,33 @@ define mf_add_sources =
 endef
 
 
-# INTERNAL: support routine for mf_static_dependencies
-define __mf_lib_dependency =
-    $(eval override _target:=$(1))
-    $(eval override _libfile:=$(mf_$(_target)_libfile))
-    $(eval override mf_deptargets+= $(_target))
-    $(eval override mf_linkfiles+= $(_libfile))
-    $(eval undefine _libfile)
-    $(eval undefine _target)
+# ---------------------------------------------------------------------
+# INTERNAL:     __mf_static_lib_dependency(target)
+# Description:  support routine for mf_static_dependencies
+# Arguments: 1: name of the build-target that builds the static
+#               library that the current-target is dependendent upon.
+#               From this, the library's filename is inferred to be
+#               stored in mf_<target>_libfile
+# ---------------------------------------------------------------------
+define __mf_static_lib_dependency =
+    $(eval override _mfsld_target:=$(1))
+    $(eval override _mfsld_libfile:=$(mf_$(_mfsld_target)_libfile))
+    $(eval override mf_deptargets+=$(_mfsld_target))
+    $(eval override mf_linkfiles+=$(_mfsld_libfile))
+    $(eval undefine _mfsld_libfile)
+    $(eval undefine _mfsld_target)
 endef
 
 
-# declare this target's static-lib linkage dependencies
-# ($(1) should be a space-delimited list of targets)
+# ---------------------------------------------------------------------
+# Function:     mf_static_dependencies(targets)
+# Description:  Declares the current-target's static-lib linkage dependencies
+# Arguments: 1: space-delimited list of build-targets
+# ---------------------------------------------------------------------
 define mf_static_dependencies =
-    $(eval override _targets:=$(1))
-    $(foreach target,$(_targets),$(eval $(call __mf_lib_dependency,$(target))))
-    $(eval undefine _targets)
+    $(eval override _mfsd_targets:=$(1))
+    $(foreach target,$(_mfsd_targets),$(eval $(call __mf_static_lib_dependency,$(target))))
+    $(eval undefine _mfsd_targets)
 endef
 
 
