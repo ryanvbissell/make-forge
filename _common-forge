@@ -89,7 +89,11 @@ override MF_CPPFLAGS:=$(CPPFLAGS)
 override MF_CXXFLAGS:=$(CXXFLAGS)
 
 
-# INTERNAL: initializes internal state
+# ---------------------------------------------------------------------
+# INTERNAL:     __mf_initialize
+# Description:  Resets internal state, in preparation for
+#               mf_declare_target, et al.
+# ---------------------------------------------------------------------
 define __mf_initialize =
     $(eval override LDFLAGS:=$(MF_LDFLAGS))
     $(eval override CPPFLAGS:=$(MF_CPPFLAGS))
@@ -104,7 +108,12 @@ define __mf_initialize =
 endef
 
 
-# re-initializes, accepts target-name, prepares for target attributes
+# ---------------------------------------------------------------------
+# Function:     mf_declare_target(name)
+# Description:  Declares to make-forge that a new build-target named
+#               'name' is about to be described.
+# Arguments: 1: name of the build-target being described
+# ---------------------------------------------------------------------
 define mf_declare_target =
     $(eval $(call __mf_initialize))
     $(eval override mf_target:=$(1))
