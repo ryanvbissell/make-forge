@@ -277,7 +277,7 @@ endef
 #               adds it to the global list of clean-targets (to be
 #               used by target 'clean')
 # Arguments: 1: Name of the current-target (TODO: could just assume mf_target)
-# Arguments: 1: space-delimited list of files to be deleted
+#            2: Space-delimited list of files to be deleted
 # ---------------------------------------------------------------------
 define __mf_gen_cleantarget =
     # TODO: just use mf_target instead of passing it in as arg?
@@ -293,6 +293,12 @@ define __mf_gen_cleantarget =
 endef
 
 
+# ---------------------------------------------------------------------
+#  INTERNAL:     __mf_build_final_target(filename,string)
+#  Description:  Generates the 'final' target file of the current-target
+#  Arguments: 1: The filename (stem[.ext]) of the file to be generated.
+#             2: A string describing the type of file being built
+# ---------------------------------------------------------------------
 define __mf_build_final_target =
     $(eval override mf_$(mf_target)_final:=$(mf_outdir)/$(1))
     $(eval $(__mf_import_depfiles))
@@ -307,14 +313,22 @@ define __mf_build_final_target =
 endef
 
 
-# this ends the target definition for a static library
+# ---------------------------------------------------------------------
+#  Function:     mf_build_static_library(stem)
+#  Description:  This end the target definition for a static library
+#  Arguments: 1: The stem of the static library's intended filename
+# ---------------------------------------------------------------------
 define mf_build_static_library =
     $(call __mf_build_final_target,$(1).$(mflib),static library)
 	@$(test) $(AR) $(ARFLAGS) $$@ $$^
 endef
 
 
-# this ends the target definition for a dynamic/shared library
+# ---------------------------------------------------------------------
+#  Function:     mf_build_shared_library(stem)
+#  Description:  This end the target definition for a shared library
+#  Arguments: 1: The stem of the shared library's intended filename
+# ---------------------------------------------------------------------
 define mf_build_shared_library =
     $(eval override LDFLAGS+=-shared)
     $(call __mf_build_final_target,$(1).$(mfdll),shared library)
@@ -322,7 +336,11 @@ define mf_build_shared_library =
 endef
 
 
-# this ends the target definition for an executable
+# ---------------------------------------------------------------------
+#  Function:     mf_build_executable(stem)
+#  Description:  This end the target definition for an executable
+#  Arguments: 1: The stem of the executable's intended filename
+# ---------------------------------------------------------------------
 define mf_build_executable =
     $(call __mf_build_final_target,$(1)$(mfexe),executable)
 	@$(test) $(CXX) $(LDFLAGS) $$^ $(LDLIBS) -o $$@
