@@ -97,6 +97,7 @@ override MF_ARFLAGS:=rcs
 #               mf_declare_target, et al.
 # ---------------------------------------------------------------------
 define __mf_initialize =
+    $(eval override LDLIBS:=)
     $(eval override ARFLAGS:=$(MF_ARFLAGS))
     $(eval override LDFLAGS:=$(MF_LDFLAGS))
     $(eval override CPPFLAGS:=$(MF_CPPFLAGS))
@@ -140,7 +141,7 @@ endef
 # ---------------------------------------------------------------------
 define __mf_compile_c++ =
 	@$(echo) "+++ [$$(notdir $(mf_target))] $$(notdir $$<)"
-	@$(test) $(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $$< -o $$@
+	@$(test) $(CXX) $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) -c $$< -o $$@
 endef
 
 
@@ -317,6 +318,7 @@ endef
 
 # this ends the target definition for a dynamic/shared library
 define mf_build_shared_library =
+    $(eval override LDFLAGS+=-shared)
     $(eval override _stem:=$(1))
 
     $(eval $(__mf_import_depfiles))
@@ -328,7 +330,7 @@ define mf_build_shared_library =
     # be unique, because it is referenced by __mf_lib_dependency
     $(mf_$(mf_target)_libfile): $(mf_objfiles)
 	@$(echo) +++ [$(mf_target)] Generating shared library \'$$(notdir $$@)\'...
-	@$(test) $(CXX) -shared -o $$@ $$^
+	@$(test) $(CXX) $(LDFLAGS) $$^ -o $$@
 
     $(mf_target): $(mf_$(mf_target)_libfile)
 
@@ -350,7 +352,7 @@ define mf_build_executable =
 
     $(mf_program): $(mf_objfiles) $(mf_linkfiles)
 	@$(echo) +++ [$(mf_target)] Generating executable \'$$(notdir $$@)\'...
-	@$(test) $(CXX) -o $$@ $$^ $(LDFLAGS)
+	@$(test) $(CXX) $(LDFLAGS) $$^ $(LDLIBS) -o $$@
 
     $(mf_target): $(mf_deptargets) $(mf_program)
 
