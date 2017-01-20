@@ -324,7 +324,7 @@ define mf_build_shared_library =
     # the name of the variable that holds this target name must
     # be unique, because it is referenced by __mf_lib_dependency
     $(mf_$(mf_target)_libfile): $(mf_objfiles)
-	@$(echo) +++ [$(mf_target)] Generating static library \'$$(notdir $$@)\'...
+	@$(echo) +++ [$(mf_target)] Generating shared library \'$$(notdir $$@)\'...
 	@$(test) $(CXX) -shared -o $$@ $$^
 
     $(mf_target): $(mf_$(mf_target)_libfile)
