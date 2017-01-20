@@ -301,6 +301,7 @@ define mf_build_static_library =
     $(eval $(__mf_import_depfiles))
 
     $(eval override mf_objfiles:=$(sort $(mf_objfiles)))
+    $(eval override mf_linkfiles:=$(sort $(mf_linkfiles)))
 
     # the name of the variable that holds this target name must
     # be unique, because it is referenced by __mf_lib_dependency
@@ -325,6 +326,7 @@ define mf_build_shared_library =
     $(eval $(__mf_import_depfiles))
 
     $(eval override mf_objfiles:=$(sort $(mf_objfiles)))
+    $(eval override mf_linkfiles:=$(sort $(mf_linkfiles)))
 
     # the name of the variable that holds this target name must
     # be unique, because it is referenced by __mf_lib_dependency
