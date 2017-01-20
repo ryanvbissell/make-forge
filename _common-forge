@@ -88,6 +88,8 @@ override MF_LDFLAGS:=$(LDFLAGS)
 override MF_CPPFLAGS:=$(CPPFLAGS)
 override MF_CXXFLAGS:=$(CXXFLAGS)
 
+# traditionally, ARFLAGS defaults to 'rv', but we like 'rcs' here
+override MF_ARFLAGS:=rcs
 
 # ---------------------------------------------------------------------
 # INTERNAL:     __mf_initialize
@@ -95,6 +97,7 @@ override MF_CXXFLAGS:=$(CXXFLAGS)
 #               mf_declare_target, et al.
 # ---------------------------------------------------------------------
 define __mf_initialize =
+    $(eval override ARFLAGS:=$(MF_ARFLAGS))
     $(eval override LDFLAGS:=$(MF_LDFLAGS))
     $(eval override CPPFLAGS:=$(MF_CPPFLAGS))
     $(eval override CXXFLAGS:=$(MF_CXXFLAGS))
@@ -302,7 +305,7 @@ define mf_build_static_library =
     # be unique, because it is referenced by __mf_lib_dependency
     $(mf_$(mf_target)_libfile): $(mf_objfiles)
 	@$(echo) +++ [$(mf_target)] Generating static library \'$$(notdir $$@)\'...
-	@$(test) $(AR) rcs $$@ $$^
+	@$(test) $(AR) $(ARFLAGS) $$@ $$^
 
     $(mf_target): $(mf_$(mf_target)_libfile)
 
