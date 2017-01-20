@@ -309,7 +309,7 @@ define __mf_build_final_target =
 
     $(eval $(call __mf_gen_cleantarget,$(mf_target),mf_objfiles mf_depfiles mf_$(mf_target)_final))
     $(mf_$(mf_target)_final): $(mf_objfiles) $(mf_linkfiles)
-	@$(echo) +++ [$(mf_target)] Generating $(3) \'$$(notdir $$@)\'...
+	@$(echo) +++ [$(mf_target)] Generating $(2) \'$$(notdir $$@)\'...
 endef
 
 
