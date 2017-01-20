@@ -71,8 +71,6 @@ else
     override append:=>>
 endif
 
-$(info CC is '$(CC)')
-$(info CXX is '$(CXX)')
 ifdef DEBUG
     override CXXFLAGS+= -ggdb3 -O0
 endif
