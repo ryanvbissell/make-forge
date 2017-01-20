@@ -296,9 +296,9 @@ endef
 # this ends the target definition for a static library
 define mf_build_static_library =
     $(eval override _stem:=$(1))
+    $(eval override mf_$(mf_target)_libfile:=$(mf_outdir)/$(_stem).$(mflib))
 
     $(eval $(__mf_import_depfiles))
-    $(eval override mf_$(mf_target)_libfile:=$(mf_outdir)/$(_stem).$(mflib))
 
     $(eval override mf_objfiles:=$(sort $(mf_objfiles)))
 
@@ -320,9 +320,9 @@ endef
 define mf_build_shared_library =
     $(eval override LDFLAGS+=-shared)
     $(eval override _stem:=$(1))
+    $(eval override mf_$(mf_target)_libfile:=$(mf_outdir)/$(_stem).$(mfdll))
 
     $(eval $(__mf_import_depfiles))
-    $(eval override mf_$(mf_target)_libfile:=$(mf_outdir)/$(_stem).$(mfdll))
 
     $(eval override mf_objfiles:=$(sort $(mf_objfiles)))
 
