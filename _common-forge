@@ -225,11 +225,11 @@ endef
 # Arguments: 1: name of the build-target that builds the static
 #               library that the current-target is dependendent upon.
 #               From this, the library's filename is inferred to be
-#               stored in mf_<target>_libfile
+#               stored in mf_<target>_final
 # ---------------------------------------------------------------------
 define __mf_static_lib_dependency =
     $(eval override _mfsld_target:=$(1))
-    $(eval override _mfsld_libfile:=$(mf_$(_mfsld_target)_libfile))
+    $(eval override _mfsld_libfile:=$(mf_$(_mfsld_target)_final))
     $(eval override mf_deptargets+=$(_mfsld_target))
     $(eval override mf_linkfiles+=$(_mfsld_libfile))
     $(eval undefine _mfsld_libfile)
@@ -296,7 +296,7 @@ endef
 # this ends the target definition for a static library
 define mf_build_static_library =
     $(eval override _stem:=$(1))
-    $(eval override mf_$(mf_target)_libfile:=$(mf_outdir)/$(_stem).$(mflib))
+    $(eval override mf_$(mf_target)_final:=$(mf_outdir)/$(_stem).$(mflib))
 
     $(eval $(__mf_import_depfiles))
 
@@ -305,13 +305,13 @@ define mf_build_static_library =
 
     # the name of the variable that holds this target name must
     # be unique, because it is referenced by __mf_lib_dependency
-    $(mf_$(mf_target)_libfile): $(mf_objfiles)
+    $(mf_$(mf_target)_final): $(mf_objfiles) $(mf_linkfiles)
 	@$(echo) +++ [$(mf_target)] Generating static library \'$$(notdir $$@)\'...
 	@$(test) $(AR) $(ARFLAGS) $$@ $$^
 
-    $(mf_target): $(mf_$(mf_target)_libfile)
+    $(mf_target): $(mf_$(mf_target)_final)
 
-    $(eval $(call __mf_gen_cleantarget,$(mf_target),mf_objfiles mf_depfiles mf_$(mf_target)_libfile))
+    $(eval $(call __mf_gen_cleantarget,$(mf_target),mf_objfiles mf_depfiles mf_$(mf_target)_final))
 
     $(eval undefine _stem)
 endef
@@ -321,7 +321,7 @@ endef
 define mf_build_shared_library =
     $(eval override LDFLAGS+=-shared)
     $(eval override _stem:=$(1))
-    $(eval override mf_$(mf_target)_libfile:=$(mf_outdir)/$(_stem).$(mfdll))
+    $(eval override mf_$(mf_target)_final:=$(mf_outdir)/$(_stem).$(mfdll))
 
     $(eval $(__mf_import_depfiles))
 
@@ -330,13 +330,13 @@ define mf_build_shared_library =
 
     # the name of the variable that holds this target name must
     # be unique, because it is referenced by __mf_lib_dependency
-    $(mf_$(mf_target)_libfile): $(mf_objfiles)
+    $(mf_$(mf_target)_final): $(mf_objfiles) $(mf_linkfiles)
 	@$(echo) +++ [$(mf_target)] Generating shared library \'$$(notdir $$@)\'...
 	@$(test) $(CXX) $(LDFLAGS) $$^ -o $$@
 
-    $(mf_target): $(mf_$(mf_target)_libfile)
+    $(mf_target): $(mf_$(mf_target)_final)
 
-    $(eval $(call __mf_gen_cleantarget,$(mf_target),mf_objfiles mf_depfiles mf_$(mf_target)_libfile))
+    $(eval $(call __mf_gen_cleantarget,$(mf_target),mf_objfiles mf_depfiles mf_$(mf_target)_final))
 
     $(eval undefine _stem)
 endef
@@ -345,20 +345,20 @@ endef
 # this ends the target definition for an executable
 define mf_build_executable =
     $(eval override _stem:=$(1))
-    $(eval override mf_program:=$(mf_outdir)/$(_stem)$(mfexe))
+    $(eval override mf_$(mf_target)_final:=$(mf_outdir)/$(_stem)$(mfexe))
 
     $(eval $(__mf_import_depfiles))
 
     $(eval override mf_objfiles:=$(sort $(mf_objfiles)))
     $(eval override mf_linkfiles:=$(sort $(mf_linkfiles)))
 
-    $(mf_program): $(mf_objfiles) $(mf_linkfiles)
+    $(mf_$(mf_target)_final): $(mf_objfiles) $(mf_linkfiles)
 	@$(echo) +++ [$(mf_target)] Generating executable \'$$(notdir $$@)\'...
 	@$(test) $(CXX) $(LDFLAGS) $$^ $(LDLIBS) -o $$@
 
-    $(mf_target): $(mf_deptargets) $(mf_program)
+    $(mf_target): $(mf_deptargets) $(mf_$(mf_target)_final)
 
-    $(eval $(call __mf_gen_cleantarget,$(mf_target),mf_objfiles mf_depfiles mf_program))
+    $(eval $(call __mf_gen_cleantarget,$(mf_target),mf_objfiles mf_depfiles mf_$(mf_target)_final))
 
     $(eval undefine _stem)
 endef
