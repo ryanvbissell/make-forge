@@ -75,6 +75,10 @@ ifdef DEBUG
     override CXXFLAGS+= -ggdb3 -O0
 endif
 
+override empty:=
+override tab:=$(empty)	$(empty)
+override space:=$(empty) $(empty)
+
 override echo:=echo
 ifdef MF_QUIET_BUILDS
     override echo:=>/dev/null echo
@@ -103,6 +107,7 @@ define __mf_initialize =
     $(eval override CPPFLAGS:=$(MF_CPPFLAGS))
     $(eval override CXXFLAGS:=$(MF_CXXFLAGS))
     $(eval override mf_suffix:=)
+    $(eval override mf_printsuffix:=)
     $(eval override mf_srcfiles:=)
     $(eval override mf_objfiles:=)
     $(eval override mf_depfiles:=)
@@ -131,7 +136,8 @@ endef
 #               built for this build-target
 # ---------------------------------------------------------------------
 define mf_set_object_suffix =
-	$(eval override mf_suffix:=_$(1))
+    $(eval override mf_suffix:=_$(1))
+    $(eval override mf_printsuffix:=($(1)))
 endef
 
 
@@ -140,7 +146,7 @@ endef
 # Description:  echo standardized string to announce source compilation
 # ---------------------------------------------------------------------
 define __mf_announce_compile =
-	@$(echo) "+++ [$$(notdir $(mf_target))] $$(notdir $$<)"
+	@$(echo) "+++ [$$(notdir $(mf_target))] $$(notdir $$<)$(tab)$(1)"
 endef
 
 
@@ -149,7 +155,7 @@ endef
 # Description:  compile a C++ source file
 # ---------------------------------------------------------------------
 define __mf_compile_c =
-	@$(call __mf_announce_compile)
+	@$(call __mf_announce_compile,$(1))
 	@$(test) $(CC) $(CPPFLAGS) $(CFLAGS) -c $$< -o $$@
 endef
 
@@ -159,7 +165,7 @@ endef
 # Description:  compile a C++ source file
 # ---------------------------------------------------------------------
 define __mf_compile_c++ =
-	@$(call __mf_announce_compile)
+	@$(call __mf_announce_compile,$(1))
 	@$(test) $(CXX) $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) -c $$< -o $$@
 endef
 
@@ -211,7 +217,7 @@ endef
 # ---------------------------------------------------------------------
 define __mf_gen_static_pattern_rule
     $(2): $(mf_outdir)/%$(mf_suffix).$(mfobj): $(3)/%$(4) | $(mf_outdir)
-	@$(call __mf_compile_$(1))
+	@$(call __mf_compile_$(1),$(mf_printsuffix))
 	@$(call __mf_gen_dependencies,$$*$(mf_suffix))
 endef
 
