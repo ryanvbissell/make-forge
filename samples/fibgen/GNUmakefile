@@ -43,8 +43,8 @@ include $(CURDIR)/GNUmakefile.forge
 $(eval $(call mf_declare_target,fibgen))
     $(eval $(call mf_static_dependencies,static))
     override CPPFLAGS+=-I$(MF_PROJECT_DIR)/inc
-    $(eval $(call mf_add_sources,c++,$(MF_PROJECT_DIR)/src,fibgen.c))
-    $(eval $(call mf_add_sources,c++,$(MF_PROJECT_DIR)/src,main.c))
+    $(eval $(call mf_add_sources,c,$(MF_PROJECT_DIR)/src,fibgen.c))
+    $(eval $(call mf_add_sources,c,$(MF_PROJECT_DIR)/src,main.c))
 $(eval $(call mf_build_executable,fibgen))
 
 

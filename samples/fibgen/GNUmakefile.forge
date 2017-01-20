@@ -23,16 +23,16 @@ override mf_opsys:=linux
 # describe how to build libfib.a
 $(eval $(call mf_declare_target,static))
     override CPPFLAGS+=-I$(MF_PROJECT_DIR)/inc
-    $(eval $(call mf_add_sources,c++,$(MF_PROJECT_DIR)/src,lib*.c))
+    $(eval $(call mf_add_sources,c,$(MF_PROJECT_DIR)/src,lib*.c))
 $(eval $(call mf_build_static_library,libfib))
 
 
 # describe how to build libfib.so
 $(eval $(call mf_declare_target,shared))
     $(eval $(call mf_set_object_suffix,PIC))
-    override CXXFLAGS+=-fPIC
+    override CFLAGS+=-fPIC
     override CPPFLAGS+=-I$(MF_PROJECT_DIR)/inc
-    $(eval $(call mf_add_sources,c++,$(MF_PROJECT_DIR)/src,lib*.c))
+    $(eval $(call mf_add_sources,c,$(MF_PROJECT_DIR)/src,lib*.c))
 $(eval $(call mf_build_shared_library,libfib))
 
 

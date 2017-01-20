@@ -71,6 +71,8 @@ else
     override append:=>>
 endif
 
+$(info CC is '$(CC)')
+$(info CXX is '$(CXX)')
 ifdef DEBUG
     override CXXFLAGS+= -ggdb3 -O0
 endif
@@ -131,7 +133,26 @@ endef
 #               built for this build-target
 # ---------------------------------------------------------------------
 define mf_set_object_suffix =
-    $(eval override mf_suffix:=_$(1))
+	$(eval override mf_suffix:=_$(1))
+endef
+
+
+# ---------------------------------------------------------------------
+# INTERNAL:     __mf_announce_compile
+# Description:  echo standardized string to announce source compilation
+# ---------------------------------------------------------------------
+define __mf_announce_compile =
+	@$(echo) "+++ [$$(notdir $(mf_target))] $$(notdir $$<)"
+endef
+
+
+# ---------------------------------------------------------------------
+# INTERNAL:     __mf_compile_c++
+# Description:  compile a C++ source file
+# ---------------------------------------------------------------------
+define __mf_compile_c =
+	@$(call __mf_announce_compile)
+	@$(test) $(CC) $(CPPFLAGS) $(CFLAGS) -c $$< -o $$@
 endef
 
 
@@ -140,7 +161,7 @@ endef
 # Description:  compile a C++ source file
 # ---------------------------------------------------------------------
 define __mf_compile_c++ =
-	@$(echo) "+++ [$$(notdir $(mf_target))] $$(notdir $$<)"
+	@$(call __mf_announce_compile)
 	@$(test) $(CXX) $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) -c $$< -o $$@
 endef
 
@@ -184,14 +205,15 @@ endef
 # INTERNAL:     __mf_gen_static_pattern_rule_c++(obj, dir, glob)
 # Description:  Generates a gnu-make "static pattern rule" based on
 #               the passed-in arguments.
-# Arguments: 1: FQPN of the object file that is the target of this rule
-#            2: the directory where the source(s) are located
-#            3: the file name (or file glob) to be compiled. (This
+# Arguments: 1: The type of source code
+#            2: FQPN of the object file that is the target of this rule
+#            3: the directory where the source(s) are located
+#            4: the file name (or file glob) to be compiled. (This
 #               may have been name-mangled with mf_suffix)
 # ---------------------------------------------------------------------
-define __mf_gen_static_pattern_rule_c++
-    $(1): $(mf_outdir)/%$(mf_suffix).$(mfobj): $(2)/%$(3) | $(mf_outdir)
-	@$(call __mf_compile_c++)
+define __mf_gen_static_pattern_rule
+    $(2): $(mf_outdir)/%$(mf_suffix).$(mfobj): $(3)/%$(4) | $(mf_outdir)
+	@$(call __mf_compile_$(1))
 	@$(call __mf_gen_dependencies,$$*$(mf_suffix))
 endef
 
@@ -212,7 +234,7 @@ define mf_add_sources =
     $(eval override _mfas_obj:=$(subst $(2),$(mf_outdir),$(_mfas_obj)))
     $(eval override mf_srcfiles+=$(_mfas_src))
     $(eval override mf_objfiles+=$(_mfas_obj))
-    $(eval $(call __mf_gen_static_pattern_rule_$(1),$(_mfas_obj),$(2),$(_mfas_ext)))
+    $(eval $(call __mf_gen_static_pattern_rule,$(1),$(_mfas_obj),$(2),$(_mfas_ext)))
     $(eval undefine _mfas_src)
     $(eval undefine _mfas_ext)
     $(eval undefine _mfas_obj)
