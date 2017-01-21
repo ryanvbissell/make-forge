@@ -72,7 +72,7 @@ define __tf_gen_runtarget =
 
     _run_$(1): _announce_$(1) $(mf_target)
 	@printf 'Running [%-10s]...  ' $(2)
-	@$(TF_ENVVARS) $(mf_program) $(mf_outdir) >$(tf_logfile) 2>&1 || (echo "\033[0;31mFAILED with exit status '$$$$?'\033[0m"; exit 1)
+	@$(TF_ENVVARS) $(mf_$(mf_target)_final) $(mf_outdir) >$(tf_logfile) 2>&1 || (echo "\033[0;31mFAILED with exit status '$$$$?'\033[0m"; exit 1)
 endef
 
 
@@ -134,6 +134,14 @@ define tf_import_testdirs =
     $(eval $(call tf_include_testdirs,$(_subdirs)))
 
     all:: $(tf_topdeps)
+endef
+
+
+define tf_use_makeforge =
+    $(eval override _tfum_saved_mfpd:=$(MF_PROJECT_DIR))
+    $(eval override MF_PROJECT_DIR:=$(abspath $(dir $(1))))
+    $(eval include $(1))
+    $(eval override MF_PROJECT_DIR:=$(_tfum_saved_mfpd))
 endef
 
 
