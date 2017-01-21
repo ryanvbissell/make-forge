@@ -49,3 +49,6 @@ $(eval $(call mf_declare_target,fibgen))
 $(eval $(call mf_build_executable,fibgen))
 
 
+# raw make targets are still permitted
+all: static shared fibgen
+

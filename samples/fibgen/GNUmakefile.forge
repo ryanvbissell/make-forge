@@ -36,6 +36,3 @@ $(eval $(call mf_declare_target,shared))
 $(eval $(call mf_build_shared_library,libfib))
 
 
-# raw make targets are still permitted
-all: static shared fibgen
-
