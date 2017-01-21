@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: MIT
 # See the enclosed "LICENSE.forge" file for exact license terms.
 #
+
 override _myname:=$(notdir $(lastword $(MAKEFILE_LIST)))
 override _mydir:=$(dir $(lastword $(MAKEFILE_LIST)))
 
