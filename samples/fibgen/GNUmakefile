@@ -8,6 +8,15 @@
 
 .DEFAULT_GOAL:=all
 
+# INSTRUCTIONS:
+#   Copy this file to the base directory of your project, renaming it
+#   to 'GNUmakefile'.  Then:
+#     - Update the MF_HELPDOC heredoc below
+#     - Adjust MF_PROJECT_DIR if needed (unlikely)
+#     - After the '------' line below, define your make-forge targets.
+
+
+# Update this heredoc to describe all the targets that you've defined
 define MF_HELPDOC
 USAGE:  make <target> [flags]
 SUPPORTED TARGETS:
@@ -25,7 +34,8 @@ All of the usual (CPPFLAGS, CXXFLAGS, etc.) plus:
 endef
 
 
-# tell make-forge where the project's base directory is
+# tell make-forge where the project's base directory is.
+# setting it to CURDIR is probably the right thing to do.
 MF_PROJECT_DIR:=$(CURDIR)
 
 # this tells make-forge where all build output should be written
@@ -34,6 +44,23 @@ MFOUT:=$(CURDIR)/out
 
 # load & initialize make-forge
 include $(MF_PROJECT_DIR)/../../make-forge
+
+
+# --------------------------------------------------------------------
+
+
+# Update the line below to indicate targets that are included with 'all'
+all: static shared fibgen
+
+
+# At this point you can declare your make-forge targets, as needed.
+# Note that if your project can be compiled both as a standalone
+# application, and also as a library for use by other make-forge
+# projects, it is customary to place the library targets in a separate
+# 'GNUmakefile.mf' file, and have this file include that one. (See
+# the 'fibgen' sample for an example.)
+
+
 
 # load up this project's make-forge fragment, which
 # defines how to build the libfib library
@@ -49,6 +76,4 @@ $(eval $(call mf_declare_target,fibgen))
 $(eval $(call mf_build_executable,fibgen))
 
 
-# raw make targets are still permitted
-all: static shared fibgen
 
