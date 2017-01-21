@@ -87,7 +87,7 @@ endif
 
 # save off the original values of CXXFLAGS, etc, so that we
 # can restore them a the start of every target declaration
-# TODO what about CFLAGS?  And, languages other than C++ generally?
+override MF_CFLAGS:=$(CFLAGS)
 override MF_LDFLAGS:=$(LDFLAGS)
 override MF_CPPFLAGS:=$(CPPFLAGS)
 override MF_CXXFLAGS:=$(CXXFLAGS)
@@ -102,6 +102,7 @@ override MF_ARFLAGS:=rcs
 # ---------------------------------------------------------------------
 define __mf_initialize =
     $(eval override LDLIBS:=)
+    $(eval override CFLAGS:=$(MF_CFLAGS))
     $(eval override ARFLAGS:=$(MF_ARFLAGS))
     $(eval override LDFLAGS:=$(MF_LDFLAGS))
     $(eval override CPPFLAGS:=$(MF_CPPFLAGS))
