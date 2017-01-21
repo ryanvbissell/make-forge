@@ -6,21 +6,22 @@
 # See the enclosed "LICENSE.forge" file for exact license terms.
 #
 
-.DEFAULT_GOAL:=static
+.DEFAULT_GOAL:=all
 
 define MF_HELPDOC
 USAGE:  make <target> [flags]
 SUPPORTED TARGETS:
-	*   help              -- this message
-	*   clean             -- erase cx-specific contents of CXOUT
-	*   static (default)  -- build libfib.$(mflib)
-	*   shared            -- build libfib.$(mfdll)
-	*   fibgen            -- build fibgen$(mfexe)
+	*   help            -- this message
+	*   clean           -- erase results of previous build(s)
+	*   static          -- build libfib.$(mflib)
+	*   shared          -- build libfib.$(mfdll)
+	*   fibgen          -- build fibgen$(mfexe)
+	*   all (default)   -- static, shared, and fibgen
 SUPPORTED FLAGS:
 All of the usual (CPPFLAGS, CXXFLAGS, etc.) plus:
-	*   DEBUG=1           -- generate debug information for <target>
-	*   VERBOSE=1         -- verbose make-forge output
-	*   TEST=1            -- dry-run of recipes for <target>
+	*   DEBUG=1         -- generate debug information for <target>
+	*   VERBOSE=1       -- verbose make-forge output
+	*   TEST=1          -- dry-run of recipes for <target>
 endef
 
 
