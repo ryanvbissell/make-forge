@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017, Ryan V. Bissell
+# Copyright (c) 2016-2017, Ryan V. Bissell
 # All rights reserved.
 #
 # SPDX-License-Identifier: MIT
@@ -37,10 +37,6 @@ endef
 # tell make-forge where the project's base directory is.
 # setting it to CURDIR is probably the right thing to do.
 MF_PROJECT_DIR:=$(CURDIR)
-
-# this tells make-forge where all build output should be written
-# TODO, should default to $(MF_PROJECT_DIR)/out if not defined
-MFOUT:=$(CURDIR)/out
 
 # load & initialize make-forge
 include $(MF_PROJECT_DIR)/../../make-forge
