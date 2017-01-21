@@ -15,11 +15,11 @@ override _mydir:=$(dir $(lastword $(MAKEFILE_LIST)))
 #    directory where test-forge is installed.
 #  - It is recommended that you not use the 'override' directive when
 #    defining TFDIR below, as sometimes it is useful to override TFDIR
-#    on the make command-line, when test-forge is used by both a main
-#    project, and its submodules.
+#    on the make command-line, such as when test-forge is used by both
+#    a main project, and its submodules.
 TFDIR:=
 
-override TF_TESTROOT:=$(abspath $(_mydir)))
+override TF_TESTROOT:=$(abspath $(_mydir))
 
 ifeq ("$(wildcard $(TFDIR)/test-forge)","")
     $(info $(shell echo "\033[0;31mCannot find file 'test-forge'"))
