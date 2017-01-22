@@ -135,6 +135,7 @@ endef
 # Function:     mf_set_object_suffix(suffix)
 # Description:  Sets a filename stem suffix for every object file
 #               built for this build-target
+# Arguments: 1: What the suffix should be set to
 # ---------------------------------------------------------------------
 define mf_set_object_suffix =
     $(eval override mf_suffix:=_$(1))
@@ -145,6 +146,7 @@ endef
 # ---------------------------------------------------------------------
 # INTERNAL:     __mf_announce_compile
 # Description:  echo standardized string to announce source compilation
+# Arguments: 1: Parenthesized suffix, if set
 # ---------------------------------------------------------------------
 define __mf_announce_compile =
 	@$(echo) "+++ [$$(notdir $(mf_target))] $$(notdir $$<)$(tab)$(1)"
@@ -154,6 +156,7 @@ endef
 # ---------------------------------------------------------------------
 # INTERNAL:     __mf_compile_c++
 # Description:  compile a C++ source file
+# Arguments: 1: Parenthesized suffix, if set
 # ---------------------------------------------------------------------
 define __mf_compile_c =
 	@$(call __mf_announce_compile,$(1))
@@ -164,6 +167,7 @@ endef
 # ---------------------------------------------------------------------
 # INTERNAL:     __mf_compile_c++
 # Description:  compile a C++ source file
+# Arguments: 1: Parenthesized suffix, if set
 # ---------------------------------------------------------------------
 define __mf_compile_c++ =
 	@$(call __mf_announce_compile,$(1))
@@ -211,10 +215,10 @@ endef
 # Description:  Generates a gnu-make "static pattern rule" based on
 #               the passed-in arguments.
 # Arguments: 1: The type of source code
-#            2: FQPN of the object file that is the target of this rule
+#            2: FQPN of the object file that is the target of this
+#               rule (This may have been name-mangled eith mf_suffix)
 #            3: the directory where the source(s) are located
-#            4: the file name (or file glob) to be compiled. (This
-#               may have been name-mangled with mf_suffix)
+#            4: the file name (or file glob) to be compiled.
 # ---------------------------------------------------------------------
 define __mf_gen_static_pattern_rule
     $(2): $(mf_outdir)/%$(mf_suffix).$(mfobj): $(3)/%$(4) | $(mf_outdir)
@@ -291,6 +295,7 @@ endef
 # ---------------------------------------------------------------------
 # INTERNAL:     __mf_delete_mfout_files
 # Description:  Helper routine to __mf_gen_cleantarget
+# Arguments: 1: Space-delimited list of files to delete
 # ---------------------------------------------------------------------
 define __mf_delete_mfout_files =
     $(eval override _name:=$(1))
@@ -353,7 +358,8 @@ endef
 
 # ---------------------------------------------------------------------
 #  Function:     mf_build_shared_library(stem)
-#  Description:  This end the target definition for a shared library
+#  Description:  This ends the target definition for a shared library.
+#                This will add '-shared' to LDFLAGS
 #  Arguments: 1: The stem of the shared library's intended filename
 # ---------------------------------------------------------------------
 define mf_build_shared_library =
@@ -374,6 +380,15 @@ define mf_build_executable =
 endef
 
 
+# ---------------------------------------------------------------------
+#  Function:     mf_include_as(namespace,filepath)
+#  Description:  This imports the make-forge fragment located at
+#                'filepath', under the namespace 'namespace'
+#  Arguments: 1: The desired namespace.  This does not have to be
+#                unique, but it is generally recommended to be
+#             2: Path to the make-forge fragment (.MF)
+# ---------------------------------------------------------------------
+#  TODO: enforce .MF extension?
 define mf_include_as =
     $(eval override MF_NAMESPACE:=@$(1))
     $(eval include $(2))
