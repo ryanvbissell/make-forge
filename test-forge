@@ -159,9 +159,10 @@ endef
 
 define tf_use_makeforge =
     $(eval override _tfum_saved_mfpd:=$(MF_PROJECT_DIR))
-    $(eval override MF_PROJECT_DIR:=$(abspath $(dir $(1))))
-    $(eval include $(1))
+    $(eval override MF_PROJECT_DIR:=$(abspath $(dir $(2))))
+    $(eval $(call mf_include_as,$(1)@MF,$(2)))
     $(eval override MF_PROJECT_DIR:=$(_tfum_saved_mfpd))
+    $(eval override undefine _tfum_saved_mfpd)
 endef
 
 
