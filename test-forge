@@ -84,6 +84,25 @@ define tf_test_exitstatus =
 endef
 
 
+define tf_test_md5sum =
+    $(eval override _md5:=$(2))
+    $(eval override tf_testargs:=$(3))
+    $(call __tf_register_test,$(1))
+    $(call __tf_gen_runtarget,$(1),md5sum)
+    $(1): _run_$(1)
+	@TF_MD5SUM=`md5sum $(tf_logfile) | awk '{print $$$$1}'` && \
+	 if [ ! "$$$${TF_MD5SUM}" = "$(_md5)" ]; then \
+	     echo "\033[0;31mFAILED due to md5 mismatch" ;\
+	     echo "$(1): md5 was '$$$${TF_MD5SUM}', expected '$(_md5)'.\033[0m" 2>&1 ;\
+	     false ;\
+	 else \
+	     echo "PASS";\
+	     true;\
+	 fi
+    $(eval override undefine _md5)
+endef
+
+
 define tf_test_sha1sum =
     $(eval override _sha1:=$(2))
     $(eval override tf_testargs:=$(3))
