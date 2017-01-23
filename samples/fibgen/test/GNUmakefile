@@ -1,0 +1,41 @@
+# vim: set ft=make:
+#
+# Copyright (c) 2016-2017, Ryan V. Bissell
+# All rights reserved.
+#
+# SPDX-License-Identifier: MIT
+# See the enclosed "LICENSE.forge" file for exact license terms.
+#
+override _myname:=$(notdir $(lastword $(MAKEFILE_LIST)))
+override _mydir:=$(dir $(lastword $(MAKEFILE_LIST)))
+
+# INSTRUCTIONS:
+#  - Copy this file to the base directory for your tests, renaming it
+#    to 'GNUmakefile'.  Then define TFDIR below to point back to the
+#    directory where test-forge is installed.
+#  - It is recommended that you not use the 'override' directive when
+#    defining TFDIR below, as sometimes it is useful to override TFDIR
+#    on the make command-line, such as when test-forge is used by both
+#    a main project, and its submodules.
+TFDIR:=../../..
+
+override TF_TESTROOT:=$(abspath $(_mydir))
+
+ifeq ("$(wildcard $(TFDIR)/test-forge)","")
+    $(info $(shell echo "\033[0;31mCannot find file 'test-forge'"))
+    $(info $(shell echo "Did you forget to use 'make TFDIR=<path>', when in a submodule?\033[0m"))
+    $(error Aborting)
+endif
+
+include $(TFDIR)/test-forge
+
+
+# if you are willing & able to lay out your tests in the manner
+# recommended in the documentation, then the following should
+# "just work" for you.  Otherwise, you will need to read up on
+#   - tf_topdeps
+#   - tf_include
+
+$(eval $(call tf_import_testdirs))
+
+
