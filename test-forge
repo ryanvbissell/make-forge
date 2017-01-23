@@ -37,7 +37,6 @@ include $(TFDIR)/_common-forge
 tf_add_sources = $(call mf_add_sources,$(1),$(2),$(3))
 tf_build_executable = $(call mf_build_executable,$(1),$(2),$(3))
 tf_build_static_library = $(call mf_build_static_library,$(1))
-tf_static_dependencies = $(call mf_static_dependencies,$(1))
 
 
 # ---------------------------------------------------------------------
@@ -68,6 +67,31 @@ define tf_declare_test_target =
 
     $(mf_outdir):
 	@mkdir -p $(mf_outdir)
+endef
+
+
+# ---------------------------------------------------------------------
+# INTERNAL:     __tf_static_lib_dependency(target)
+# Description:
+# Arguments: 1:
+# ---------------------------------------------------------------------
+define __tf_static_lib_dependency =
+    $(eval override _tfsld_target:=$(1))
+    ifneq (,$(findstring @MF,$(_tfsld_target)))
+        $(eval override _tfsld_target:=_$(1))
+    endif
+    $(eval $(call __mf_static_lib_dependency,$(_tfsld_target)))
+    $(eval undefine _tfsld_target)
+endef
+
+
+# ---------------------------------------------------------------------
+# Function:     tf_static_dependencies(targets)
+# Description:  Declares the current-target's static-lib linkage dependencies
+# Arguments: 1: space-delimited list of build-targets
+# ---------------------------------------------------------------------
+define tf_static_dependencies =
+    $(foreach target,$(1),$(eval $(call __tf_static_lib_dependency,$(target))))
 endef
 
 

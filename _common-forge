@@ -126,7 +126,7 @@ endef
 # ---------------------------------------------------------------------
 define mf_declare_target =
     $(eval $(call __mf_initialize))
-    $(eval override mf_target:=$(1)$(MF_NAMESPACE))
+    $(eval override mf_target:=$(MF_NSPREFIX)$(1)$(MF_NAMESPACE))
     $(eval override mf_outdir:=$(MFOUT))
 endef
 
@@ -390,9 +390,11 @@ endef
 # ---------------------------------------------------------------------
 #  TODO: enforce .MF extension?
 define mf_include_as =
+    $(eval override MF_NSPREFIX:=_)
     $(eval override MF_NAMESPACE:=@$(1))
     $(eval include $(2))
     $(eval override undefine MF_NAMESPACE)
+    $(eval override undefine MF_NSPREFIX)
 endef
 
 
