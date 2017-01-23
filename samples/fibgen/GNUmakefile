@@ -60,7 +60,7 @@ all: static shared fibgen
 
 # load up this project's make-forge fragment, which
 # defines how to build the libfib library
-include $(CURDIR)/GNUmakefile.forge
+include $(CURDIR)/GNUmakefile.MF
 
 
 # describe how to build fibgen[.exe]

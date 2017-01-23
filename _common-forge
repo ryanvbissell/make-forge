@@ -19,7 +19,7 @@ $(MFOUT):
 	@$(test) mkdir -p $(MFOUT)
 
 
-# TODO, see make-forge.mk
+# TODO, see make-forge
 ########.PHONY: clean
 
 

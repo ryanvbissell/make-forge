@@ -198,10 +198,9 @@ endef
 #               that don't begin with an underscore (_)
 # Arguments: 1: the directory to scan
 # ---------------------------------------------------------------------
-#  TODO: file extension should be changed to .TF
 define _tf_include_testdir =
     $(eval override tf_testdir:=$(abspath $(1)))
-    $(eval override _tests:=$(sort $(wildcard $(1)/[!_]*.mk)))
+    $(eval override _tests:=$(sort $(wildcard $(1)/[!_]*.TF)))
     $(foreach _test,$(_tests),$(call _tf_include,$(_test),$(1)))
     $(eval override undefine _tests)
 endef
