@@ -40,6 +40,12 @@ tf_build_static_library = $(call mf_build_static_library,$(1))
 tf_static_dependencies = $(call mf_static_dependencies,$(1))
 
 
+# ---------------------------------------------------------------------
+# INTERNAL:     __tf_initialize
+# Description:  Resets internal state, in preparation for
+#               tf_declare_test_target, et al.
+# Arguments: 1: The name of the test-target to run
+# ---------------------------------------------------------------------
 # INTERNAL: initializes internal state
 define __tf_initialize =
     $(eval override undefine TF_ENVVARS)
@@ -47,7 +53,12 @@ define __tf_initialize =
 endef
 
 
-# re-initializes, accepts target-name, prepares for target attributes
+# ---------------------------------------------------------------------
+# Function:     tf_declare_test_target
+# Description:  Declares to test-forge that a new test-target named
+#               'name' is about to be described
+# Arguments: 1: The name of the test-target being described
+# ---------------------------------------------------------------------
 define tf_declare_test_target =
     $(eval $(call __tf_initialize,$(1)))
     $(eval $(call mf_declare_target,_tf_build_$(tf_target)))
@@ -60,12 +71,25 @@ define tf_declare_test_target =
 endef
 
 
+# ---------------------------------------------------------------------
+# INTERNAL:     __tf_register_test
+# Description:  Adds the specified test to the list of available
+#               tests, and computes the test's logfile name.
+# Arguments: 1: The name of the test-target to run
+# ---------------------------------------------------------------------
 define __tf_register_test =
     $(eval override TF_SUB_TOPDEPS+=$(1))
     $(eval tf_logfile:=$(mf_outdir)/$(1).log)
 endef
 
 
+# ---------------------------------------------------------------------
+# INTERNAL:     __tf_gen_runtarget
+# Description:  Generates the target that announces & runs the test
+#               exit status (to the shell) to be 0 (zero)
+# Arguments: 1: The name of the test-target to run
+#            2: A string describing the test's validation-type
+# ---------------------------------------------------------------------
 define __tf_gen_runtarget =
     _announce_$(1):
 	@printf '%15s :  ' $(1)
@@ -76,7 +100,17 @@ define __tf_gen_runtarget =
 endef
 
 
+# ---------------------------------------------------------------------
+# Function:     tf_test_exitstatus
+# Description:  Runs the specified test, and expects the test's
+#               exit status (to the shell) to be 0 (zero)
+# Arguments: 1: The name of the test-target to run
+#            2: Arguments to pass to the test executable
+# ---------------------------------------------------------------------
+# TODO: rename this to tf_test_success, and then implement a new
+#       tf_test_exitstatus that compares to expected exitstatus value.
 define tf_test_exitstatus =
+    $(eval override tf_testargs:=$(2))
     $(eval $(call __tf_register_test,$(1)))
     $(eval $(call __tf_gen_runtarget,$(1),exitstatus))
     $(1): _run_$(1)
@@ -84,6 +118,15 @@ define tf_test_exitstatus =
 endef
 
 
+# ---------------------------------------------------------------------
+# Function:     tf_test_md5sum
+# Description:  Runs the specified test, computes the md5sum of its
+#               captured log file, and compares to the given expected
+#               md5sum value.
+# Arguments: 1: The name of the test-target to run
+#            2: The expected md5sum value
+#            3: Arguments to pass to the test executable
+# ---------------------------------------------------------------------
 define tf_test_md5sum =
     $(eval override _md5:=$(2))
     $(eval override tf_testargs:=$(3))
@@ -103,6 +146,16 @@ define tf_test_md5sum =
 endef
 
 
+# ---------------------------------------------------------------------
+# Function:     tf_test_sha1sum
+# Description:  Runs the specified test, computes the sha1sum of its
+#               captured log file, and compares to the given expected
+#               sha1sum value.
+# Arguments: 1: The name of the test-target to run
+#            2: The expected sha1sum value
+#            3: Arguments to pass to the test executable
+# ---------------------------------------------------------------------
+# TODO deprecated in favor of tf_test_md5sum ?
 define tf_test_sha1sum =
     $(eval override _sha1:=$(2))
     $(eval override tf_testargs:=$(3))
@@ -125,6 +178,12 @@ endef
 ###################################################
 
 
+# ---------------------------------------------------------------------
+# INTERNAL:     _tf_include
+# Description:  Includes the given test-forge fragment
+# Arguments: 1: the file to include
+# ---------------------------------------------------------------------
+#  TODO: enforce .TF extension
 tf_topdeps:=
 define _tf_include =
     $(eval override TF_SUB_TOPDEPS:=)
@@ -134,6 +193,13 @@ define _tf_include =
 endef
 
 
+# ---------------------------------------------------------------------
+# INTERNAL:     _tf_include_testdir
+# Description:  Scans the given directory for test-forge fragments
+#               that don't begin with an underscore (_)
+# Arguments: 1: the directory to scan
+# ---------------------------------------------------------------------
+#  TODO: file extension should be changed to .TF
 define _tf_include_testdir =
     $(eval override tf_testdir:=$(abspath $(1)))
     $(eval override _tests:=$(sort $(wildcard $(1)/[!_]*.mk)))
@@ -142,11 +208,22 @@ define _tf_include_testdir =
 endef
 
 
+# ---------------------------------------------------------------------
+# Function:     tf_include_testdirs
+# Description:  Scans every given directory for test-forge fragments.
+# Arguments: 1: A space-delimited list of directories
+# ---------------------------------------------------------------------
+# TODO: this should be a private routine?
 define tf_include_testdirs =
     $(foreach dir,$(1),$(call _tf_include_testdir,$(dir)))
 endef
 
 
+# ---------------------------------------------------------------------
+# Function:     tf_import_testdirs
+# Description:  Imports tests from all subdirectories that don't start
+#               with a '.'
+# ---------------------------------------------------------------------
 define tf_import_testdirs =
     $(eval override _subdirs:=$(sort $(wildcard */)))
     $(eval override _subdirs:=$(_subdirs:%/=%))
@@ -157,6 +234,14 @@ define tf_import_testdirs =
 endef
 
 
+# ---------------------------------------------------------------------
+# Function:     tf_use_makeforge(namespace,filepath)
+# Description:  Imports a make-forge fragment into a test-forge
+#               session, encapsulated into 'namespace@MF' namespace.
+#               'name' is about to be described.
+# Arguments: 1: Namespace to use (will actually be 'namespace@MF')
+#            2: Path to the make-forge fragment (.MF)
+# ---------------------------------------------------------------------
 define tf_use_makeforge =
     $(eval override _tfum_saved_mfpd:=$(MF_PROJECT_DIR))
     $(eval override MF_PROJECT_DIR:=$(abspath $(dir $(2))))
