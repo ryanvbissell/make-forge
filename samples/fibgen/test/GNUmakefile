@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: MIT
 # See the enclosed "LICENSE.forge" file for exact license terms.
 #
+
 override _myname:=$(notdir $(lastword $(MAKEFILE_LIST)))
 override _mydir:=$(dir $(lastword $(MAKEFILE_LIST)))
 
@@ -13,6 +14,10 @@ override _mydir:=$(dir $(lastword $(MAKEFILE_LIST)))
 #  - Copy this file to the base directory for your tests, renaming it
 #    to 'GNUmakefile'.  Then define TFDIR below to point back to the
 #    directory where test-forge is installed.
+#  - For test-forge fragments in your test sub-directories, use the
+#    name 'GNUmakefile.TF'  (Note that this file is NOT a test-forge
+#    fragment; rather, it initializes test-forge and then hunts for
+#    test-forge fragments.)
 #  - It is recommended that you not use the 'override' directive when
 #    defining TFDIR below, as sometimes it is useful to override TFDIR
 #    on the make command-line, such as when test-forge is used by both

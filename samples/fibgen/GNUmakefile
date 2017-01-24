@@ -53,7 +53,7 @@ all: static shared fibgen
 # Note that if your project can be compiled both as a standalone
 # application, and also as a library for use by other make-forge
 # projects, it is customary to place the library targets in a separate
-# 'GNUmakefile.mf' file, and have this file include that one. (See
+# 'GNUmakefile.MF' file, and have this file include that one. (See
 # the 'fibgen' sample for an example.)
 
 
