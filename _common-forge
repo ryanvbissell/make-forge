@@ -19,6 +19,8 @@ $(MFOUT):
 	@$(test) mkdir -p $(MFOUT)
 
 
+# TODO, add check for CF defined here
+
 # TODO, see make-forge
 ########.PHONY: clean
 
@@ -96,11 +98,11 @@ override MF_CXXFLAGS:=$(CXXFLAGS)
 override MF_ARFLAGS:=rcs
 
 # ---------------------------------------------------------------------
-# INTERNAL:     __mf_initialize
+# INTERNAL:     __cf_initialize
 # Description:  Resets internal state, in preparation for
-#               mf_declare_target, et al.
+#               cf_declare_target, et al.
 # ---------------------------------------------------------------------
-define __mf_initialize =
+define __cf_initialize =
     $(eval override LDLIBS:=)
     $(eval override CFLAGS:=$(MF_CFLAGS))
     $(eval override ARFLAGS:=$(MF_ARFLAGS))
@@ -119,64 +121,65 @@ endef
 
 
 # ---------------------------------------------------------------------
-# Function:     mf_declare_target(name)
+# Function:     cf_declare_target(name)
 # Description:  Declares to make-forge that a new build-target named
 #               'name' is about to be described.
 # Arguments: 1: name of the build-target being described
 # ---------------------------------------------------------------------
-define mf_declare_target =
-    $(eval $(call __mf_initialize))
+define $(CF)_declare_target =
+    $(eval $(call __cf_initialize))
     $(eval override mf_target:=$(MF_NAMESPACE)$(1))
     $(eval override mf_outdir:=$(MFOUT))
 endef
 
 
 # ---------------------------------------------------------------------
-# Function:     mf_set_object_suffix(suffix)
+# Function:     cf_set_object_suffix(suffix)
 # Description:  Sets a filename stem suffix for every object file
 #               built for this build-target
 # Arguments: 1: What the suffix should be set to
 # ---------------------------------------------------------------------
-define mf_set_object_suffix =
+define $(CF)_set_object_suffix =
     $(eval override mf_suffix:=_$(1))
     $(eval override mf_printsuffix:=($(1)))
 endef
 
 
 # ---------------------------------------------------------------------
-# INTERNAL:     __mf_announce_compile
+# INTERNAL:     __cf_announce_compile
 # Description:  echo standardized string to announce source compilation
 # Arguments: 1: Parenthesized suffix, if set
 # ---------------------------------------------------------------------
-define __mf_announce_compile =
+define __cf_announce_compile =
 	@$(echo) "+++ [$$(notdir $(mf_target))] $$(notdir $$<)$(tab)$(1)"
 endef
 
 
 # ---------------------------------------------------------------------
-# INTERNAL:     __mf_compile_c++
+# INTERNAL:     __cf_compile_c++
 # Description:  compile a C++ source file
 # Arguments: 1: Parenthesized suffix, if set
 # ---------------------------------------------------------------------
-define __mf_compile_c =
-	@$(call __mf_announce_compile,$(1))
+define __cf_compile_c =
+	@$(call __cf_announce_compile,$(1))
 	@$(test) $(CC) $(CPPFLAGS) $(CFLAGS) -c $$< -o $$@
 endef
 
 
 # ---------------------------------------------------------------------
-# INTERNAL:     __mf_compile_c++
+# INTERNAL:     __cf_compile_c++
 # Description:  compile a C++ source file
 # Arguments: 1: Parenthesized suffix, if set
 # ---------------------------------------------------------------------
-define __mf_compile_c++ =
-	@$(call __mf_announce_compile,$(1))
+define __cf_compile_c++ =
+	@$(call __cf_announce_compile,$(1))
 	@$(test) $(CXX) $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) -c $$< -o $$@
 endef
 
 
 # ---------------------------------------------------------------------
-# INTERNAL: generate source/header dependency info
+# INTERNAL:     __cf_gen_dependencies
+# Description:  generate source/header dependency info
 #
 # This is based on Scott McPeak's "Autodependencies with GNU make"
 # described at http://scottmcpeak.com/autodepend/autodepend.html
@@ -195,7 +198,7 @@ endef
 #            - add trailing colons (and blank lines)
 #            - remove lines containing only a colon
 # ---------------------------------------------------------------------
-define __mf_gen_dependencies =
+define __cf_gen_dependencies =
 	@$(test2) $(CXX) -MM $(CPPFLAGS) $(CXXFLAGS) $$< $(redir)$(mf_outdir)/$(1).d
 	@$(test2) mv -f $(mf_outdir)/$(1).d $(mf_outdir)/$(1).d.tmp
 	@$(test2) sed -e 's|.*:|$(mf_outdir)/$(1).o:|' $(indir)$(mf_outdir)/$(1).d.tmp $(redir)$(mf_outdir)/$(1).d
@@ -211,7 +214,7 @@ endef
 
 
 # ---------------------------------------------------------------------
-# INTERNAL:     __mf_gen_static_pattern_rule_c++(obj, dir, glob)
+# INTERNAL:     __cf_gen_static_pattern_rule_c++(obj, dir, glob)
 # Description:  Generates a gnu-make "static pattern rule" based on
 #               the passed-in arguments.
 # Arguments: 1: The type of source code
@@ -220,15 +223,15 @@ endef
 #            3: the directory where the source(s) are located
 #            4: the file name (or file glob) to be compiled.
 # ---------------------------------------------------------------------
-define __mf_gen_static_pattern_rule
+define __cf_gen_static_pattern_rule
     $(2): $(mf_outdir)/%$(mf_suffix).$(mfobj): $(3)/%$(4) | $(mf_outdir)
-	@$(call __mf_compile_$(1),$(mf_printsuffix))
-	@$(call __mf_gen_dependencies,$$*$(mf_suffix))
+	@$(call __cf_compile_$(1),$(mf_printsuffix))
+	@$(call __cf_gen_dependencies,$$*$(mf_suffix))
 endef
 
 
 # ---------------------------------------------------------------------
-# Function:     mf_add_sources(lang, dir, glob)
+# Function:     cf_add_sources(lang, dir, glob)
 # Description:  Declares which sources need to be build for the current
 #               target.  (This may be invoked multiple times as needed,
 #               in each target.)
@@ -236,14 +239,14 @@ endef
 #            2: the directory where the source(s) are located
 #            3: the file name (or file glob) to be compiled
 # ---------------------------------------------------------------------
-define mf_add_sources =
+define $(CF)_add_sources =
     $(eval override _mfas_src:=$(wildcard $(2)/$(3)))
     $(eval override _mfas_ext:=$(suffix $(3)))
     $(eval override _mfas_obj:=$(subst $(_mfas_ext),$(mf_suffix).$(mfobj),$(_mfas_src)))
     $(eval override _mfas_obj:=$(subst $(2),$(mf_outdir),$(_mfas_obj)))
     $(eval override mf_srcfiles+=$(_mfas_src))
     $(eval override mf_objfiles+=$(_mfas_obj))
-    $(eval $(call __mf_gen_static_pattern_rule,$(1),$(_mfas_obj),$(2),$(_mfas_ext)))
+    $(eval $(call __cf_gen_static_pattern_rule,$(1),$(_mfas_obj),$(2),$(_mfas_ext)))
     $(eval undefine _mfas_src)
     $(eval undefine _mfas_ext)
     $(eval undefine _mfas_obj)
@@ -251,14 +254,14 @@ endef
 
 
 # ---------------------------------------------------------------------
-# INTERNAL:     __mf_static_lib_dependency(target)
+# INTERNAL:     __cf_static_lib_dependency(target)
 # Description:  support routine for mf_static_dependencies
 # Arguments: 1: name of the build-target that builds the static
 #               library that the current-target is dependendent upon.
 #               From this, the library's filename is inferred to be
 #               stored in mf_<target>_final
 # ---------------------------------------------------------------------
-define __mf_static_lib_dependency =
+define __cf_static_lib_dependency =
     $(eval override _mfsld_target:=$(1))
     $(eval override _mfsld_libfile:=$(mf_$(_mfsld_target)_final))
     $(eval override mf_deptargets+=$(_mfsld_target))
@@ -269,49 +272,51 @@ endef
 
 
 # ---------------------------------------------------------------------
-# Function:     mf_static_dependencies(targets)
+# Function:     cf_static_dependencies(targets)
 # Description:  Declares the current-target's static-lib linkage dependencies
 # Arguments: 1: space-delimited list of build-targets
 # ---------------------------------------------------------------------
-define mf_static_dependencies =
+define $(CF)_static_dependencies =
     $(eval override _mfsd_targets:=$(1))
-    $(foreach target,$(_mfsd_targets),$(eval $(call __mf_static_lib_dependency,$(target))))
+    $(foreach target,$(_mfsd_targets),$(eval $(call __cf_static_lib_dependency,$(target))))
     $(eval undefine _mfsd_targets)
 endef
 
 
 # ---------------------------------------------------------------------
-# INTERNAL:     __mf_import_depfiles
+# INTERNAL:     __cf_import_depfiles
 # Description:  Support routine for mf_build_xxxxx routines
 #               Includes (when present) all .d files that match the
 #               target's objfiles
 # ---------------------------------------------------------------------
-define __mf_import_depfiles =
+define __cf_import_depfiles =
     $(eval override mf_depfiles:=$(mf_objfiles:.$(mfobj)=.d))
     -include $(mf_depfiles)
 endef
 
 
 # ---------------------------------------------------------------------
-# INTERNAL:     __mf_delete_mfout_files
-# Description:  Helper routine to __mf_gen_cleantarget
-# Arguments: 1: Space-delimited list of files to delete
+# INTERNAL:     __cf_delete_mfout_files
+# Description:  Helper routine to __cf_gen_cleantarget
+# Arguments: 1: Name of a variable containing a space-delimited
+#               list of files to delete (note the indirection!)
 # ---------------------------------------------------------------------
-define __mf_delete_mfout_files =
+define __cf_delete_mfout_files =
     $(eval override _name:=$(1))
 	@([ -e $(MFOUT) ] && $(test) $(RM) $($(_name))) || true
 endef
 
 
 # ---------------------------------------------------------------------
-# INTERNAL:     __mf_gen_cleantarget(target,filelist)
+# INTERNAL:     __cf_gen_cleantarget(target,filelist)
 # Description:  Generates a clean-target for the current-target, and
 #               adds it to the global list of clean-targets (to be
 #               used by target 'clean')
 # Arguments: 1: Name of the current-target (TODO: could just assume mf_target)
-#            2: Space-delimited list of files to be deleted
+#            2: Space-delimited list of variable names, each containing
+#               a space-delimited list of files to be deleted.
 # ---------------------------------------------------------------------
-define __mf_gen_cleantarget =
+define __cf_gen_cleantarget =
     # TODO: just use mf_target instead of passing it in as arg?
     $(eval override _mfgc_target:=$(1))
     $(eval override _mfgc_varnames:=$(2))
@@ -319,69 +324,70 @@ define __mf_gen_cleantarget =
     .PHONY: _clean_$(_mfgc_target)
     _clean_$(_mfgc_target):
 	@([ -e $(MFOUT) ] && $(echo) "+++ [$(_mfgc_target)] Cleaning...") || true
-	$(foreach _var,$(_mfgc_varnames),$(call __mf_delete_mfout_files,$(_var)))
+	$(foreach _var,$(_mfgc_varnames),$(call __cf_delete_mfout_files,$(_var)))
 
     $(eval override mf_clean_targets+=_clean_$(_mfgc_target))
 endef
 
 
 # ---------------------------------------------------------------------
-#  INTERNAL:     __mf_build_final_target(filename,string)
+#  INTERNAL:     __cf_build_final_target(filename,string)
 #  Description:  Generates the 'final' target file of the current-target
 #  Arguments: 1: The filename (stem[.ext]) of the file to be generated.
 #             2: A string describing the type of file being built
 # ---------------------------------------------------------------------
-define __mf_build_final_target =
+define __cf_build_final_target =
     $(eval override mf_$(mf_target)_final:=$(mf_outdir)/$(1))
-    $(eval $(__mf_import_depfiles))
+    $(eval $(__cf_import_depfiles))
     $(eval override mf_objfiles:=$(sort $(mf_objfiles)))
     $(eval override mf_linkfiles:=$(sort $(mf_linkfiles)))
 
     $(mf_target): $(mf_deptargets) $(mf_$(mf_target)_final)
 
-    $(eval $(call __mf_gen_cleantarget,$(mf_target),mf_objfiles mf_depfiles mf_$(mf_target)_final))
+    $(eval $(call __cf_gen_cleantarget,$(mf_target),mf_objfiles mf_depfiles mf_$(mf_target)_final))
     $(mf_$(mf_target)_final): $(mf_objfiles) $(mf_linkfiles)
 	@$(echo) +++ [$(mf_target)] Generating $(2) \'$$(notdir $$@)\'...
 endef
 
 
 # ---------------------------------------------------------------------
-#  Function:     mf_build_static_library(stem)
+#  Function:     cf_build_static_library(stem)
 #  Description:  This end the target definition for a static library
 #  Arguments: 1: The stem of the static library's intended filename
 # ---------------------------------------------------------------------
-define mf_build_static_library =
-    $(call __mf_build_final_target,$(1).$(mflib),static library)
+define $(CF)_build_static_library =
+    $(call __cf_build_final_target,$(1).$(mflib),static library)
 	@$(test) $(AR) $(ARFLAGS) $$@ $$^
 endef
 
 
 # ---------------------------------------------------------------------
-#  Function:     mf_build_shared_library(stem)
+#  Function:     cf_build_shared_library(stem)
 #  Description:  This ends the target definition for a shared library.
 #                This will add '-shared' to LDFLAGS
 #  Arguments: 1: The stem of the shared library's intended filename
 # ---------------------------------------------------------------------
-define mf_build_shared_library =
+define $(CF)_build_shared_library =
+    # TODO, need an add-flags routine
     $(eval override LDFLAGS+=-shared)
-    $(call __mf_build_final_target,$(1).$(mfdll),shared library)
+    $(call __cf_build_final_target,$(1).$(mfdll),shared library)
 	@$(test) $(CXX) $(LDFLAGS) $$^ -o $$@
 endef
 
 
 # ---------------------------------------------------------------------
-#  Function:     mf_build_executable(stem)
+#  Function:     cf_build_executable(stem)
 #  Description:  This end the target definition for an executable
 #  Arguments: 1: The stem of the executable's intended filename
 # ---------------------------------------------------------------------
-define mf_build_executable =
-    $(call __mf_build_final_target,$(1)$(mfexe),executable)
+define $(CF)_build_executable =
+    $(call __cf_build_final_target,$(1)$(mfexe),executable)
 	@$(test) $(CXX) $(LDFLAGS) $$^ $(LDLIBS) -o $$@
 endef
 
 
 # ---------------------------------------------------------------------
-#  Function:     mf_include_as(namespace,filepath)
+#  Function:     cf_include_as(namespace,filepath)
 #  Description:  This imports the make-forge fragment located at
 #                'filepath', under the namespace 'namespace'
 #  Arguments: 1: The desired namespace.  This does not have to be
@@ -389,7 +395,7 @@ endef
 #             2: Path to the make-forge fragment (.MF)
 # ---------------------------------------------------------------------
 #  TODO: enforce .MF extension?
-define mf_include_as =
+define $(CF)_include_as =
     $(eval override MF_NAMESPACE:=$(1)@)
     $(eval include $(2))
     $(eval override undefine MF_NAMESPACE)
@@ -405,6 +411,6 @@ version::
 	@echo ""
 
 
-$(eval $(call __mf_initialize))
+$(eval $(call __cf_initialize))
 
 endif  # __mf_common_include_guard
