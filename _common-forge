@@ -298,12 +298,10 @@ endef
 # ---------------------------------------------------------------------
 # INTERNAL:     __cf_delete_mfout_files
 # Description:  Helper routine to __cf_gen_cleantarget
-# Arguments: 1: Name of a variable containing a space-delimited
-#               list of files to delete (note the indirection!)
+# Arguments: 1: Space-delimited list of files to delete
 # ---------------------------------------------------------------------
 define __cf_delete_mfout_files =
-    $(eval override _name:=$(1))
-	@([ -e $(MFOUT) ] && $(test) $(RM) $($(_name))) || true
+	 ([ -e $(MFOUT) ] && $(test) $(RM) $(1)) || true;
 endef
 
 
@@ -324,7 +322,7 @@ define __cf_gen_cleantarget =
     .PHONY: _clean_$(_mfgc_target)
     _clean_$(_mfgc_target):
 	@([ -e $(MFOUT) ] && $(echo) "+++ [$(_mfgc_target)] Cleaning...") || true
-	$(foreach _var,$(_mfgc_varnames),$(call __cf_delete_mfout_files,$(_var)))
+	@$(foreach _var,$(_mfgc_varnames),$(call __cf_delete_mfout_files,$($(_var))))
 
     $(eval override mf_clean_targets+=_clean_$(_mfgc_target))
 endef
