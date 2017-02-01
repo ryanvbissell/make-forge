@@ -35,8 +35,11 @@ $(MFOUT):
 override mf_numprocs:=$(shell getconf _NPROCESSORS_ONLN)
 override MAKEFLAGS+= --jobs=$(mf_numprocs)
 ifdef VERBOSE
-$(info V: This build will use $(mf_numprocs) processor(s))
+define verbose =
+    $(info V: $1)
+endef
 endif
+$(call verbose,This build will use $(mf_numprocs) processor(s))
 
 # group parallel output on a per-target basis,
 # and squelch unhelpful output from Make
@@ -80,6 +83,7 @@ endif
 override empty:=
 override tab:=$(empty)	$(empty)
 override space:=$(empty) $(empty)
+override comma:= ,
 
 override echo:=echo
 ifdef MF_QUIET_BUILDS
@@ -128,7 +132,7 @@ endef
 # ---------------------------------------------------------------------
 define $(CF)_declare_target =
     $(eval $(call __cf_initialize))
-    $(eval override mf_target:=$(MF_NAMESPACE)$(1))
+    $(eval override mf_target:=$(CF_NAMESPACE)$(1))
     $(eval override mf_outdir:=$(MFOUT))
 endef
 
@@ -394,9 +398,10 @@ endef
 # ---------------------------------------------------------------------
 #  TODO: enforce .MF extension?
 define $(CF)_include_as =
-    $(eval override MF_NAMESPACE:=$(1)@)
+    $(eval override CF_NAMESPACE:=$(1)@)
+    $(call verbose,including '$(2)' as '$(1)')
     $(eval include $(2))
-    $(eval override undefine MF_NAMESPACE)
+    $(eval override undefine CF_NAMESPACE)
 endef
 
 
