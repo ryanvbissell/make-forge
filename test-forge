@@ -238,29 +238,17 @@ define __tf_emit_mferror =
 endef
 
 
-#define __tf_mfguard =
-#    $(eval override __tm_mfg_func:=$(1:mf_%=$(CF)_%))
-#    $(eval override __tm_mfg_args:=$(subst ;,$(comma),$(2)))
-#    $(eval $$(call $(__tm_mfg_func),$(__tm_mfg_args)))
-#endef
-
-#define _tf_mfguard =
-#    $$(call $(1:mf_%=$(CF)_%),$(subst ;,$(comma),$(2)))
-#endef
-
-#define tf_mfguard =
-#    $$(call $(CF)_include_as,$(subst ;,$(comma),$(2)))
-#endef
-
-#define tf_mfguard1 =
-#    $(call $(CF)_include_as,$(1),$(2))
-#endef
-
 # TODO: the $(strip) call could be removed if we stop using define
 # for functions like $(CF)_include_as, and instead begin using
 # multi-line variable assignment, ending each line with '\'
 override semi:=;
-override __tf_mfguard = $(eval $$(strip $$(call $(1:mf_%=$(CF)_%),$(subst $(semi),$(comma),$2))))
+override __tf_mfguard  = $(eval $$(strip $$(call $(1:mf_%=$(CF)_%),$(subst $(semi),$(comma),$2))))
+override __tf_mfguard2 = $(eval           $(call $(1:mf_%=$(CF)_%),$(subst $(semi),$(comma),$2)))
+
+# TODO, not sure why 'mf_build_static_library' and 'mf_build_shared_library'
+# need __tf_mfguard2 to work; __tf_mfguard was expected to be used by all
+# mf_* functions in this file.  Will keep __tf_mfguard2 as a workaround
+# for now, and deal with it later.
 
 #$(if $(tf_blockmf),$(call __tf_emit_mferror,$1),$(eval $$(call $(__tm_mfg_func),$(__tm_mfg_args))))
 
@@ -270,20 +258,9 @@ override mf_declare_target       = $(call __tf_mfguard,$0,$1)
 override mf_set_object_suffix    = $(call __tf_mfguard,$0,$1)
 override mf_add_sources          = $(call __tf_mfguard,$0,$1;$2;$3)
 override mf_static_dependencies  = $(call __tf_mfguard,$0,$1)
-#override mf_build_static_library = $(call __tf_mfguard,$0,$1)
-#override mf_build_shared_library = $(call __tf_mfguard,$0,$1)
+override mf_build_static_library = $(call __tf_mfguard2,$0,$1)
+override mf_build_shared_library = $(call __tf_mfguard2,$0,$1)
 override mf_build_executable     = $(call __tf_mfguard,$0,$1)
-
-
-#override mf_include_as           = $(call $(CF)_include_as,$1,$2)
-#override mf_declare_target       = $(call $(CF)_declare_target,$1)
-#override mf_set_object_suffix    = $(call $(CF)_set_object_suffix,$1)
-#override mf_add_sources          = $(call $(CF)_add_sources,$1,$2,$3)
-#override mf_static_dependencies  = $(call $(CF)_static_dependencies,$1)
-override mf_build_static_library = $(call $(CF)_build_static_library,$1)
-override mf_build_shared_library = $(call $(CF)_build_shared_library,$1)
-#override mf_build_executable     = $(call $(CF)_build_executable,$1)
-
 
 
 # ---------------------------------------------------------------------
