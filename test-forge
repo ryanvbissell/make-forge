@@ -25,8 +25,8 @@ override TF_TESTROOT:=$(TF_TESTROOT:%/=%)
 
 
 override MFOUT:=$(TF_TESTROOT)/.out
-override MF_QUIET_BUILDS:=1
-override mf_numprocs:=1
+override CF_QUIET_BUILDS:=1
+override CF_NUMPROCS:=1
 override CF:=tfpriv
 include $(TFDIR)/_common-forge
 
