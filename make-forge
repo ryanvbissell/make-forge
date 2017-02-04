@@ -61,7 +61,7 @@ endef
 # problem with cleaning the individual tests' .log files, that must
 # be addressed first.
 .SECONDEXPANSION:
-clean:: $$(mf_clean_targets)
+clean:: $$(cf_clean_targets)
 	@([ -e $(cfout) ] && $(echo) "+++ [$(notdir $(cfout))] Removing...") || true
 	@([ -e $(cfout) ] && $(test) rmdir --ignore-fail-on-non-empty $(cfout)) || true
 

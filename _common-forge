@@ -115,14 +115,14 @@ define __cf_initialize =
     $(eval override LDFLAGS:=$(CF_LDFLAGS))
     $(eval override CPPFLAGS:=$(CF_CPPFLAGS))
     $(eval override CXXFLAGS:=$(CF_CXXFLAGS))
-    $(eval override mf_suffix:=)
-    $(eval override mf_printsuffix:=)
-    $(eval override mf_srcfiles:=)
-    $(eval override mf_objfiles:=)
-    $(eval override mf_depfiles:=)
-    $(eval override mf_libfiles:=)
-    $(eval override mf_linkfiles:=)
-    $(eval override mf_deptargets:=)
+    $(eval override cf_suffix:=)
+    $(eval override cf_printsuffix:=)
+    $(eval override cf_srcfiles:=)
+    $(eval override cf_objfiles:=)
+    $(eval override cf_depfiles:=)
+    $(eval override cf_libfiles:=)
+    $(eval override cf_linkfiles:=)
+    $(eval override cf_deptargets:=)
 endef
 
 
@@ -134,8 +134,8 @@ endef
 # ---------------------------------------------------------------------
 define $(CF)_declare_target =
     $(eval $(call __cf_initialize))
-    $(eval override mf_target:=$(CF_NAMESPACE)$(1))
-    $(eval override mf_outdir:=$(cfout))
+    $(eval override cf_target:=$(CF_NAMESPACE)$(1))
+    $(eval override cf_outdir:=$(cfout))
 endef
 
 
@@ -146,8 +146,8 @@ endef
 # Arguments: 1: What the suffix should be set to
 # ---------------------------------------------------------------------
 define $(CF)_set_object_suffix =
-    $(eval override mf_suffix:=_$(1))
-    $(eval override mf_printsuffix:=($(1)))
+    $(eval override cf_suffix:=_$(1))
+    $(eval override cf_printsuffix:=($(1)))
 endef
 
 
@@ -157,7 +157,7 @@ endef
 # Arguments: 1: Parenthesized suffix, if set
 # ---------------------------------------------------------------------
 define __cf_announce_compile =
-	@$(echo) "+++ [$$(notdir $(mf_target))] $$(notdir $$<)$(tab)$(1)"
+	@$(echo) "+++ [$$(notdir $(cf_target))] $$(notdir $$<)$(tab)$(1)"
 endef
 
 
@@ -205,17 +205,17 @@ endef
 #            - remove lines containing only a colon
 # ---------------------------------------------------------------------
 define __cf_gen_dependencies =
-	@$(test2) $(CXX) -MM $(CPPFLAGS) $(CXXFLAGS) $$< $(redir)$(mf_outdir)/$(1).d
-	@$(test2) mv -f $(mf_outdir)/$(1).d $(mf_outdir)/$(1).d.tmp
-	@$(test2) sed -e 's|.*:|$(mf_outdir)/$(1).o:|' $(indir)$(mf_outdir)/$(1).d.tmp $(redir)$(mf_outdir)/$(1).d
-	@$(test2) echo "" $(append)$(mf_outdir)/$(1).d
+	@$(test2) $(CXX) -MM $(CPPFLAGS) $(CXXFLAGS) $$< $(redir)$(cf_outdir)/$(1).d
+	@$(test2) mv -f $(cf_outdir)/$(1).d $(cf_outdir)/$(1).d.tmp
+	@$(test2) sed -e 's|.*:|$(cf_outdir)/$(1).o:|' $(indir)$(cf_outdir)/$(1).d.tmp $(redir)$(cf_outdir)/$(1).d
+	@$(test2) echo "" $(append)$(cf_outdir)/$(1).d
 	@$(test2) sed -e 's/.*://' \
-	              -e 's/\\$$$$//' $(indir)$(mf_outdir)/$(1).d.tmp $(pipe) \
+	              -e 's/\\$$$$//' $(indir)$(cf_outdir)/$(1).d.tmp $(pipe) \
 	 $(test2) fmt -1 $(pipe) \
 	 $(test2) sed -e 's/^ *//' \
 	              -e 's/$$$$/:\n/' \
-	              -e 's/^:.*$$$$/\n/' $(append)$(mf_outdir)/$(1).d
-	@$(test2) $(RM) $(mf_outdir)/$(1).d.tmp
+	              -e 's/^:.*$$$$/\n/' $(append)$(cf_outdir)/$(1).d
+	@$(test2) $(RM) $(cf_outdir)/$(1).d.tmp
 endef
 
 
@@ -225,14 +225,14 @@ endef
 #               the passed-in arguments.
 # Arguments: 1: The type of source code
 #            2: FQPN of the object file that is the target of this
-#               rule (This may have been name-mangled eith mf_suffix)
+#               rule (This may have been name-mangled eith cf_suffix)
 #            3: the directory where the source(s) are located
 #            4: the file name (or file glob) to be compiled.
 # ---------------------------------------------------------------------
 define __cf_gen_static_pattern_rule
-    $(2): $(mf_outdir)/%$(mf_suffix).$(cfobj): $(3)/%$(4) | $(mf_outdir)
-	@$(call __cf_compile_$(1),$(mf_printsuffix))
-	@$(call __cf_gen_dependencies,$$*$(mf_suffix))
+    $(2): $(cf_outdir)/%$(cf_suffix).$(cfobj): $(3)/%$(4) | $(cf_outdir)
+	@$(call __cf_compile_$(1),$(cf_printsuffix))
+	@$(call __cf_gen_dependencies,$$*$(cf_suffix))
 endef
 
 
@@ -248,10 +248,10 @@ endef
 define $(CF)_add_sources =
     $(eval override _mfas_src:=$(wildcard $(2)/$(3)))
     $(eval override _mfas_ext:=$(suffix $(3)))
-    $(eval override _mfas_obj:=$(subst $(_mfas_ext),$(mf_suffix).$(cfobj),$(_mfas_src)))
-    $(eval override _mfas_obj:=$(subst $(2),$(mf_outdir),$(_mfas_obj)))
-    $(eval override mf_srcfiles+=$(_mfas_src))
-    $(eval override mf_objfiles+=$(_mfas_obj))
+    $(eval override _mfas_obj:=$(subst $(_mfas_ext),$(cf_suffix).$(cfobj),$(_mfas_src)))
+    $(eval override _mfas_obj:=$(subst $(2),$(cf_outdir),$(_mfas_obj)))
+    $(eval override cf_srcfiles+=$(_mfas_src))
+    $(eval override cf_objfiles+=$(_mfas_obj))
     $(eval $(call __cf_gen_static_pattern_rule,$(1),$(_mfas_obj),$(2),$(_mfas_ext)))
     $(eval undefine _mfas_src)
     $(eval undefine _mfas_ext)
@@ -261,17 +261,17 @@ endef
 
 # ---------------------------------------------------------------------
 # INTERNAL:     __cf_static_lib_dependency(target)
-# Description:  support routine for mf_static_dependencies
+# Description:  support routine for cf_static_dependencies
 # Arguments: 1: name of the build-target that builds the static
 #               library that the current-target is dependendent upon.
 #               From this, the library's filename is inferred to be
-#               stored in mf_<target>_final
+#               stored in cf_<target>_final
 # ---------------------------------------------------------------------
 define __cf_static_lib_dependency =
     $(eval override _mfsld_target:=$(1))
-    $(eval override _mfsld_libfile:=$(mf_$(_mfsld_target)_final))
-    $(eval override mf_deptargets+=$(_mfsld_target))
-    $(eval override mf_linkfiles+=$(_mfsld_libfile))
+    $(eval override _mfsld_libfile:=$(cf_$(_mfsld_target)_final))
+    $(eval override cf_deptargets+=$(_mfsld_target))
+    $(eval override cf_linkfiles+=$(_mfsld_libfile))
     $(eval undefine _mfsld_libfile)
     $(eval undefine _mfsld_target)
 endef
@@ -291,13 +291,13 @@ endef
 
 # ---------------------------------------------------------------------
 # INTERNAL:     __cf_import_depfiles
-# Description:  Support routine for mf_build_xxxxx routines
+# Description:  Support routine for cf_build_xxxxx routines
 #               Includes (when present) all .d files that match the
 #               target's objfiles
 # ---------------------------------------------------------------------
 define __cf_import_depfiles =
-    $(eval override mf_depfiles:=$(mf_objfiles:.$(cfobj)=.d))
-    -include $(mf_depfiles)
+    $(eval override cf_depfiles:=$(cf_objfiles:.$(cfobj)=.d))
+    -include $(cf_depfiles)
 endef
 
 
@@ -316,12 +316,12 @@ endef
 # Description:  Generates a clean-target for the current-target, and
 #               adds it to the global list of clean-targets (to be
 #               used by target 'clean')
-# Arguments: 1: Name of the current-target (TODO: could just assume mf_target)
+# Arguments: 1: Name of the current-target (TODO: could just assume cf_target)
 #            2: Space-delimited list of variable names, each containing
 #               a space-delimited list of files to be deleted.
 # ---------------------------------------------------------------------
 define __cf_gen_cleantarget =
-    # TODO: just use mf_target instead of passing it in as arg?
+    # TODO: just use cf_target instead of passing it in as arg?
     $(eval override _mfgc_target:=$(1))
     $(eval override _mfgc_varnames:=$(2))
 
@@ -330,7 +330,7 @@ define __cf_gen_cleantarget =
 	@([ -e $(cfout) ] && $(echo) "+++ [$(_mfgc_target)] Cleaning...") || true
 	@$(foreach _var,$(_mfgc_varnames),$(call __cf_delete_mfout_files,$($(_var))))
 
-    $(eval override mf_clean_targets+=_clean_$(_mfgc_target))
+    $(eval override cf_clean_targets+=_clean_$(_mfgc_target))
 endef
 
 
@@ -341,16 +341,16 @@ endef
 #             2: A string describing the type of file being built
 # ---------------------------------------------------------------------
 define __cf_build_final_target =
-    $(eval override mf_$(mf_target)_final:=$(mf_outdir)/$(1))
+    $(eval override cf_$(cf_target)_final:=$(cf_outdir)/$(1))
     $(eval $(__cf_import_depfiles))
-    $(eval override mf_objfiles:=$(sort $(mf_objfiles)))
-    $(eval override mf_linkfiles:=$(sort $(mf_linkfiles)))
+    $(eval override cf_objfiles:=$(sort $(cf_objfiles)))
+    $(eval override cf_linkfiles:=$(sort $(cf_linkfiles)))
 
-    $(mf_target): $(mf_deptargets) $(mf_$(mf_target)_final)
+    $(cf_target): $(cf_deptargets) $(cf_$(cf_target)_final)
 
-    $(eval $(call __cf_gen_cleantarget,$(mf_target),mf_objfiles mf_depfiles mf_$(mf_target)_final))
-    $(mf_$(mf_target)_final): $(mf_objfiles) $(mf_linkfiles)
-	@$(echo) +++ [$(mf_target)] Generating $(2) \'$$(notdir $$@)\'...
+    $(eval $(call __cf_gen_cleantarget,$(cf_target),cf_objfiles cf_depfiles cf_$(cf_target)_final))
+    $(cf_$(cf_target)_final): $(cf_objfiles) $(cf_linkfiles)
+	@$(echo) +++ [$(cf_target)] Generating $(2) \'$$(notdir $$@)\'...
 endef
 
 
@@ -408,11 +408,11 @@ endef
 
 
 # each release adds another digit of i^i
-mf_version_major:=0
-mf_version_minor:=207879
-mf_version_text:=... (beta release "i^i")
+cf_version_major:=0
+cf_version_minor:=207879
+cf_version_text:=... (beta release "i^i")
 version::
-	@echo "( build/test system: MAKE-FORGE, version $(mf_version_major).$(mf_version_minor)$(mf_version_text) )"
+	@echo "( build/test system: MAKE-FORGE, version $(cf_version_major).$(cf_version_minor)$(cf_version_text) )"
 	@echo ""
 
 
