@@ -24,7 +24,7 @@ override TFDIR:=$(TFDIR:%/=%)
 override TF_TESTROOT:=$(TF_TESTROOT:%/=%)
 
 
-override MFOUT:=$(TF_TESTROOT)/.out
+override cfout:=$(TF_TESTROOT)/.out
 override CF_QUIET_BUILDS:=1
 override CF_NUMPROCS:=1
 override CF:=tfpriv
@@ -63,7 +63,7 @@ endef
 define tf_declare_test_target =
     $(eval $(call __tf_initialize,$(1)))
     $(eval $(call $(CF)_declare_target,_tf_build_$(tf_target)))
-    $(eval override mf_outdir:=$(MFOUT)/$(TF_SUB_SECTION)/$(tf_target))
+    $(eval override mf_outdir:=$(cfout)/$(TF_SUB_SECTION)/$(tf_target))
 
     $(tf_target): _run_$(tf_target)
 

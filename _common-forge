@@ -10,13 +10,13 @@
 ifndef __cf_include_guard
 override __cf_include_guard:=1
 
-ifndef MFOUT
+ifndef cfout
 _mfcommon:=$(notdir $(lastword $(MAKEFILE_LIST)))
 _mfcaller:=$(notdir $(lastword $(wordlist 2,$(words $(MAKEFILE_LIST)),foo $(MAKEFILE_LIST))))
-$(error INTERNAL ERROR: $(_mfcaller) should have guaranteed that 'MFOUT' was defined before including $(_mfcommon))
+$(error INTERNAL ERROR: $(_mfcaller) should have guaranteed that 'cfout' was defined before including $(_mfcommon))
 endif
-$(MFOUT):
-	@$(test) mkdir -p $(MFOUT)
+$(cfout):
+	@$(test) mkdir -p $(cfout)
 
 
 # TODO, add check for CF defined here
@@ -27,7 +27,7 @@ $(MFOUT):
 
 # .d files are precious because they serve to speed up subsequent builds.
 # .i files are precious because the user specifically asked for them.
-.PRECIOUS: $(MFOUT)/%.d $(MFOUT)/%.i
+.PRECIOUS: $(cfout)/%.d $(cfout)/%.i
 
 
 # enable paralellism based on number of available processors
@@ -133,7 +133,7 @@ endef
 define $(CF)_declare_target =
     $(eval $(call __cf_initialize))
     $(eval override mf_target:=$(CF_NAMESPACE)$(1))
-    $(eval override mf_outdir:=$(MFOUT))
+    $(eval override mf_outdir:=$(cfout))
 endef
 
 
@@ -305,7 +305,7 @@ endef
 # Arguments: 1: Space-delimited list of files to delete
 # ---------------------------------------------------------------------
 define __cf_delete_mfout_files =
-	 ([ -e $(MFOUT) ] && $(test) $(RM) $(1)) || true;
+	 ([ -e $(cfout) ] && $(test) $(RM) $(1)) || true;
 endef
 
 
@@ -325,7 +325,7 @@ define __cf_gen_cleantarget =
 
     .PHONY: _clean_$(_mfgc_target)
     _clean_$(_mfgc_target):
-	@([ -e $(MFOUT) ] && $(echo) "+++ [$(_mfgc_target)] Cleaning...") || true
+	@([ -e $(cfout) ] && $(echo) "+++ [$(_mfgc_target)] Cleaning...") || true
 	@$(foreach _var,$(_mfgc_varnames),$(call __cf_delete_mfout_files,$($(_var))))
 
     $(eval override mf_clean_targets+=_clean_$(_mfgc_target))
