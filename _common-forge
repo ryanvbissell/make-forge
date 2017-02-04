@@ -11,9 +11,9 @@ ifndef __cf_include_guard
 override __cf_include_guard:=1
 
 ifndef cfout
-_mfcommon:=$(notdir $(lastword $(MAKEFILE_LIST)))
-_mfcaller:=$(notdir $(lastword $(wordlist 2,$(words $(MAKEFILE_LIST)),foo $(MAKEFILE_LIST))))
-$(error INTERNAL ERROR: $(_mfcaller) should have guaranteed that 'cfout' was defined before including $(_mfcommon))
+_cfcommon:=$(notdir $(lastword $(MAKEFILE_LIST)))
+_cfcaller:=$(notdir $(lastword $(wordlist 2,$(words $(MAKEFILE_LIST)),foo $(MAKEFILE_LIST))))
+$(error INTERNAL ERROR: $(_cfcaller) should have guaranteed that 'cfout' was defined before including $(_cfcommon))
 endif
 $(cfout):
 	@$(test) mkdir -p $(cfout)
