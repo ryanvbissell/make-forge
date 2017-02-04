@@ -265,9 +265,9 @@ override mf_build_executable     = $(call __tf_mfguard,$0,$1)
 # ---------------------------------------------------------------------
 # Function:     tf_use_makeforge(namespace,filepath)
 # Description:  Imports a make-forge fragment into a test-forge
-#               session, encapsulated into 'namespace@MF' namespace.
+#               session, encapsulated into 'namespace@' namespace.
 #               'name' is about to be described.
-# Arguments: 1: Namespace to use (will actually be 'namespace@MF')
+# Arguments: 1: Namespace to use
 #            2: Path to the make-forge fragment (.MF)
 # ---------------------------------------------------------------------
 override tf_blockmf:=1

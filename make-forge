@@ -57,7 +57,7 @@ define __mf_display_help =
 endef
 
 
-# TODO, this was moved here from _forge-common, so that 'clean'
+# TODO, this was moved here from _common-forge, so that 'clean'
 # would not appear as a target for test-forge.  I would like for
 # 'clean' to be available for test-forge, but presently there is a
 # problem with cleaning the individual tests' .log files, that must
