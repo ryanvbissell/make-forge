@@ -38,8 +38,7 @@ include $(TFDIR)/test-forge
 # if you are willing & able to lay out your tests in the manner
 # recommended in the documentation, then the following should
 # "just work" for you.  Otherwise, you will need to read up on
-#   - tf_topdeps
-#   - tf_include
+#   - TODO
 
 $(eval $(call tf_import_testdirs))
 
