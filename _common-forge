@@ -133,11 +133,12 @@ endef
 #               'name' is about to be described.
 # Arguments: 1: name of the build-target being described
 # ---------------------------------------------------------------------
-define $(CF)-declare-target =
-    $(eval $(call __cf_initialize))
+define cf_declare_target =
+    $(call __cf_initialize)
     $(eval override cf_target:=$(CF_NAMESPACE)$(1))
     $(eval override cf_outdir:=$(cfout))
 endef
+$(CF)-declare-target = $(strip $(call cf_declare_target,$1))
 
 
 # ---------------------------------------------------------------------
@@ -146,10 +147,11 @@ endef
 #               built for this build-target
 # Arguments: 1: What the suffix should be set to
 # ---------------------------------------------------------------------
-define $(CF)-set-object-suffix =
+define cf_set_object_suffix =
     $(eval override cf_suffix:=_$(1))
     $(eval override cf_printsuffix:=($(1)))
 endef
+$(CF)-set-object-suffix = $(strip $(call cf_set_object_suffix,$1))
 
 
 # ---------------------------------------------------------------------
@@ -246,7 +248,7 @@ endef
 #            2: the directory where the source(s) are located
 #            3: the file name (or file glob) to be compiled
 # ---------------------------------------------------------------------
-define $(CF)-add-sources =
+define cf_add_sources =
     $(eval override _mfas_src:=$(wildcard $(2)/$(3)))
     $(eval override _mfas_ext:=$(suffix $(3)))
     $(eval override _mfas_obj:=$(subst $(_mfas_ext),$(cf_suffix).$(cfobj),$(_mfas_src)))
@@ -258,6 +260,7 @@ define $(CF)-add-sources =
     $(eval undefine _mfas_ext)
     $(eval undefine _mfas_obj)
 endef
+$(CF)-add-sources = $(strip $(call cf_add_sources,$1,$2,$3))
 
 
 # ---------------------------------------------------------------------
@@ -360,10 +363,11 @@ endef
 #  Description:  This end the target definition for a static library
 #  Arguments: 1: The stem of the static library's intended filename
 # ---------------------------------------------------------------------
-define $(CF)-build-static-library =
+define cf_build_static_library =
     $(call __cf_build_final_target,$(1).$(cflib),static library)
 	@$(test) $(AR) $(ARFLAGS) $$@ $$^
 endef
+$(CF)-build-static-library = $(eval $(call cf_build_static_library,$1))
 
 
 # ---------------------------------------------------------------------
@@ -372,12 +376,13 @@ endef
 #                This will add '-shared' to LDFLAGS
 #  Arguments: 1: The stem of the shared library's intended filename
 # ---------------------------------------------------------------------
-define $(CF)-build-shared-library =
+define cf_build_shared_library =
     # TODO, need an add-flags routine
     $(eval override LDFLAGS+=-shared)
     $(call __cf_build_final_target,$(1).$(cfdll),shared library)
 	@$(test) $(CXX) $(LDFLAGS) $$^ -o $$@
 endef
+$(CF)-build-shared-library = $(eval $(call cf_build_shared_library,$1))
 
 
 # ---------------------------------------------------------------------
