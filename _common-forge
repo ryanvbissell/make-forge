@@ -52,10 +52,10 @@ override MAKEFLAGS+= --no-print-directory
 
 
 # TODO: these should be specific to the host OS
-override mfobj:=o
-override mflib:=a
-override mfexe:=
-override mfdll:=so
+override cfobj:=o
+override cflib:=a
+override cfexe:=
+override cfdll:=so
 
 
 # TODO: some of these may be specific to the host OS
@@ -230,7 +230,7 @@ endef
 #            4: the file name (or file glob) to be compiled.
 # ---------------------------------------------------------------------
 define __cf_gen_static_pattern_rule
-    $(2): $(mf_outdir)/%$(mf_suffix).$(mfobj): $(3)/%$(4) | $(mf_outdir)
+    $(2): $(mf_outdir)/%$(mf_suffix).$(cfobj): $(3)/%$(4) | $(mf_outdir)
 	@$(call __cf_compile_$(1),$(mf_printsuffix))
 	@$(call __cf_gen_dependencies,$$*$(mf_suffix))
 endef
@@ -248,7 +248,7 @@ endef
 define $(CF)_add_sources =
     $(eval override _mfas_src:=$(wildcard $(2)/$(3)))
     $(eval override _mfas_ext:=$(suffix $(3)))
-    $(eval override _mfas_obj:=$(subst $(_mfas_ext),$(mf_suffix).$(mfobj),$(_mfas_src)))
+    $(eval override _mfas_obj:=$(subst $(_mfas_ext),$(mf_suffix).$(cfobj),$(_mfas_src)))
     $(eval override _mfas_obj:=$(subst $(2),$(mf_outdir),$(_mfas_obj)))
     $(eval override mf_srcfiles+=$(_mfas_src))
     $(eval override mf_objfiles+=$(_mfas_obj))
@@ -296,7 +296,7 @@ endef
 #               target's objfiles
 # ---------------------------------------------------------------------
 define __cf_import_depfiles =
-    $(eval override mf_depfiles:=$(mf_objfiles:.$(mfobj)=.d))
+    $(eval override mf_depfiles:=$(mf_objfiles:.$(cfobj)=.d))
     -include $(mf_depfiles)
 endef
 
@@ -360,7 +360,7 @@ endef
 #  Arguments: 1: The stem of the static library's intended filename
 # ---------------------------------------------------------------------
 define $(CF)_build_static_library =
-    $(call __cf_build_final_target,$(1).$(mflib),static library)
+    $(call __cf_build_final_target,$(1).$(cflib),static library)
 	@$(test) $(AR) $(ARFLAGS) $$@ $$^
 endef
 
@@ -374,7 +374,7 @@ endef
 define $(CF)_build_shared_library =
     # TODO, need an add-flags routine
     $(eval override LDFLAGS+=-shared)
-    $(call __cf_build_final_target,$(1).$(mfdll),shared library)
+    $(call __cf_build_final_target,$(1).$(cfdll),shared library)
 	@$(test) $(CXX) $(LDFLAGS) $$^ -o $$@
 endef
 
@@ -385,7 +385,7 @@ endef
 #  Arguments: 1: The stem of the executable's intended filename
 # ---------------------------------------------------------------------
 define $(CF)_build_executable =
-    $(call __cf_build_final_target,$(1)$(mfexe),executable)
+    $(call __cf_build_final_target,$(1)$(cfexe),executable)
 	@$(test) $(CXX) $(LDFLAGS) $$^ $(LDLIBS) -o $$@
 endef
 
