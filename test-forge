@@ -38,6 +38,7 @@ include $(TFDIR)/_common-forge
 tf_add_sources = $(call $(CF)_add_sources,$(1),$(2),$(3))
 tf_build_executable = $(call $(CF)_build_executable,$(1),$(2),$(3))
 tf_build_static_library = $(call $(CF)_build_static_library,$(1))
+tf_build_shared_library = $(call $(CF)_build_shared_library,$(1))
 tf_static_dependencies = $(call $(CF)_static_dependencies,$(1))
 
 # ---------------------------------------------------------------------
