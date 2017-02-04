@@ -86,6 +86,7 @@ override empty:=
 override tab:=$(empty)	$(empty)
 override space:=$(empty) $(empty)
 override comma:= ,
+override bspace:=$(empty)$(empty)
 
 override echo:=echo
 ifdef CF_QUIET_BUILDS
