@@ -261,7 +261,7 @@ endef
 
 
 # ---------------------------------------------------------------------
-# INTERNAL:     __cf_static_lib_dependency(target)
+# INTERNAL:     (__cf_static_lib_dependency,target)
 # Description:  support routine for cf_static_dependencies
 # Arguments: 1: name of the build-target that builds the static
 #               library that the current-target is dependendent upon.
@@ -279,7 +279,7 @@ endef
 
 
 # ---------------------------------------------------------------------
-# Function:     (cf-static-dependencies.targets)
+# Function:     (cf-static-dependencies,targets)
 # Description:  Declares the current-target's static-lib linkage dependencies
 # Arguments: 1: space-delimited list of build-targets
 # ---------------------------------------------------------------------
@@ -291,7 +291,7 @@ endef
 
 
 # ---------------------------------------------------------------------
-# INTERNAL:     __cf_import_depfiles
+# INTERNAL:     (__cf_import_depfiles)
 # Description:  Support routine for cf_build_xxxxx routines
 #               Includes (when present) all .d files that match the
 #               target's objfiles
@@ -303,7 +303,7 @@ endef
 
 
 # ---------------------------------------------------------------------
-# INTERNAL:     __cf_delete_mfout_files
+# INTERNAL:     (__cf_delete_mfout_files,files)
 # Description:  Helper routine to __cf_gen_cleantarget
 # Arguments: 1: Space-delimited list of files to delete
 # ---------------------------------------------------------------------
@@ -313,7 +313,7 @@ endef
 
 
 # ---------------------------------------------------------------------
-# INTERNAL:     __cf_gen_cleantarget(target,filelist)
+# INTERNAL:     (__cf_gen_cleantarget,target,filelist)
 # Description:  Generates a clean-target for the current-target, and
 #               adds it to the global list of clean-targets (to be
 #               used by target 'clean')
@@ -336,7 +336,7 @@ endef
 
 
 # ---------------------------------------------------------------------
-#  INTERNAL:     __cf_build_final_target(filename,string)
+#  INTERNAL:     (__cf_build_final_target,filename,string)
 #  Description:  Generates the 'final' target file of the current-target
 #  Arguments: 1: The filename (stem[.ext]) of the file to be generated.
 #             2: A string describing the type of file being built
@@ -392,7 +392,7 @@ endef
 
 
 # ---------------------------------------------------------------------
-#  Function:     cf-include-as(namespace,filepath)
+#  Function:     (cf-include-as,namespace,filepath)
 #  Description:  This imports the make-forge fragment located at
 #                'filepath', under the namespace 'namespace'
 #  Arguments: 1: The desired namespace.  This does not have to be
