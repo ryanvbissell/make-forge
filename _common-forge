@@ -10,16 +10,18 @@
 ifndef __cf_include_guard
 override __cf_include_guard:=1
 
-ifndef cfout
+
 _cfcommon:=$(notdir $(lastword $(MAKEFILE_LIST)))
 _cfcaller:=$(notdir $(lastword $(wordlist 2,$(words $(MAKEFILE_LIST)),foo $(MAKEFILE_LIST))))
-$(error INTERNAL ERROR: $(_cfcaller) should have guaranteed that 'cfout' was defined before including $(_cfcommon))
-endif
+cf_assert = $(if $($1),,\
+              $(error INTERNAL ERROR:  $(_cfcaller) should have defined '$1' before including $(_cfcommon)))
+
+$(call cf_assert,CF)
+$(call cf_assert,cfout)
+
 $(cfout):
 	@$(test) mkdir -p $(cfout)
 
-
-# TODO, add check for CF defined here
 
 # TODO, see make-forge
 ########.PHONY: clean
