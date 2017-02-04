@@ -9,7 +9,7 @@
 # TODO: work this out programmatically, in _common-forge
 override mf_opsys:=linux
 
-# normally, every time we invoke 'mf_declare_target', the regular
+# normally, every time we invoke 'mf-declare-target', the regular
 # make envvars (CFLAGS, LDFLAGS, etc.) get reset back to their
 # original values and you must re-configure them as you need for
 # each and every target.  But if there are settings that you know
@@ -21,18 +21,18 @@ override mf_opsys:=linux
 
 
 # describe how to build libfib.a
-$(eval $(call mf_declare_target,static))
+$(eval $(call mf-declare-target,static))
     override CPPFLAGS+=-I$(MF_PROJECT_DIR)/inc
-    $(eval $(call mf_add_sources,c,$(MF_PROJECT_DIR)/src,lib*.c))
-$(eval $(call mf_build_static_library,libfib))
+    $(eval $(call mf-add-sources,c,$(MF_PROJECT_DIR)/src,lib*.c))
+$(eval $(call mf-build-static-library,libfib))
 
 
 # describe how to build libfib.so
-$(eval $(call mf_declare_target,shared))
-    $(eval $(call mf_set_object_suffix,PIC))
+$(eval $(call mf-declare-target,shared))
+    $(eval $(call mf-set-object-suffix,PIC))
     override CFLAGS+=-fPIC
     override CPPFLAGS+=-I$(MF_PROJECT_DIR)/inc
-    $(eval $(call mf_add_sources,c,$(MF_PROJECT_DIR)/src,lib*.c))
-$(eval $(call mf_build_shared_library,libfib))
+    $(eval $(call mf-add-sources,c,$(MF_PROJECT_DIR)/src,lib*.c))
+$(eval $(call mf-build-shared-library,libfib))
 
 

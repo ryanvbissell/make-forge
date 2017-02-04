@@ -35,11 +35,11 @@ include $(TFDIR)/_common-forge
 
 
 # create some test-forge aliases for needed make-forge routines
-tf_add_sources = $(call $(CF)_add_sources,$(1),$(2),$(3))
-tf_build_executable = $(call $(CF)_build_executable,$(1),$(2),$(3))
-tf_build_static_library = $(call $(CF)_build_static_library,$(1))
-tf_build_shared_library = $(call $(CF)_build_shared_library,$(1))
-tf_static_dependencies = $(call $(CF)_static_dependencies,$(1))
+tf-add-sources = $(call $(CF)-add-sources,$(1),$(2),$(3))
+tf-build-executable = $(call $(CF)-build-executable,$(1),$(2),$(3))
+tf-build-static_library = $(call $(CF)-build-static-library,$(1))
+tf-build-shared_library = $(call $(CF)-build-shared-library,$(1))
+tf-static-dependencies = $(call $(CF)-static-dependencies,$(1))
 
 # ---------------------------------------------------------------------
 # INTERNAL:     __tf_initialize
@@ -55,14 +55,14 @@ endef
 
 
 # ---------------------------------------------------------------------
-# Function:     tf_declare_test_target
+# Function:     tf-declare-test-target
 # Description:  Declares to test-forge that a new test-target named
 #               'name' is about to be described
 # Arguments: 1: The name of the test-target being described
 # ---------------------------------------------------------------------
-define tf_declare_test_target =
+define tf-declare-test-target =
     $(eval $(call __tf_initialize,$(1)))
-    $(eval $(call $(CF)_declare_target,_tf_build_$(tf_target)))
+    $(eval $(call $(CF)-declare-target,_tf_build_$(tf_target)))
     $(eval override cf_outdir:=$(cfout)/$(TF_SUB_SECTION)/$(tf_target))
 
     $(tf_target): _run_$(tf_target)
@@ -101,16 +101,19 @@ define __tf_gen_runtarget =
 endef
 
 
+# TODO: tf-test function that allows for custom test criteria / programs ?
+
+
 # ---------------------------------------------------------------------
-# Function:     tf_test_exitstatus
+# Function:     tf-test-exitstatus
 # Description:  Runs the specified test, and expects the test's
 #               exit status (to the shell) to be 0 (zero)
 # Arguments: 1: The name of the test-target to run
 #            2: Arguments to pass to the test executable
 # ---------------------------------------------------------------------
-# TODO: rename this to tf_test_success, and then implement a new
-#       tf_test_exitstatus that compares to expected exitstatus value.
-define tf_test_exitstatus =
+# TODO: rename this to tf-test-success, and then implement a new
+#       tf-test-exitstatus that compares to expected exitstatus value.
+define tf-test-exitstatus =
     $(eval override tf_testargs:=$(2))
     $(eval $(call __tf_register_test,$(1)))
     $(eval $(call __tf_gen_runtarget,$(1),exitstatus))
@@ -120,7 +123,7 @@ endef
 
 
 # ---------------------------------------------------------------------
-# Function:     tf_test_md5sum
+# Function:     tf-test-md5sum
 # Description:  Runs the specified test, computes the md5sum of its
 #               captured log file, and compares to the given expected
 #               md5sum value.
@@ -128,7 +131,7 @@ endef
 #            2: The expected md5sum value
 #            3: Arguments to pass to the test executable
 # ---------------------------------------------------------------------
-define tf_test_md5sum =
+define tf-test-md5sum =
     $(eval override _md5:=$(2))
     $(eval override tf_testargs:=$(3))
     $(call __tf_register_test,$(1))
@@ -148,7 +151,7 @@ endef
 
 
 # ---------------------------------------------------------------------
-# Function:     tf_test_sha1sum
+# Function:     tf-test-sha1sum
 # Description:  Runs the specified test, computes the sha1sum of its
 #               captured log file, and compares to the given expected
 #               sha1sum value.
@@ -157,7 +160,7 @@ endef
 #            3: Arguments to pass to the test executable
 # ---------------------------------------------------------------------
 # TODO deprecated in favor of tf_test_md5sum ?
-define tf_test_sha1sum =
+define tf-test-sha1sum =
     $(eval override _sha1:=$(2))
     $(eval override tf_testargs:=$(3))
     $(call __tf_register_test,$(1))
@@ -209,26 +212,26 @@ endef
 
 
 # ---------------------------------------------------------------------
-# Function:     tf_include_testdirs
+# Function:     tf-include-testdirs
 # Description:  Scans every given directory for test-forge fragments.
 # Arguments: 1: A space-delimited list of directories
 # ---------------------------------------------------------------------
 # TODO: this should be a private routine?
-define tf_include_testdirs =
+define tf-include-testdirs =
     $(foreach dir,$(1),$(call _tf_include_testdir,$(dir)))
 endef
 
 
 # ---------------------------------------------------------------------
-# Function:     tf_import_testdirs
+# Function:     tf-import-testdirs
 # Description:  Imports tests from all subdirectories that don't start
 #               with a '.'
 # ---------------------------------------------------------------------
-define tf_import_testdirs =
+define tf-import-testdirs =
     $(eval override _subdirs:=$(sort $(wildcard */)))
     $(eval override _subdirs:=$(_subdirs:%/=%))
     $(info === Importing tests ...)
-    $(eval $(call tf_include_testdirs,$(_subdirs)))
+    $(eval $(call tf-include-testdirs,$(_subdirs)))
 
     all:: $(tf_topdeps)
 endef
@@ -243,27 +246,27 @@ endef
 # for functions like $(CF)_include_as, and instead begin using
 # multi-line variable assignment, ending each line with '\'
 override semi:=;
-override __tf_mfguard  = $(if $(tf_blockmf),$(call __tf_emit_mferror,$1),$(eval $$(strip $$(call $(1:mf_%=$(CF)_%),$(subst $(semi),$(comma),$2)))))
-override __tf_mfguard2 = $(if $(tf_blockmf),$(call __tf_emit_mferror,$1),$(eval           $(call $(1:mf_%=$(CF)_%),$(subst $(semi),$(comma),$2))))
+override __tf_mfguard  = $(if $(tf_blockmf),$(call __tf_emit_mferror,$1),$(eval $$(strip $$(call $(1:mf-%=$(CF)-%),$(subst $(semi),$(comma),$2)))))
+override __tf_mfguard2 = $(if $(tf_blockmf),$(call __tf_emit_mferror,$1),$(eval           $(call $(1:mf-%=$(CF)-%),$(subst $(semi),$(comma),$2))))
 
-# TODO, not sure why 'mf_build_static_library' and 'mf_build_shared_library'
+# TODO, not sure why 'mf-build-static-library' and 'mf-build-shared-library'
 # need __tf_mfguard2 to work; __tf_mfguard was expected to be used by all
 # mf_* functions in this file.  Will keep __tf_mfguard2 as a workaround
 # for now, and deal with it later.
 
 
-override mf_include_as           = $(call __tf_mfguard,$0,$1;$2)
-override mf_declare_target       = $(call __tf_mfguard,$0,$1)
-override mf_set_object_suffix    = $(call __tf_mfguard,$0,$1)
-override mf_add_sources          = $(call __tf_mfguard,$0,$1;$2;$3)
-override mf_static_dependencies  = $(call __tf_mfguard,$0,$1)
-override mf_build_static_library = $(call __tf_mfguard2,$0,$1)
-override mf_build_shared_library = $(call __tf_mfguard2,$0,$1)
-override mf_build_executable     = $(call __tf_mfguard,$0,$1)
+override mf-include-as           = $(call __tf_mfguard,$0,$1;$2)
+override mf-declare-target       = $(call __tf_mfguard,$0,$1)
+override mf-set-object-suffix    = $(call __tf_mfguard,$0,$1)
+override mf-add-sources          = $(call __tf_mfguard,$0,$1;$2;$3)
+override mf-static-dependencies  = $(call __tf_mfguard,$0,$1)
+override mf-build-static-library = $(call __tf_mfguard2,$0,$1)
+override mf-build-shared-library = $(call __tf_mfguard2,$0,$1)
+override mf-build-executable     = $(call __tf_mfguard,$0,$1)
 
 
 # ---------------------------------------------------------------------
-# Function:     tf_use_makeforge(namespace,filepath)
+# Function:     tf-use-makeforge(namespace,filepath)
 # Description:  Imports a make-forge fragment into a test-forge
 #               session, encapsulated into 'namespace@' namespace.
 #               'name' is about to be described.
@@ -271,11 +274,11 @@ override mf_build_executable     = $(call __tf_mfguard,$0,$1)
 #            2: Path to the make-forge fragment (.MF)
 # ---------------------------------------------------------------------
 override tf_blockmf:=1
-define tf_use_makeforge =
+define tf-use-makeforge =
     $(eval override _tfum_saved_mfpd:=$(MF_PROJECT_DIR))
     $(eval override MF_PROJECT_DIR:=$(abspath $(dir $(2))))
     $(eval override undefine tf_blockmf)
-    $(eval $(call $(CF)_include_as,$(1),$(2)))
+    $(eval $(call $(CF)-include-as,$(1),$(2)))
     $(eval override tf_blockmf:=1)
     $(eval override MF_PROJECT_DIR:=$(_tfum_saved_mfpd))
     $(eval override undefine _tfum_saved_mfpd)
@@ -284,3 +287,4 @@ endef
 
 
 endif  # __tf_include_guard
+
