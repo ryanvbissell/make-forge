@@ -251,8 +251,6 @@ override __tf_mfguard2 = $(if $(tf_blockmf),$(call __tf_emit_mferror,$1),$(eval 
 # mf_* functions in this file.  Will keep __tf_mfguard2 as a workaround
 # for now, and deal with it later.
 
-#$(if $(tf_blockmf),$(call __tf_emit_mferror,$1),$(eval $$(call $(__tm_mfg_func),$(__tm_mfg_args))))
-
 
 override mf_include_as           = $(call __tf_mfguard,$0,$1;$2)
 override mf_declare_target       = $(call __tf_mfguard,$0,$1)
