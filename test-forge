@@ -126,32 +126,45 @@ tf-test-exitstatus = $(eval $(call _tf_test_exitstatus,$1,$2,$3))
 
 
 # ---------------------------------------------------------------------
-# Function:     (tf-test-md5sum,name,value,args)
+# INTERNAL:     (__tf-test-hashval,name,value,args)
 # Description:  Runs the specified test, computes the md5sum of its
 #               captured log file, and compares to the given expected
 #               md5sum value.
-# Arguments: 1: The name of the test-target to run
-#            2: The expected md5sum value
-#            3: Arguments to pass to the test executable
+# Arguments: 1: The name of the hash generator tool
+#            2: The name of the test-target to run
+#            3: The expected hash value
+#            4: Arguments to pass to the test executable
 # ---------------------------------------------------------------------
-define _tf_test_md5sum =
-    $(eval override _md5:=$(2))
-    $(eval override tf_testargs:=$(3))
-    $(call __tf_register_test,$(1))
-    $(call __tf_gen_runtarget,$(1),md5sum)
-    $(1): _run_$(1)
-	@TF_MD5SUM=`md5sum $(tf_logfile) | awk '{print $$$$1}'` && \
-	 if [ ! "$$$${TF_MD5SUM}" = "$(_md5)" ]; then \
-	     echo "\033[0;31mFAILED due to md5 mismatch" ;\
-	     echo "$(1): md5 was '$$$${TF_MD5SUM}', expected '$(_md5)'.\033[0m" 2>&1 ;\
+define __tf_test_hashval =
+    $(eval override _hashgen:=$(1))
+    $(eval override _hash:=$(3))
+    $(eval override tf_testargs:=$(4))
+    $(call __tf_register_test,$(2))
+    $(call __tf_gen_runtarget,$(2),$(_hashgen))
+    $(2): _run_$(2)
+	@TF_HASHVAL=`$(_hashgen) $(tf_logfile) | awk '{print $$$$1}'` && \
+	 if [ ! "$$$${TF_HASHVAL}" = "$(_hash)" ]; then \
+	     echo "\033[0;31mFAILED due to digest mismatch" ;\
+	     echo "$(2): md5 was '$$$${TF_HASHVAL}', expected '$(_hash)'.\033[0m" 2>&1 ;\
 	     false ;\
 	 else \
 	     echo "PASS";\
 	     true;\
 	 fi
-    $(eval override undefine _md5)
+    $(eval override undefine _hash)
 endef
-tf-test-md5sum = $(eval $(call _tf_test_md5sum,$1,$2,$3))
+
+
+# ---------------------------------------------------------------------
+# Function:     (tf-test-md5sum,name,value,args)
+# Description:  Runs the specified test, computes the sha1sum of its
+#               captured log file, and compares to the given expected
+#               md5 value.
+# Arguments: 1: The name of the test-target to run
+#            2: The expected md5 value
+#            3: Arguments to pass to the test executable
+# ---------------------------------------------------------------------
+tf-test-md5sum = $(eval $(call __tf_test_hashval,md5sum,$1,$2,$3))
 
 
 # ---------------------------------------------------------------------
@@ -164,24 +177,7 @@ tf-test-md5sum = $(eval $(call _tf_test_md5sum,$1,$2,$3))
 #            3: Arguments to pass to the test executable
 # ---------------------------------------------------------------------
 # TODO deprecated in favor of tf_test_md5sum ?
-define _tf_test_sha1sum =
-    $(eval override _sha1:=$(2))
-    $(eval override tf_testargs:=$(3))
-    $(call __tf_register_test,$(1))
-    $(call __tf_gen_runtarget,$(1),sha1sum)
-    $(1): _run_$(1)
-	@TF_SHA1SUM=`sha1sum $(tf_logfile) | awk '{print $$$$1}'` && \
-	 if [ ! "$$$${TF_SHA1SUM}" = "$(_sha1)" ]; then \
-	     echo "\033[0;31mFAILED due to sha1 mismatch" ;\
-	     echo "$(1): sha1 was '$$$${TF_SHA1SUM}', expected '$(_sha1)'.\033[0m" 2>&1 ;\
-	     false ;\
-	 else \
-	     echo "PASS";\
-	     true;\
-	 fi
-    $(eval override undefine _sha1)
-endef
-tf-test-sha1sum = $(eval $(call _tf_test_sha1sum,$1,$2,$3))
+tf-test-sha1sum = $(eval $(call __tf_test_hashval,sha1sum,$1,$2,$3))
 
 
 ###################################################
