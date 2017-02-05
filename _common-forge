@@ -371,7 +371,8 @@ endef
 #  Arguments: 1: The stem of the static library's intended filename
 # ---------------------------------------------------------------------
 define _cf_build_static_library =
-    $(call __cf_build_target_file,$(1).$(cflib),static library)
+    $(eval override _cfbsl_name:=$(if $1,$1,$(cf_target)))
+    $(call __cf_build_target_file,$(_cfbsl_name).$(cflib),static library)
 	@$(test) $(AR) $(ARFLAGS) $$@ $$^
 endef
 $(CF)-build-static-library = $(eval $(call _cf_build_static_library,$1))
@@ -386,7 +387,8 @@ $(CF)-build-static-library = $(eval $(call _cf_build_static_library,$1))
 define _cf_build_shared_library =
     # TODO, need an add-flags routine
     $(eval override LDFLAGS+=-shared)
-    $(call __cf_build_target_file,$(1).$(cfdll),shared library)
+    $(eval override _cfbshl_name:=$(if $1,$1,$(cf_target)))
+    $(call __cf_build_target_file,$(_cfbshl_name).$(cfdll),shared library)
 	@$(test) $(CXX) $(LDFLAGS) $$^ -o $$@
 endef
 $(CF)-build-shared-library = $(eval $(call _cf_build_shared_library,$1))
@@ -397,8 +399,10 @@ $(CF)-build-shared-library = $(eval $(call _cf_build_shared_library,$1))
 #  Description:  This end the target definition for an executable
 #  Arguments: 1: The stem of the executable's intended filename
 # ---------------------------------------------------------------------
+#  TODO: if stem is empty, default it to target-name
 define _cf_build_executable =
-    $(call __cf_build_target_file,$(1)$(cfexe),executable)
+    $(eval override _cfbe_name:=$(if $1,$1,$(cf_target)))
+    $(call __cf_build_target_file,$(_cfbe_name)$(cfexe),executable)
 	@$(test) $(CXX) $(LDFLAGS) $$^ $(LDLIBS) -o $$@
 endef
 $(CF)-build-executable = $(eval $(call _cf_build_executable,$1))
