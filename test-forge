@@ -251,21 +251,14 @@ endef
 # multi-line variable assignment, ending each line with '\'
 override semi:=;
 override __tf_mfguard  = $(if $(tf_blockmf),$(call __tf_emit_mferror,$1),$(eval $$(strip $$(call $(1:mf-%=$(CF)-%),$(subst $(semi),$(comma),$2)))))
-override __tf_mfguard2 = $(if $(tf_blockmf),$(call __tf_emit_mferror,$1),$(eval           $(call $(1:mf-%=$(CF)-%),$(subst $(semi),$(comma),$2))))
-
-# TODO, not sure why 'mf-build-static-library' and 'mf-build-shared-library'
-# need __tf_mfguard2 to work; __tf_mfguard was expected to be used by all
-# mf_* functions in this file.  Will keep __tf_mfguard2 as a workaround
-# for now, and deal with it later.
-
 
 override mf-include-as           = $(call __tf_mfguard,$0,$1;$2)
 override mf-declare-target       = $(call __tf_mfguard,$0,$1)
 override mf-set-object-suffix    = $(call __tf_mfguard,$0,$1)
 override mf-add-sources          = $(call __tf_mfguard,$0,$1;$2;$3)
 override mf-static-dependencies  = $(call __tf_mfguard,$0,$1)
-override mf-build-static-library = $(call __tf_mfguard2,$0,$1)
-override mf-build-shared-library = $(call __tf_mfguard2,$0,$1)
+override mf-build-static-library = $(call __tf_mfguard,$0,$1)
+override mf-build-shared-library = $(call __tf_mfguard,$0,$1)
 override mf-build-executable     = $(call __tf_mfguard,$0,$1)
 
 
