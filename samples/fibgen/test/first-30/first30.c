@@ -25,14 +25,14 @@ int main(int argc, char** argv)
   unsigned long n;
   char *endptr;
 
-  if (argc != 3)
+  if (argc != 2)
   {
     usage(argv[0]);
     exit(EXIT_FAILURE);
   }
 
   errno = 0;
-  n = strtoul(argv[2], &endptr, 10);
+  n = strtoul(argv[1], &endptr, 10);
   if (errno || *endptr || !*argv[1])
   {
     fprintf(stderr, "Bad number given.\n");
@@ -42,7 +42,7 @@ int main(int argc, char** argv)
 
   if (n > 30)
   {
-    fprintf(stderr, "I see you gave a number higher than 30.\n"
+    fprintf(stderr, "I see you gave a number higher than 35.\n"
                     "I also like to live dangerously.\n");
     exit(EXIT_FAILURE);
   }
