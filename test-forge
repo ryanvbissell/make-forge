@@ -160,27 +160,16 @@ endef
 
 
 # ---------------------------------------------------------------------
-# Function:     (tf-test-md5sum,name,value,args)
-# Description:  Runs the specified test, computes the sha1sum of its
-#               captured log file, and compares to the given expected
-#               md5 value.
+# Functions:    (tf-test-md5sum,name,value,args)
+#               (tf-test-sha1sum,name,value,args)
+# Description:  Runs the specified test, computes the specified hash
+#               of its captured log file, and compares to the given
+#               expected hash value.
 # Arguments: 1: The name of the test-target to run
-#            2: The expected md5 value
+#            2: The expected hash value
 #            3: Arguments to pass to the test executable
 # ---------------------------------------------------------------------
-tf-test-md5sum = $(eval $(call __tf_test_hashval,md5sum,$1,$2,$3))
-
-
-# ---------------------------------------------------------------------
-# Function:     (tf-test-sha1sum,name,value,args)
-# Description:  Runs the specified test, computes the sha1sum of its
-#               captured log file, and compares to the given expected
-#               sha1sum value.
-# Arguments: 1: The name of the test-target to run
-#            2: The expected sha1sum value
-#            3: Arguments to pass to the test executable
-# ---------------------------------------------------------------------
-# TODO deprecated in favor of tf_test_md5sum ?
+tf-test-md5sum  = $(eval $(call __tf_test_hashval,md5sum,$1,$2,$3))
 tf-test-sha1sum = $(eval $(call __tf_test_hashval,sha1sum,$1,$2,$3))
 
 
