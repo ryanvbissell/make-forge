@@ -234,7 +234,7 @@ define tf-import-testdirs =
     $(eval override _subdirs:=$(sort $(wildcard */)))
     $(eval override _subdirs:=$(_subdirs:%/=%))
     $(info === Importing tests ...)
-    $(eval $(call tf-include-testdirs,$(_subdirs)))
+    $(call tf-include-testdirs,$(_subdirs))
 
     all:: $(tf_topdeps)
 endef

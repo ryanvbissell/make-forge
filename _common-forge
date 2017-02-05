@@ -105,7 +105,7 @@ override CF_CXXFLAGS:=$(CXXFLAGS)
 override CF_ARFLAGS:=rcs
 
 # ---------------------------------------------------------------------
-# INTERNAL:     __cf_initialize
+# INTERNAL:     (__cf_initialize)
 # Description:  Resets internal state, in preparation for
 #               cf_declare_target, et al.
 # ---------------------------------------------------------------------
@@ -128,34 +128,34 @@ endef
 
 
 # ---------------------------------------------------------------------
-# Function:     (cf-declare-target,name)
+# Function:     ($(CF)-declare-target,name)
 # Description:  Declares to make-forge that a new build-target named
 #               'name' is about to be described.
 # Arguments: 1: name of the build-target being described
 # ---------------------------------------------------------------------
-define cf_declare_target =
+define _cf_declare_target =
     $(call __cf_initialize)
     $(eval override cf_target:=$(CF_NAMESPACE)$(1))
     $(eval override cf_outdir:=$(cfout))
 endef
-$(CF)-declare-target = $(strip $(call cf_declare_target,$1))
+$(CF)-declare-target = $(strip $(call _cf_declare_target,$1))
 
 
 # ---------------------------------------------------------------------
-# Function:     (cf-set-object-suffix,suffix)
+# Function:     ($(CF)-set-object-suffix,suffix)
 # Description:  Sets a filename stem suffix for every object file
 #               built for this build-target
 # Arguments: 1: What the suffix should be set to
 # ---------------------------------------------------------------------
-define cf_set_object_suffix =
+define _cf_set_object_suffix =
     $(eval override cf_suffix:=_$(1))
     $(eval override cf_printsuffix:=($(1)))
 endef
-$(CF)-set-object-suffix = $(strip $(call cf_set_object_suffix,$1))
+$(CF)-set-object-suffix = $(strip $(call _cf_set_object_suffix,$1))
 
 
 # ---------------------------------------------------------------------
-# INTERNAL:     __cf_announce_compile
+# INTERNAL:     (__cf_announce_compile)
 # Description:  echo standardized string to announce source compilation
 # Arguments: 1: Parenthesized suffix, if set
 # ---------------------------------------------------------------------
@@ -165,29 +165,29 @@ endef
 
 
 # ---------------------------------------------------------------------
-# INTERNAL:     __cf_compile_c++
+# INTERNAL:     (__cf_compile_C)
 # Description:  compile a C++ source file
 # Arguments: 1: Parenthesized suffix, if set
 # ---------------------------------------------------------------------
-define __cf_compile_c =
+define __cf_compile_C =
 	@$(call __cf_announce_compile,$(1))
 	@$(test) $(CC) $(CPPFLAGS) $(CFLAGS) -c $$< -o $$@
 endef
 
 
 # ---------------------------------------------------------------------
-# INTERNAL:     __cf_compile_c++
+# INTERNAL:     (__cf_compile_C++)
 # Description:  compile a C++ source file
 # Arguments: 1: Parenthesized suffix, if set
 # ---------------------------------------------------------------------
-define __cf_compile_c++ =
+define __cf_compile_C++ =
 	@$(call __cf_announce_compile,$(1))
 	@$(test) $(CXX) $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) -c $$< -o $$@
 endef
 
 
 # ---------------------------------------------------------------------
-# INTERNAL:     __cf_gen_dependencies
+# INTERNAL:     (__cf_gen_dependencies)
 # Description:  generate source/header dependency info
 #
 # This is based on Scott McPeak's "Autodependencies with GNU make"
@@ -223,10 +223,10 @@ endef
 
 
 # ---------------------------------------------------------------------
-# INTERNAL:     __cf_gen_static_pattern_rule_c++(obj, dir, glob)
+# INTERNAL:     (__cf_gen_static_pattern_rule,LANG,obj,dir,glob)
 # Description:  Generates a gnu-make "static pattern rule" based on
 #               the passed-in arguments.
-# Arguments: 1: The type of source code
+# Arguments: 1: The NAME of the language being compiled (C, C++)
 #            2: FQPN of the object file that is the target of this
 #               rule (This may have been name-mangled eith cf_suffix)
 #            3: the directory where the source(s) are located
@@ -240,15 +240,15 @@ endef
 
 
 # ---------------------------------------------------------------------
-# Function:     (cf-add-sources,lang,dir,glob)
+# Function:     ($(CF)-add-sources,LANG,dir,glob)
 # Description:  Declares which sources need to be build for the current
 #               target.  (This may be invoked multiple times as needed,
 #               in each target.)
-# Arguments: 1: name of the language being compiled (c++)
+# Arguments: 1: NAME of the language being compiled (C,C++)
 #            2: the directory where the source(s) are located
 #            3: the file name (or file glob) to be compiled
 # ---------------------------------------------------------------------
-define cf_add_sources =
+define _cf_add_sources =
     $(eval override _mfas_src:=$(wildcard $(2)/$(3)))
     $(eval override _mfas_ext:=$(suffix $(3)))
     $(eval override _mfas_obj:=$(subst $(_mfas_ext),$(cf_suffix).$(cfobj),$(_mfas_src)))
@@ -260,7 +260,7 @@ define cf_add_sources =
     $(eval undefine _mfas_ext)
     $(eval undefine _mfas_obj)
 endef
-$(CF)-add-sources = $(strip $(call cf_add_sources,$1,$2,$3))
+$(CF)-add-sources = $(strip $(call _cf_add_sources,$1,$2,$3))
 
 
 # ---------------------------------------------------------------------
@@ -282,16 +282,17 @@ endef
 
 
 # ---------------------------------------------------------------------
-# Function:     (cf-static-dependencies,targets)
+# Function:     ($(CF)-static-dependencies,targets)
 # Description:  Declares the current-target's static-lib linkage dependencies
 # Arguments: 1: space-delimited list of build-targets
 # ---------------------------------------------------------------------
-define cf_static_dependencies =
+define _cf_static_dependencies =
     $(eval override _mfsd_targets:=$(1))
     $(foreach target,$(_mfsd_targets),$(call __cf_static_lib_dependency,$(target)))
     $(eval undefine _mfsd_targets)
 endef
-$(CF)-static-dependencies = $(strip $(call cf_static_dependencies,$1))
+$(CF)-static-dependencies = $(strip $(call _cf_static_dependencies,$1))
+
 
 # ---------------------------------------------------------------------
 # INTERNAL:     (__cf_import_depfiles)
@@ -359,46 +360,46 @@ endef
 
 
 # ---------------------------------------------------------------------
-#  Function:     (cf-build-static-library,stem)
+#  Function:     ($(CF)-build-static-library,stem)
 #  Description:  This end the target definition for a static library
 #  Arguments: 1: The stem of the static library's intended filename
 # ---------------------------------------------------------------------
-define cf_build_static_library =
+define _cf_build_static_library =
     $(call __cf_build_final_target,$(1).$(cflib),static library)
 	@$(test) $(AR) $(ARFLAGS) $$@ $$^
 endef
-$(CF)-build-static-library = $(eval $(call cf_build_static_library,$1))
+$(CF)-build-static-library = $(eval $(call _cf_build_static_library,$1))
 
 
 # ---------------------------------------------------------------------
-#  Function:     (cf-build-shared-library,stem)
+#  Function:     ($(CF)-build-shared-library,stem)
 #  Description:  This ends the target definition for a shared library.
 #                This will add '-shared' to LDFLAGS
 #  Arguments: 1: The stem of the shared library's intended filename
 # ---------------------------------------------------------------------
-define cf_build_shared_library =
+define _cf_build_shared_library =
     # TODO, need an add-flags routine
     $(eval override LDFLAGS+=-shared)
     $(call __cf_build_final_target,$(1).$(cfdll),shared library)
 	@$(test) $(CXX) $(LDFLAGS) $$^ -o $$@
 endef
-$(CF)-build-shared-library = $(eval $(call cf_build_shared_library,$1))
+$(CF)-build-shared-library = $(eval $(call _cf_build_shared_library,$1))
 
 
 # ---------------------------------------------------------------------
-#  Function:     (cf-build-executable,stem)
+#  Function:     ($(CF)-build-executable,stem)
 #  Description:  This end the target definition for an executable
 #  Arguments: 1: The stem of the executable's intended filename
 # ---------------------------------------------------------------------
-define cf_build_executable =
+define _cf_build_executable =
     $(call __cf_build_final_target,$(1)$(cfexe),executable)
 	@$(test) $(CXX) $(LDFLAGS) $$^ $(LDLIBS) -o $$@
 endef
-$(CF)-build-executable = $(eval $(call cf_build_executable,$1))
+$(CF)-build-executable = $(eval $(call _cf_build_executable,$1))
 
 
 # ---------------------------------------------------------------------
-#  Function:     (cf-include-as,namespace,filepath)
+#  Function:     ($(CF)-include-as,namespace,filepath)
 #  Description:  This imports the make-forge fragment located at
 #                'filepath', under the namespace 'namespace'
 #  Arguments: 1: The desired namespace.  This does not have to be
