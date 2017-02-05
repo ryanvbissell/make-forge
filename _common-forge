@@ -275,11 +275,11 @@ $(CF)-add-sources = $(strip $(call _cf_add_sources,$1,$2,$3))
 # Arguments: 1: name of the build-target that builds the static
 #               library that the current-target is dependendent upon.
 #               From this, the library's filename is inferred to be
-#               stored in cf_<target>_final
+#               stored in cf_<target>_file
 # ---------------------------------------------------------------------
 define __cf_static_lib_dependency =
     $(eval override _mfsld_target:=$(1))
-    $(eval override _mfsld_libfile:=$(cf_$(_mfsld_target)_final))
+    $(eval override _mfsld_libfile:=$(cf_$(_mfsld_target)_file))
     $(eval override cf_deptargets+=$(_mfsld_target))
     $(eval override cf_linkfiles+=$(_mfsld_libfile))
     $(eval undefine _mfsld_libfile)
@@ -346,21 +346,21 @@ endef
 
 
 # ---------------------------------------------------------------------
-#  INTERNAL:     (__cf_build_final_target,filename,string)
-#  Description:  Generates the 'final' target file of the current-target
+#  INTERNAL:     (__cf_build_target_file,filename,string)
+#  Description:  Generates the ultimate target file of the current-target
 #  Arguments: 1: The filename (stem[.ext]) of the file to be generated.
 #             2: A string describing the type of file being built
 # ---------------------------------------------------------------------
-define __cf_build_final_target =
-    $(eval override cf_$(cf_target)_final:=$(cf_outdir)/$(1))
+define __cf_build_target_file =
+    $(eval override cf_$(cf_target)_file:=$(cf_outdir)/$(1))
     $(eval $(__cf_import_depfiles))
     $(eval override cf_objfiles:=$(sort $(cf_objfiles)))
     $(eval override cf_linkfiles:=$(sort $(cf_linkfiles)))
 
-    $(cf_target): $(cf_deptargets) $(cf_$(cf_target)_final)
+    $(cf_target): $(cf_deptargets) $(cf_$(cf_target)_file)
 
-    $(eval $(call __cf_gen_cleantarget,$(cf_target),cf_objfiles cf_depfiles cf_$(cf_target)_final))
-    $(cf_$(cf_target)_final): $(cf_objfiles) $(cf_linkfiles)
+    $(eval $(call __cf_gen_cleantarget,$(cf_target),cf_objfiles cf_depfiles cf_$(cf_target)_file))
+    $(cf_$(cf_target)_file): $(cf_objfiles) $(cf_linkfiles)
 	@$(echo) +++ [$(cf_target)] Generating $(2) \'$$(notdir $$@)\'...
 endef
 
@@ -371,7 +371,7 @@ endef
 #  Arguments: 1: The stem of the static library's intended filename
 # ---------------------------------------------------------------------
 define _cf_build_static_library =
-    $(call __cf_build_final_target,$(1).$(cflib),static library)
+    $(call __cf_build_target_file,$(1).$(cflib),static library)
 	@$(test) $(AR) $(ARFLAGS) $$@ $$^
 endef
 $(CF)-build-static-library = $(eval $(call _cf_build_static_library,$1))
@@ -386,7 +386,7 @@ $(CF)-build-static-library = $(eval $(call _cf_build_static_library,$1))
 define _cf_build_shared_library =
     # TODO, need an add-flags routine
     $(eval override LDFLAGS+=-shared)
-    $(call __cf_build_final_target,$(1).$(cfdll),shared library)
+    $(call __cf_build_target_file,$(1).$(cfdll),shared library)
 	@$(test) $(CXX) $(LDFLAGS) $$^ -o $$@
 endef
 $(CF)-build-shared-library = $(eval $(call _cf_build_shared_library,$1))
@@ -398,7 +398,7 @@ $(CF)-build-shared-library = $(eval $(call _cf_build_shared_library,$1))
 #  Arguments: 1: The stem of the executable's intended filename
 # ---------------------------------------------------------------------
 define _cf_build_executable =
-    $(call __cf_build_final_target,$(1)$(cfexe),executable)
+    $(call __cf_build_target_file,$(1)$(cfexe),executable)
 	@$(test) $(CXX) $(LDFLAGS) $$^ $(LDLIBS) -o $$@
 endef
 $(CF)-build-executable = $(eval $(call _cf_build_executable,$1))

@@ -99,7 +99,7 @@ define __tf_gen_runtarget =
 
     _run_$(1): _announce_$(1) $(cf_target)
 	@printf 'Running [%-10s]...  ' $(2)
-	@$(test) $(TF_ENVVARS) $(cf_$(cf_target)_final) $(cf_outdir) $(tf_testargs) >$(tf_logfile) 2>&1 || (echo "\033[0;31mFAILED with exit status '$$$$?'\033[0m"; exit 1)
+	@$(test) $(TF_ENVVARS) $(cf_$(cf_target)_file) $(cf_outdir) $(tf_testargs) >$(tf_logfile) 2>&1 || (echo "\033[0;31mFAILED with exit status '$$$$?'\033[0m"; exit 1)
 endef
 
 
