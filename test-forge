@@ -149,7 +149,7 @@ define __tf_test_hashval =
 	@TF_HASHVAL=`$(_hashgen) $(tf_logfile) | awk '{print $$$$1}'` && \
 	 if [ ! "$$$${TF_HASHVAL}" = "$(_hash)" ]; then \
 	     echo "\033[0;31mFAILED due to digest mismatch" ;\
-	     echo "$(2): md5 was '$$$${TF_HASHVAL}', expected '$(_hash)'.\033[0m" 2>&1 ;\
+	     echo "$(2): test's log digest was '$$$${TF_HASHVAL}', expected '$(_hash)'.\033[0m" 2>&1 ;\
 	     false ;\
 	 else \
 	     echo "PASS";\
