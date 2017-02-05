@@ -64,12 +64,12 @@ include $(CURDIR)/GNUmakefile.MF
 
 
 # describe how to build fibgen[.exe]
-$(eval $(call mf-declare-target,fibgen))
-    $(eval $(call mf-static-dependencies,static))
+$(call mf-declare-target,fibgen)
+    $(call mf-static-dependencies,static)
     override CPPFLAGS+=-I$(MF_PROJECT_DIR)/inc
-    $(eval $(call mf-add-sources,c,$(MF_PROJECT_DIR)/src,fibgen.c))
-    $(eval $(call mf-add-sources,c,$(MF_PROJECT_DIR)/src,main.c))
-$(eval $(call mf-build-executable,fibgen))
+    $(call mf-add-sources,C,$(MF_PROJECT_DIR)/src,fibgen.c)
+    $(call mf-add-sources,C,$(MF_PROJECT_DIR)/src,main.c)
+    $(call mf-build-executable,fibgen)
 
 
 
