@@ -286,12 +286,12 @@ endef
 # Description:  Declares the current-target's static-lib linkage dependencies
 # Arguments: 1: space-delimited list of build-targets
 # ---------------------------------------------------------------------
-define $(CF)-static-dependencies =
+define cf_static_dependencies =
     $(eval override _mfsd_targets:=$(1))
-    $(foreach target,$(_mfsd_targets),$(eval $(call __cf_static_lib_dependency,$(target))))
+    $(foreach target,$(_mfsd_targets),$(call __cf_static_lib_dependency,$(target)))
     $(eval undefine _mfsd_targets)
 endef
-
+$(CF)-static-dependencies = $(strip $(call cf_static_dependencies,$1))
 
 # ---------------------------------------------------------------------
 # INTERNAL:     (__cf_import_depfiles)
@@ -390,10 +390,11 @@ $(CF)-build-shared-library = $(eval $(call cf_build_shared_library,$1))
 #  Description:  This end the target definition for an executable
 #  Arguments: 1: The stem of the executable's intended filename
 # ---------------------------------------------------------------------
-define $(CF)-build-executable =
+define cf_build_executable =
     $(call __cf_build_final_target,$(1)$(cfexe),executable)
 	@$(test) $(CXX) $(LDFLAGS) $$^ $(LDLIBS) -o $$@
 endef
+$(CF)-build-executable = $(eval $(call cf_build_executable,$1))
 
 
 # ---------------------------------------------------------------------
