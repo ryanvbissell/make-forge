@@ -245,12 +245,11 @@ define __tf_emit_mferror =
     $(error ILLEGAL CALL TO '$(1)' FROM WITHIN TEST-FORGE ***)
 endef
 
-
-# TODO: the $(strip) call could be removed if we stop using define
-# for functions like $(CF)_include_as, and instead begin using
-# multi-line variable assignment, ending each line with '\'
-override semi:=;
-override __tf_mfguard  = $(if $(tf_blockmf),$(call __tf_emit_mferror,$1),$(eval $$(strip $$(call $(1:mf-%=$(CF)-%),$(subst $(semi),$(comma),$2)))))
+# this will chastise the user if they call a make-forge
+# routine from within a test-forge fragment
+override __tf_mfguard = $(if $(tf_blockmf),                \
+                             $(call __tf_emit_mferror,$1), \
+                             $(eval $$(call $(1:mf-%=$(CF)-%),$(subst $(;),$(,),$2))))
 
 override mf-include-as           = $(call __tf_mfguard,$0,$1;$2)
 override mf-declare-target       = $(call __tf_mfguard,$0,$1)
