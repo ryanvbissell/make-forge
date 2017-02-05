@@ -36,7 +36,7 @@ include $(TFDIR)/_common-forge
 
 # create some test-forge aliases for needed make-forge routines
 tf-add-sources = $(call $(CF)-add-sources,$(1),$(2),$(3))
-tf-build-executable = $(call $(CF)-build-executable,$(1),$(2),$(3))
+tf-build-executable = $(call $(CF)-build-executable,$(1))
 tf-build-static_library = $(call $(CF)-build-static-library,$(1))
 tf-build-shared_library = $(call $(CF)-build-shared-library,$(1))
 tf-static-dependencies = $(call $(CF)-static-dependencies,$(1))
