@@ -43,12 +43,14 @@ endef
 endif
 $(call verbose,This session will use $(cf_numprocs) processor(s))
 
+ifndef CF_NOSYNC
 # group parallel output on a per-target basis,
-# and squelch unhelpful output from Make
-# TODO: the --output-sync line will make stderr undetectable by stderred
+# XXX: this will make stderr undetectable by stderred
 override MAKEFLAGS+= --output-sync=target
-override MAKEFLAGS+= --no-print-directory
+endif
 
+# squelch unhelpful output from Make
+override MAKEFLAGS+= --no-print-directory
 
 
 # TODO: these should be specific to the host OS
