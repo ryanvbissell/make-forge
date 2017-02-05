@@ -61,7 +61,7 @@ endef
 #               'name' is about to be described
 # Arguments: 1: The name of the test-target being described
 # ---------------------------------------------------------------------
-define tf_declare_test_target =
+define _tf_declare_test_target =
     $(eval $(call __tf_initialize,$(1)))
     $(eval $(call $(CF)-declare-target,_tf_build_$(tf_target)))
     $(eval override cf_outdir:=$(cfout)/$(TF_SUB_SECTION)/$(tf_target))
@@ -71,7 +71,8 @@ define tf_declare_test_target =
     $(cf_outdir):
 	@mkdir -p $(cf_outdir)
 endef
-tf-declare-test-target = $(eval $(call tf_declare_test_target,$1))
+tf-declare-test-target = $(eval $(call _tf_declare_test_target,$1))
+
 
 # ---------------------------------------------------------------------
 # INTERNAL:     (__tf_register_test,name)
@@ -114,14 +115,14 @@ endef
 # ---------------------------------------------------------------------
 # TODO: rename this to tf-test-success, and then implement a new
 #       tf-test-exitstatus that compares to expected exitstatus value.
-define tf_test_exitstatus =
+define _tf_test_exitstatus =
     $(eval override tf_testargs:=$(2))
     $(eval $(call __tf_register_test,$(1)))
     $(eval $(call __tf_gen_runtarget,$(1),exitstatus))
     $(1): _run_$(1)
 	@echo "PASS"
 endef
-tf-test-exitstatus = $(eval $(call tf_test_exitstatus,$1,$2,$3))
+tf-test-exitstatus = $(eval $(call _tf_test_exitstatus,$1,$2,$3))
 
 
 # ---------------------------------------------------------------------
@@ -133,7 +134,7 @@ tf-test-exitstatus = $(eval $(call tf_test_exitstatus,$1,$2,$3))
 #            2: The expected md5sum value
 #            3: Arguments to pass to the test executable
 # ---------------------------------------------------------------------
-define tf_test_md5sum =
+define _tf_test_md5sum =
     $(eval override _md5:=$(2))
     $(eval override tf_testargs:=$(3))
     $(call __tf_register_test,$(1))
@@ -150,7 +151,7 @@ define tf_test_md5sum =
 	 fi
     $(eval override undefine _md5)
 endef
-tf-test-md5sum = $(eval $(call tf_test_md5sum,$1,$2,$3))
+tf-test-md5sum = $(eval $(call _tf_test_md5sum,$1,$2,$3))
 
 
 # ---------------------------------------------------------------------
@@ -163,7 +164,7 @@ tf-test-md5sum = $(eval $(call tf_test_md5sum,$1,$2,$3))
 #            3: Arguments to pass to the test executable
 # ---------------------------------------------------------------------
 # TODO deprecated in favor of tf_test_md5sum ?
-define tf_test_sha1sum =
+define _tf_test_sha1sum =
     $(eval override _sha1:=$(2))
     $(eval override tf_testargs:=$(3))
     $(call __tf_register_test,$(1))
@@ -180,20 +181,20 @@ define tf_test_sha1sum =
 	 fi
     $(eval override undefine _sha1)
 endef
-tf-test-sha1sum = $(eval $(call tf_test_sha1sum,$1,$2,$3))
+tf-test-sha1sum = $(eval $(call _tf_test_sha1sum,$1,$2,$3))
 
 
 ###################################################
 
 
 # ---------------------------------------------------------------------
-# INTERNAL:     (_tf_include,filename)
+# INTERNAL:     (__tf_include,filename)
 # Description:  Includes the given test-forge fragment
 # Arguments: 1: the file to include
 # ---------------------------------------------------------------------
 #  TODO: enforce .TF extension
 tf_topdeps:=
-define _tf_include =
+define __tf_include =
     $(eval override TF_SUB_TOPDEPS:=)
     $(eval override TF_SUB_SECTION:=$(2))
     $(eval include $(1))
@@ -202,15 +203,15 @@ endef
 
 
 # ---------------------------------------------------------------------
-# INTERNAL:     (_tf_include_testdir,dirname)
+# INTERNAL:     (__tf_include_testdir,dirname)
 # Description:  Scans the given directory for test-forge fragments
 #               that don't begin with an underscore (_)
 # Arguments: 1: the directory to scan
 # ---------------------------------------------------------------------
-define _tf_include_testdir =
+define __tf_include_testdir =
     $(eval override tf_testdir:=$(abspath $(1)))
     $(eval override _tests:=$(sort $(wildcard $(1)/[!_]*.TF)))
-    $(foreach _test,$(_tests),$(call _tf_include,$(_test),$(1)))
+    $(foreach _test,$(_tests),$(call __tf_include,$(_test),$(1)))
     $(eval override undefine _tests)
 endef
 
@@ -220,9 +221,9 @@ endef
 # Description:  Scans every given directory for test-forge fragments.
 # Arguments: 1: A space-delimited list of directories
 # ---------------------------------------------------------------------
-# TODO: this should be a private routine?
+# TODO: should this be a private routine?
 define tf-include-testdirs =
-    $(foreach dir,$(1),$(call _tf_include_testdir,$(dir)))
+    $(foreach dir,$(1),$(call __tf_include_testdir,$(dir)))
 endef
 
 
@@ -270,7 +271,7 @@ override mf-build-executable     = $(call __tf_mfguard,$0,$1)
 #            2: Path to the make-forge fragment (.MF)
 # ---------------------------------------------------------------------
 override tf_blockmf:=1
-define tf_use_makeforge =
+define _tf_use_makeforge =
     $(eval override _tfum_saved_mfpd:=$(MF_PROJECT_DIR))
     $(eval override MF_PROJECT_DIR:=$(abspath $(dir $(2))))
     $(eval override undefine tf_blockmf)
@@ -279,7 +280,7 @@ define tf_use_makeforge =
     $(eval override MF_PROJECT_DIR:=$(_tfum_saved_mfpd))
     $(eval override undefine _tfum_saved_mfpd)
 endef
-tf-use-makeforge = $(strip $(call tf_use_makeforge,$1,$2))
+tf-use-makeforge = $(strip $(call _tf_use_makeforge,$1,$2))
 
 
 endif  # __tf_include_guard
