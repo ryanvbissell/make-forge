@@ -114,7 +114,8 @@ endef
 # Function:     (tf-test-exitstatus,name,args)
 # Description:  Runs the specified test, and expects the test's
 #               exit status (to the shell) to be 0 (zero)
-# Arguments: 1: The name of the test-target to run
+# Arguments: 1: The name of the test-target to run (note that this is
+#               NOT necessarily the name of the test's executable!)
 #            2: Arguments to pass to the test executable
 # ---------------------------------------------------------------------
 # TODO: rename this to tf-test-success, and then implement a new
@@ -135,7 +136,8 @@ tf-test-exitstatus = $(eval $(call _tf_test_exitstatus,$1,$2,$3))
 #               captured log file, and compares to the given expected
 #               md5sum value.
 # Arguments: 1: The name of the hash generator tool
-#            2: The name of the test-target to run
+#            2: The name of the test-target to run (note that this is
+#               NOT necessarily the name of the test's executable!)
 #            3: The expected hash value
 #            4: Arguments to pass to the test executable
 # ---------------------------------------------------------------------
