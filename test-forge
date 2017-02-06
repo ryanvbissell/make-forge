@@ -94,15 +94,19 @@ endef
 #            2: A string describing the test's validation-type
 # ---------------------------------------------------------------------
 define __tf_gen_runtarget =
+    $(eval __tfgr_exename:=$(notdir $(cf_$(cf_target)_file)))
+    $(eval __tfgr_testcmd:=$(TF_ENVVARS) ../$(__tfgr_exename) $(tf_testargs))
+    $(eval __tfgr_cmdfile:=$(tf_logfile:%.log=%.cmd))
     _announce_$(1):
 	@printf '%15s :  Building...' $(1)
 
     _run_$(1): _announce_$(1) $(cf_target)
 	@printf 'Running [%-10s]...  ' $(2)
+	@echo 'cd sandbox && $(__tfgr_testcmd)' >$(__tfgr_cmdfile)
 	@cd $(cf_outdir) \
 	 && mkdir -p ./sandbox \
 	 && cd ./sandbox \
-	 && $(test) $(TF_ENVVARS) $(cf_$(cf_target)_file) $(tf_testargs) >$(tf_logfile) 2>&1 \
+	 && $(test) $(__tfgr_testcmd) >$(tf_logfile) 2>&1 \
 	   || (echo "\033[0;31mFAILED with exit status '$$$$?'\033[0m"; exit 1)
 endef
 
