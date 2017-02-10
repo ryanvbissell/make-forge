@@ -21,9 +21,8 @@ override trace_indent = $(trace_depth:.=$(space))
 override trace_increase = $(eval override trace_depth+=.)
 override trace_decrease = $(eval override trace_depth:=$(call restwords,$(trace_depth)))
 override _trace_in = $(info $(trace_indent)> $1($(strip $2)))$(trace_increase)
-override _trace_out = $(trace_decrease)$(info $(trace_indent)< $1)
 override trace_in = $(call _trace_in,$0,$1 $2 $3 $4 $5 $6 $7 $8 $9)
-override trace_out = $(call _trace_out,$0)
+override trace_out = $(trace_decrease)$(info $(trace_indent)<)
 override tracep = $(info $(trace_indent)$(strip $1$2$3$4$5$6$7$8$9))
 endif
 
