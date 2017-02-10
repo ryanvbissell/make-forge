@@ -36,11 +36,11 @@ include $(TFDIR)/_common-forge
 
 
 # create some test-forge aliases for needed make-forge routines
-#tf-add-sources = $(call $(CF)-add-sources,$(1),$(2),$(3))
-#tf-build-executable = $(call $(CF)-build-executable,$(1))
-#tf-build-static_library = $(call $(CF)-build-static-library,$(1))
-#tf-build-shared_library = $(call $(CF)-build-shared-library,$(1))
-#tf-static-dependencies = $(call $(CF)-static-dependencies,$(1))
+tf-add-sources = $(call $(CF)-add-sources,$(1),$(2),$(3))
+tf-build-executable = $(call $(CF)-build-executable,$(1))
+tf-build-static_library = $(call $(CF)-build-static-library,$(1))
+tf-build-shared_library = $(call $(CF)-build-shared-library,$(1))
+tf-static-dependencies = $(call $(CF)-static-dependencies,$(1))
 
 # ---------------------------------------------------------------------
 # INTERNAL:     (__tf_initialize)
@@ -287,9 +287,9 @@ endef
 _mf2tf-declare-target = $(trace_in)$(strip $(call __mf2tf_declare_target,$1,$2))$(trace_out)
 
 
-#define __tf_emit_mferror =
-#    $(error ILLEGAL CALL TO '$(1)' FROM WITHIN TEST-FORGE ***)
-#endef
+define __tf_emit_mferror =
+    $(error ILLEGAL CALL TO '$(1)' FROM WITHIN TEST-FORGE ***)
+endef
 
 # this will chastise the user if they call a make-forge
 # routine from within a test-forge fragment
@@ -303,14 +303,18 @@ override __mf2tf = $(if $(tf_usingmf),                             \
                         $(eval $$(call $(1:mf-%=_mf2tf-%),$(subst $(;),$(,),$2))), \
                         $(eval $$(call $(1:mf-%=_tf-%),$(subst $(;),$(,),$2))))
 
-# TODO, use __mf2tf for all of these, via another argument?
+override __mfguard = $(if $(tf_usingmf),                           \
+                          $(eval $$(call $(1:mf-%=$(CF)-%),$(subst $(;),$(,),$2))), \
+                          $(call __tf_emit_mferror,$1))
+
+
 override mf-declare-target       = $(trace_in)$(call __mf2tf,$0,$1)$(trace_out)
-override mf-set-object-suffix    = $(trace_in)$(call $(CF)-set-object-suffix,$1)$(trace_out)
-override mf-add-sources          = $(trace_in)$(call $(CF)-add-sources,$1,$2,$3)$(trace_out)
-override mf-static-dependencies  = $(trace_in)$(call $(CF)-static-dependencies,$1)$(trace_out)
-override mf-build-static-library = $(trace_in)$(call $(CF)-build-static-library,$1)$(trace_out)
-override mf-build-shared-library = $(trace_in)$(call $(CF)-build-shared-library,$1)$(trace_out)
-override mf-build-executable     = $(trace_in)$(call $(CF)-build-executable,$1)$(trace_out)
+override mf-set-object-suffix    = $(trace_in)$(call __mfguard,$0,$1)$(trace_out)
+override mf-add-sources          = $(trace_in)$(call __mfguard,$0,$1;$2;$3)$(trace_out)
+override mf-static-dependencies  = $(trace_in)$(call __mfguard,$0,$1)$(trace_out)
+override mf-build-static-library = $(trace_in)$(call __mfguard,$0,$1)$(trace_out)
+override mf-build-shared-library = $(trace_in)$(call __mfguard,$0,$1)$(trace_out)
+override mf-build-executable     = $(trace_in)$(call __mfguard,$0,$1)$(trace_out)
 
 
 endif  # __tf_include_guard
