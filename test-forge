@@ -37,7 +37,6 @@ include $(TFDIR)/_common-forge
 
 # create some test-forge aliases for needed make-forge routines
 tf-add-sources = $(call $(CF)-add-sources,$(1),$(2),$(3))
-tf-build-executable = $(call $(CF)-build-executable,$(1))
 tf-build-static_library = $(call $(CF)-build-static-library,$(1))
 tf-build-shared_library = $(call $(CF)-build-shared-library,$(1))
 tf-static-dependencies = $(call $(CF)-static-dependencies,$(1))
@@ -58,7 +57,7 @@ endef
 
 
 # ---------------------------------------------------------------------
-# INTERNAL:     (tf-declare-target,name)
+# Function:     (tf-declare-target,name)
 # Description:  Declares to test-forge that a new test-target named
 #               'name' is about to be described
 # Arguments: 1: The name of the test-target being described
@@ -76,6 +75,20 @@ $(trace_in)
 $(trace_out)
 endef
 tf-declare-target = $(eval $(call _tf_declare_target,$1))
+
+
+# ---------------------------------------------------------------------
+#  Function:     (tf-build-executable,stem)
+#  Description:  This end the target definition for an executable
+#  Arguments: 1: The stem of the executable's intended filename
+# ---------------------------------------------------------------------
+define _tf_build_executable =
+$(trace_in)
+    $(call $(CF)-build-executable,$(tf_target))
+$(trace_out)
+endef
+tf-build-executable = $(if $1,$(error $0 does not take an argument), \
+                              $(eval $(call _tf_build_executable)))
 
 
 # ---------------------------------------------------------------------
