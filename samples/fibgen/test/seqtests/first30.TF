@@ -9,7 +9,7 @@
 
 $(call tf-use-makeforge-as,_fibby,$(TF_TESTROOT)/../GNUmakefile.MF)
 
-$(call mf-declare-target,fibseq)
+$(call tf-declare-target,fibseq)
     override CPPFLAGS:=-I${TF_TESTROOT}/../inc
     $(call tf-static-dependencies,_fibby@static)
     $(call tf-add-sources,C,${TF_TESTROOT}/../src,fibgen.c)
