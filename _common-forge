@@ -20,14 +20,17 @@ override bspace:=$(empty)$(empty)
 override ,:=$(comma)
 override ;:=$(semi)
 
-
-_cfcommon:=$(notdir $(lastword $(MAKEFILE_LIST)))
+_cfthis:=$(lastword $(MAKEFILE_LIST))
 _cfcaller:=$(notdir $(lastword $(wordlist 2,$(words $(MAKEFILE_LIST)),foo $(MAKEFILE_LIST))))
 cf_assert = $(if $($1),,\
-              $(error INTERNAL ERROR:  $(_cfcaller) should have defined '$1' before including $(_cfcommon)))
+              $(error INTERNAL ERROR:  $(_cfcaller) should have defined '$1' before including $(notdir $(_cfthis))))
 
 $(call cf_assert,CF)
 $(call cf_assert,cfout)
+
+_cfdir:=$(dir $(_cfthis))
+_cfdir:=$(_cfdir:%/=%)
+include $(_cfdir)/_tracing
 
 $(cfout):
 	@$(test) mkdir -p $(cfout)
@@ -116,6 +119,7 @@ override CF_ARFLAGS:=rcs
 #               cf_declare_target, et al.
 # ---------------------------------------------------------------------
 define __cf_initialize =
+$(trace_in)
     $(eval override LDLIBS:=)
     $(eval override CFLAGS:=$(CF_CFLAGS))
     $(eval override ARFLAGS:=$(CF_ARFLAGS))
@@ -130,6 +134,7 @@ define __cf_initialize =
     $(eval override cf_libfiles:=)
     $(eval override cf_linkfiles:=)
     $(eval override cf_deptargets:=)
+$(trace_out)
 endef
 
 
@@ -140,11 +145,15 @@ endef
 # Arguments: 1: name of the build-target being described
 # ---------------------------------------------------------------------
 define _cf_declare_target =
+$(trace_in)
     $(call __cf_initialize)
     $(eval override cf_target:=$(CF_NAMESPACE)$(1))
     $(eval override cf_outdir:=$(cfout))
+    $(call tracep,cf_target will be '$(cf_target)')
+    $(call tracep,cf_outdir will be '$(cf_outdir)')
+$(trace_out)
 endef
-$(CF)-declare-target = $(strip $(call _cf_declare_target,$1))
+$(CF)-declare-target = $(trace_in)$(strip $(call _cf_declare_target,$1))$(trace_out)
 
 
 # ---------------------------------------------------------------------
@@ -154,8 +163,10 @@ $(CF)-declare-target = $(strip $(call _cf_declare_target,$1))
 # Arguments: 1: What the suffix should be set to
 # ---------------------------------------------------------------------
 define _cf_set_object_suffix =
+$(trace_in)
     $(eval override cf_suffix:=_$(1))
     $(eval override cf_printsuffix:=($(1)))
+$(trace_out)
 endef
 $(CF)-set-object-suffix = $(strip $(call _cf_set_object_suffix,$1))
 
@@ -166,7 +177,9 @@ $(CF)-set-object-suffix = $(strip $(call _cf_set_object_suffix,$1))
 # Arguments: 1: Parenthesized suffix, if set
 # ---------------------------------------------------------------------
 define __cf_announce_compile =
+$(trace_in)
 	@$(echo) "+++ [$$(notdir $(cf_target))] $$(notdir $$<)$(tab)$(1)"
+$(trace_out)
 endef
 
 
@@ -176,8 +189,10 @@ endef
 # Arguments: 1: Parenthesized suffix, if set
 # ---------------------------------------------------------------------
 define __cf_compile_C =
+$(trace_in)
 	@$(call __cf_announce_compile,$(1))
 	@$(test) $(CC) $(CPPFLAGS) $(CFLAGS) -c $$< -o $$@
+$(trace_out)
 endef
 
 
@@ -187,8 +202,10 @@ endef
 # Arguments: 1: Parenthesized suffix, if set
 # ---------------------------------------------------------------------
 define __cf_compile_C++ =
+$(trace_in)
 	@$(call __cf_announce_compile,$(1))
 	@$(test) $(CXX) $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) -c $$< -o $$@
+$(trace_out)
 endef
 
 
@@ -214,6 +231,7 @@ endef
 #            - remove lines containing only a colon
 # ---------------------------------------------------------------------
 define __cf_gen_dependencies =
+$(trace_in)
 	@$(test2) $(CXX) -MM $(CPPFLAGS) $(CXXFLAGS) $$< $(redir)$(cf_outdir)/$(1).d
 	@$(test2) mv -f $(cf_outdir)/$(1).d $(cf_outdir)/$(1).d.tmp
 	@$(test2) sed -e 's|.*:|$(cf_outdir)/$(1).o:|' $(indir)$(cf_outdir)/$(1).d.tmp $(redir)$(cf_outdir)/$(1).d
@@ -225,6 +243,7 @@ define __cf_gen_dependencies =
 	              -e 's/$$$$/:\n/' \
 	              -e 's/^:.*$$$$/\n/' $(append)$(cf_outdir)/$(1).d
 	@$(test2) $(RM) $(cf_outdir)/$(1).d.tmp
+$(trace_out)
 endef
 
 
@@ -234,14 +253,16 @@ endef
 #               the passed-in arguments.
 # Arguments: 1: The NAME of the language being compiled (C, C++)
 #            2: FQPN of the object file that is the target of this
-#               rule (This may have been name-mangled eith cf_suffix)
+#               rule (This may have been name-mangled with cf_suffix)
 #            3: the directory where the source(s) are located
 #            4: the file name (or file glob) to be compiled.
 # ---------------------------------------------------------------------
 define __cf_gen_static_pattern_rule
+$(trace_in)
     $(2): $(cf_outdir)/%$(cf_suffix).$(cfobj): $(3)/%$(4) | $(cf_outdir)
 	@$(call __cf_compile_$(1),$(cf_printsuffix))
 	@$(call __cf_gen_dependencies,$$*$(cf_suffix))
+$(trace_out)
 endef
 
 
@@ -255,6 +276,7 @@ endef
 #            3: the file name (or file glob) to be compiled
 # ---------------------------------------------------------------------
 define _cf_add_sources =
+$(trace_in)
     $(eval override _mfas_src:=$(wildcard $(2)/$(3)))
     $(eval override _mfas_ext:=$(suffix $(3)))
     $(eval override _mfas_obj:=$(subst $(_mfas_ext),$(cf_suffix).$(cfobj),$(_mfas_src)))
@@ -265,6 +287,7 @@ define _cf_add_sources =
     $(eval undefine _mfas_src)
     $(eval undefine _mfas_ext)
     $(eval undefine _mfas_obj)
+$(trace_out)
 endef
 $(CF)-add-sources = $(strip $(call _cf_add_sources,$1,$2,$3))
 
@@ -278,12 +301,14 @@ $(CF)-add-sources = $(strip $(call _cf_add_sources,$1,$2,$3))
 #               stored in cf_<target>_file
 # ---------------------------------------------------------------------
 define __cf_static_lib_dependency =
+$(trace_in)
     $(eval override _mfsld_target:=$(1))
     $(eval override _mfsld_libfile:=$(cf_$(_mfsld_target)_file))
     $(eval override cf_deptargets+=$(_mfsld_target))
     $(eval override cf_linkfiles+=$(_mfsld_libfile))
     $(eval undefine _mfsld_libfile)
     $(eval undefine _mfsld_target)
+$(trace_out)
 endef
 
 
@@ -293,9 +318,11 @@ endef
 # Arguments: 1: space-delimited list of build-targets
 # ---------------------------------------------------------------------
 define _cf_static_dependencies =
+$(trace_in)
     $(eval override _mfsd_targets:=$(1))
     $(foreach target,$(_mfsd_targets),$(call __cf_static_lib_dependency,$(target)))
     $(eval undefine _mfsd_targets)
+$(trace_out)
 endef
 $(CF)-static-dependencies = $(strip $(call _cf_static_dependencies,$1))
 
@@ -307,8 +334,10 @@ $(CF)-static-dependencies = $(strip $(call _cf_static_dependencies,$1))
 #               target's objfiles
 # ---------------------------------------------------------------------
 define __cf_import_depfiles =
+$(trace_in)
     $(eval override cf_depfiles:=$(cf_objfiles:.$(cfobj)=.d))
     -include $(cf_depfiles)
+$(trace_out)
 endef
 
 
@@ -318,7 +347,9 @@ endef
 # Arguments: 1: Space-delimited list of files to delete
 # ---------------------------------------------------------------------
 define __cf_delete_mfout_files =
+$(trace_in)
 	 ([ -e $(cfout) ] && $(test) $(RM) $(1)) || true;
+$(trace_out)
 endef
 
 
@@ -332,6 +363,7 @@ endef
 #               a space-delimited list of files to be deleted.
 # ---------------------------------------------------------------------
 define __cf_gen_cleantarget =
+$(trace_in)
     # TODO: just use cf_target instead of passing it in as arg?
     $(eval override _mfgc_target:=$(1))
     $(eval override _mfgc_varnames:=$(2))
@@ -342,6 +374,7 @@ define __cf_gen_cleantarget =
 	@$(foreach _var,$(_mfgc_varnames),$(call __cf_delete_mfout_files,$($(_var))))
 
     $(eval override cf_clean_targets+=_clean_$(_mfgc_target))
+$(trace_out)
 endef
 
 
@@ -352,6 +385,7 @@ endef
 #             2: A string describing the type of file being built
 # ---------------------------------------------------------------------
 define __cf_build_target_file =
+$(trace_in)
     $(eval override cf_$(cf_target)_file:=$(cf_outdir)/$(1))
     $(eval $(__cf_import_depfiles))
     $(eval override cf_objfiles:=$(sort $(cf_objfiles)))
@@ -362,6 +396,7 @@ define __cf_build_target_file =
     $(eval $(call __cf_gen_cleantarget,$(cf_target),cf_objfiles cf_depfiles cf_$(cf_target)_file))
     $(cf_$(cf_target)_file): $(cf_objfiles) $(cf_linkfiles)
 	@$(echo) +++ [$(cf_target)] Generating $(2) \'$$(notdir $$@)\'...
+$(trace_out)
 endef
 
 
@@ -371,9 +406,11 @@ endef
 #  Arguments: 1: The stem of the static library's intended filename
 # ---------------------------------------------------------------------
 define _cf_build_static_library =
+$(trace_in)
     $(eval override _cfbsl_name:=$(if $1,$1,$(cf_target)))
-    $(call __cf_build_target_file,$(_cfbsl_name).$(cflib),static library)
+    $(call __cf_build_target_file,$(_cfbsl_name).$(cflib),static-library)
 	@$(test) $(AR) $(ARFLAGS) $$@ $$^
+$(trace_out)
 endef
 $(CF)-build-static-library = $(eval $(call _cf_build_static_library,$1))
 
@@ -385,11 +422,13 @@ $(CF)-build-static-library = $(eval $(call _cf_build_static_library,$1))
 #  Arguments: 1: The stem of the shared library's intended filename
 # ---------------------------------------------------------------------
 define _cf_build_shared_library =
+$(trace_in)
     # TODO, need an add-flags routine
     $(eval override LDFLAGS+=-shared)
     $(eval override _cfbshl_name:=$(if $1,$1,$(cf_target)))
-    $(call __cf_build_target_file,$(_cfbshl_name).$(cfdll),shared library)
+    $(call __cf_build_target_file,$(_cfbshl_name).$(cfdll),shared-library)
 	@$(test) $(CXX) $(LDFLAGS) $$^ -o $$@
+$(trace_out)
 endef
 $(CF)-build-shared-library = $(eval $(call _cf_build_shared_library,$1))
 
@@ -401,9 +440,11 @@ $(CF)-build-shared-library = $(eval $(call _cf_build_shared_library,$1))
 # ---------------------------------------------------------------------
 #  TODO: if stem is empty, default it to target-name
 define _cf_build_executable =
+$(trace_in)
     $(eval override _cfbe_name:=$(if $1,$1,$(cf_target)))
     $(call __cf_build_target_file,$(_cfbe_name)$(cfexe),executable)
 	@$(test) $(CXX) $(LDFLAGS) $$^ $(LDLIBS) -o $$@
+$(trace_out)
 endef
 $(CF)-build-executable = $(eval $(call _cf_build_executable,$1))
 
@@ -418,10 +459,12 @@ $(CF)-build-executable = $(eval $(call _cf_build_executable,$1))
 # ---------------------------------------------------------------------
 #  TODO: enforce .MF extension?
 define $(CF)-include-as =
+$(trace_in)
     $(eval override CF_NAMESPACE:=$(1)@)
     $(call verbose,including '$(2)' as '$(1)')
     $(eval include $(2))
     $(eval override undefine CF_NAMESPACE)
+$(trace_out)
 endef
 
 
