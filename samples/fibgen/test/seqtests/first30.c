@@ -40,9 +40,9 @@ int main(int argc, char** argv)
     exit(EXIT_FAILURE);
   }
 
-  if (n > 30)
+  if (n > 40)
   {
-    fprintf(stderr, "I see you gave a number higher than 35.\n"
+    fprintf(stderr, "I see you gave a number higher than 40.\n"
                     "I also like to live dangerously.\n");
     exit(EXIT_FAILURE);
   }
