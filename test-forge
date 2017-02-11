@@ -66,7 +66,7 @@ define _tf_declare_target =
 $(trace_in)
     $(eval $(call __tf_initialize,$(1)))
     $(eval $(call $(CF)-declare-target,_tf_build_$(tf_target)))
-    $(eval override cf_outdir:=$(cfout)/$(tf_section)/$(tf_target))
+    $(eval override cf_outdir:=$(cfout)/$(tf_section)/$(tf_subsection))
 
     $(tf_target): _run_$(tf_target)
 
@@ -212,8 +212,8 @@ tf-test-sha1sum = $(trace_in)$(eval $(call __tf_test_hashval,sha1sum,$1,$2,$3))$
 tf_topdeps:=
 define __tf_include =
 $(trace_in)
-    $(eval override TF_SUBSECTION:=$(basename $(notdir $1)))
-    $(call verbose,Loading sub-section '$(TF_SUBSECTION)')
+    $(eval override tf_subsection:=$(basename $(notdir $1)))
+    $(call verbose,Loading sub-section '$(tf_section):$(tf_subsection)')
     $(eval include $(1))
 $(trace_out)
 endef
