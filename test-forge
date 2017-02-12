@@ -69,8 +69,6 @@ $(trace_in)
     $(call tracep,tf_section_outdir is '$(tf_section_outdir)')
     $(call tracep,tf_subsection_outdir is '$(tf_subsection_outdir)')
 
-    $(tf_target): _run_$(tf_target)
-
     # TODO not sure why, but $@ doesn't work in the mkdir line
     $(tf_subsection_outdir):
 	@mkdir -p $(tf_subsection_outdir)
