@@ -233,8 +233,8 @@ endef
 define __tf_include_section =
 $(trace_in)
     $(eval override tf_section:=$(1))
-    $(eval override tf_testdir:=$(abspath $(tf_section)))
-    $(eval override tf_section_outdir:=$(tf_testdir)/.out)
+    $(eval override TF_TESTDIR:=$(abspath $(tf_section)))
+    $(eval override tf_section_outdir:=$(TF_TESTDIR)/.out)
     $(call verbose,Loading section '$(tf_section)')
     $(eval override _tests:=$(sort $(wildcard $(1)/[!_]*.TF)))
     $(foreach _test,$(_tests),$(call __tf_include_subsection,$(_test),$(1)))

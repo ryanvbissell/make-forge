@@ -13,7 +13,7 @@ $(call tf-declare-target,fibseq)
     override CPPFLAGS:=-I${TF_TESTROOT}/../inc
     $(call tf-static-dependencies,_fibby@static)
     $(call tf-add-sources,C,${TF_TESTROOT}/../src,fibgen.c)
-    $(call tf-add-sources,C,${tf_testdir},first30.c)
+    $(call tf-add-sources,C,${TF_TESTDIR},first30.c)
     $(call tf-build-executable)
 
 $(call tf-test-md5sum,fib39,d74e8d3e7dbed0fa4134658a69594231,39)
