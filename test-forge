@@ -275,6 +275,48 @@ $(trace_out)
 endef
 
 
+define __tf_gen_sliced =
+$(trace_in)
+    $(call tracep,$1 --> $2)
+    $1: $2
+$(trace_out)
+endef
+
+
+define __tf_gen_postsliced =
+$(trace_in)
+    $(eval override _dep:=$(subst $(tsep), ,$2))
+    $(eval override _slice:=$(subst $(tsep),,$1))
+    $(call tracep,$(_slice), [$(_dep)])
+    $(if $(filter $(_slice),$(lastword $(_dep))),$(eval $(call __tf_gen_sliced,$1,$2)))
+$(trace_out)
+endef
+
+
+define __tf_gen_postsliced_target =
+$(trace_in)
+    $(foreach dep,$(tf_topdeps),$(call __tf_gen_postsliced,$1,$(dep)))
+$(trace_out)
+endef
+
+
+define __tf_gen_sliced_target =
+$(trace_in)
+    $(call tracep,$1)
+    $(call tracep,filter yields '$(filter .%,$1)')
+    $(if $(filter .%,$1),$(call __tf_gen_postsliced_target,$1))
+$(trace_out)
+endef
+
+
+define _tf_gen_sliced_targets =
+$(trace_in)
+    $(foreach tgt,$(MAKECMDGOALS),$(call __tf_gen_sliced_target,$(tgt)))
+$(trace_out)
+endef
+
+
+
 # ---------------------------------------------------------------------
 # Function:     tf-import-sections
 # Description:  Imports tests from all subdirectories that don't start
@@ -286,6 +328,7 @@ define _tf_import_all_sections =
     $(info === Importing tests ...)
     $(call tf-include-sections,$(_subdirs))
 
+    $(call _tf_gen_sliced_targets)
     all:: $(tf_topdeps)
 endef
 tf-import-all-sections = $(trace_in)$(strip $(call _tf_import_all_sections))$(trace_out)
