@@ -23,7 +23,7 @@ override trace_decrease = $(eval override trace_depth:=$(call restwords,$(trace_
 override _trace_in = $(info $(trace_indent)> $1($(strip $2)))$(trace_increase)
 override trace_in = $(call _trace_in,$0,$1 $2 $3 $4 $5 $6 $7 $8 $9)
 override trace_out = $(trace_decrease)$(info $(trace_indent)<)
-override tracep = $(info $(trace_indent)$(strip $1$2$3$4$5$6$7$8$9))
+override tracep = $(info $(trace_indent)T: $(strip $1$2$3$4$5$6$7$8$9))
 endif
 
 # this one is always defined, because it has a side-effect
