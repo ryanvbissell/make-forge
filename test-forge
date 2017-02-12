@@ -38,7 +38,6 @@ include $(_tfdir)/_common-forge
 tf-add-sources = $(call $(CF)-add-sources,$(1),$(2),$(3))
 tf-build-static_library = $(call $(CF)-build-static-library,$(1))
 tf-build-shared_library = $(call $(CF)-build-shared-library,$(1))
-tf-static-dependencies = $(call $(CF)-static-dependencies,$(1))
 
 
 # ---------------------------------------------------------------------
@@ -78,6 +77,23 @@ $(trace_in)
 $(trace_out)
 endef
 tf-declare-target = $(eval $(call _tf_declare_target,$1))
+
+
+# ---------------------------------------------------------------------
+# Function:     (tf-static-dependencies,targets)
+# Description:  Declares the current test's build-target's
+#               static-lib linkage dependencies
+# Arguments: 1: space-delimited list of build-targets
+# ---------------------------------------------------------------------
+define _tf_static_dependencies =
+$(trace_in)
+    $(eval override _prefixed:=)
+    $(foreach dep,$(1),$(eval override _prefixed+=@$(dep)))
+    $(call $(CF)-static-dependencies,$(_prefixed))
+    $(eval override undefine _prefixed)
+$(trace_out)
+endef
+tf-static-dependencies = $(strip $(call _tf_static_dependencies,$1))
 
 
 # ---------------------------------------------------------------------
@@ -283,13 +299,20 @@ endef
 # ---------------------------------------------------------------------
 override undefine tf_usingmf
 define _tf_use_makeforge_as =
+    $(eval override _namespace:=@$(1))
     $(eval override _tfum_saved_mfpd:=$(MF_PROJECT_DIR))
+    $(eval override _tfum_saved_cfout:=$(cf_outdir))
+    $(eval override cf_outdir:=$(tf_section_outdir)/$(_namespace))
+    $(cf_outdir): ; @mkdir $(cf_outdir)
     $(eval override MF_PROJECT_DIR:=$(abspath $(dir $(2))))
     $(eval override tf_usingmf:=1)
-    $(call $(CF)-include-as,$(1),$(2))
+    $(call $(CF)-include-as,$(_namespace),$(2))
     $(eval override undefine tf_usingmf)
+    $(eval override cf_outdir:=$(_tfum_saved_cfout))
     $(eval override MF_PROJECT_DIR:=$(_tfum_saved_mfpd))
+    $(eval override undefine _tfum_saved_cfout)
     $(eval override undefine _tfum_saved_mfpd)
+    $(eval override undefine _namespace)
 endef
 tf-use-makeforge-as = $(trace_in)$(strip $(call _tf_use_makeforge_as,$1,$2))$(trace_out)
 
