@@ -31,6 +31,8 @@ override CF_NOSYNC:=1
 include $(_tfdir)/_common-forge
 
 
+override tsep:=.
+
 .DEFAULT_GOAL:=all
 
 
@@ -117,7 +119,7 @@ tf-build-executable = $(if $1,$(error $0 does not take an argument), \
 # ---------------------------------------------------------------------
 define __tf_register_test =
 $(trace_in)
-    $(eval override _name:=$(tf_section)^$(tf_subsection)^$(1))
+    $(eval override _name:=$(tf_section)$(tsep)$(tf_subsection)$(tsep)$(1))
     $(eval override tf_topdeps+=$(_name))
     $(eval tf_logfile:=$(tf_subsection_outdir)/$(1).log)
     $(_name)
@@ -135,12 +137,12 @@ endef
 define __tf_gen_runtarget =
 $(trace_in)
     $(eval override tf_testname:=$1)
-    $(eval override tf_sandbox:=_$(lastword $(subst ^, ,$(tf_testname))))
+    $(eval override tf_sandbox:=_$(lastword $(subst $(tsep), ,$(tf_testname))))
     $(eval __tfgr_exename:=$(notdir $(cf_$(cf_target)_file)))
     $(eval __tfgr_testcmd:=$(TF_ENVVARS) ../$(__tfgr_exename) $(tf_testargs))
     $(eval __tfgr_cmdfile:=$(tf_logfile:%.log=%.cmd))
     _announce_$(1):
-	@printf '%15s  ::  Building...' $(call _tf_pretty_fqtn,$(tf_testname))
+	@printf '%15s  ::  Building...' $(tf_testname)
 
     _run_$(1): _announce_$(1) $(tf_subsection_outdir) $(cf_target)
 	@printf 'Running [%-10s]...  ' $(2)
@@ -278,16 +280,17 @@ endef
 # Description:  Imports tests from all subdirectories that don't start
 #               with a '.'
 # ---------------------------------------------------------------------
-define tf-import-all-sections =
-$(trace_in)
+define _tf_import_all_sections =
     $(eval override _subdirs:=$(sort $(wildcard */)))
     $(eval override _subdirs:=$(_subdirs:%/=%))
     $(info === Importing tests ...)
     $(call tf-include-sections,$(_subdirs))
 
     all:: $(tf_topdeps)
-$(trace_out)
 endef
+tf-import-all-sections = $(trace_in)$(strip $(call _tf_import_all_sections))$(trace_out)
+#TODO: implement slicing above, by doing foreach on MAKECMDGOALS
+#      and generating the necessary targets
 
 
 # ---------------------------------------------------------------------
@@ -338,16 +341,10 @@ override mf-build-shared-library = $(trace_in)$(call __mfguard,$0,$1)$(trace_out
 override mf-build-executable     = $(trace_in)$(call __mfguard,$0,$1)$(trace_out)
 
 
-override _tf_pretty_fqtn = $(subst ^,:,$1)
-
-define _tf_print_fqtn =
-    $(info $(_tf_pretty_fqtn))
-endef
-
 .PHONY: list
 list:
 	$(info $(\n)Here is a list of all the available tests:)
-	$(foreach dep,$(sort $(tf_topdeps)),$(call _tf_print_fqtn,$(dep)))
+	$(foreach dep,$(sort $(tf_topdeps)),$(info $(dep)))
 	@echo
 
 endif  # __tf_include_guard
