@@ -65,7 +65,6 @@ endef
 define _tf_declare_target =
 $(trace_in)
     $(eval $(call __tf_initialize,$(1)))
-    $(eval override tf_section_outdir:=$(tf_testdir)/.out)
     $(eval override tf_subsection_outdir:=$(tf_section_outdir)/$(tf_subsection))
     $(eval $(call $(CF)-declare-target,_tf_build_$(tf_target),$(tf_subsection_outdir)))
     $(call tracep,cf_outdir is '$(cf_outdir)')
@@ -235,8 +234,9 @@ endef
 define __tf_include_testdir =
 $(trace_in)
     $(eval override tf_section:=$(1))
+    $(eval override tf_testdir:=$(abspath $(tf_section)))
+    $(eval override tf_section_outdir:=$(tf_testdir)/.out)
     $(call verbose,Loading section '$(tf_section)')
-    $(eval override tf_testdir:=$(abspath $(1)))
     $(eval override _tests:=$(sort $(wildcard $(1)/[!_]*.TF)))
     $(foreach _test,$(_tests),$(call __tf_include,$(_test),$(1)))
     $(eval override undefine _tests)
