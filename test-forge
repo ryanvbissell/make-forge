@@ -43,7 +43,7 @@ tf-build-shared_library = $(call $(CF)-build-shared-library,$(1))
 # ---------------------------------------------------------------------
 # INTERNAL:     (__tf_initialize)
 # Description:  Resets internal state, in preparation for
-#               tf_declare_test_target, et al.
+#               tf_declare_target, et al.
 # Arguments: 1: The name of the test-target to run
 # ---------------------------------------------------------------------
 define __tf_initialize =
