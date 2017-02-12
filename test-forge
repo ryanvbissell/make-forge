@@ -113,11 +113,14 @@ tf-build-executable = $(if $1,$(error $0 does not take an argument), \
 # Description:  Adds the specified test to the list of available
 #               tests, and computes the test's logfile name.
 # Arguments: 1: The name of the test-target to run
+# RETURNS:      The fully-qualified name of the test-target to run
 # ---------------------------------------------------------------------
 define __tf_register_test =
 $(trace_in)
-    $(eval override tf_topdeps+=$(1))
+    $(eval override _name:=$(tf_section)^$(tf_subsection)^$(1))
+    $(eval override tf_topdeps+=$(_name))
     $(eval tf_logfile:=$(tf_subsection_outdir)/$(1).log)
+    $(_name)
 $(trace_out)
 endef
 
@@ -132,12 +135,12 @@ endef
 define __tf_gen_runtarget =
 $(trace_in)
     $(eval override tf_testname:=$1)
-    $(eval override tf_sandbox:=_$(tf_testname))
+    $(eval override tf_sandbox:=_$(lastword $(subst ^, ,$(tf_testname))))
     $(eval __tfgr_exename:=$(notdir $(cf_$(cf_target)_file)))
     $(eval __tfgr_testcmd:=$(TF_ENVVARS) ../$(__tfgr_exename) $(tf_testargs))
     $(eval __tfgr_cmdfile:=$(tf_logfile:%.log=%.cmd))
     _announce_$(1):
-	@printf '%15s :  Building...' $(tf_testname)
+	@printf '%15s  ::  Building...' $(call _tf_pretty_fqtn,$(tf_testname))
 
     _run_$(1): _announce_$(1) $(tf_subsection_outdir) $(cf_target)
 	@printf 'Running [%-10s]...  ' $(2)
@@ -166,9 +169,9 @@ endef
 #       tf-test-exitstatus that compares to expected exitstatus value.
 define _tf_test_exitstatus =
     $(eval override tf_testargs:=$(2))
-    $(eval $(call __tf_register_test,$(1)))
+    $(eval override _name:=$(strip $(call __tf_register_test,$(1))))
     $(eval $(call __tf_gen_runtarget,$(1),exitstatus))
-    $(1): _run_$(1)
+    $(_name): _run_$(_name)
 	@echo "PASS"
 endef
 tf-test-exitstatus = $(eval $(call _tf_test_exitstatus,$1,$2,$3))
@@ -189,13 +192,13 @@ define __tf_test_hashval =
     $(eval override _hashgen:=$(1))
     $(eval override _hash:=$(3))
     $(eval override tf_testargs:=$(4))
-    $(call __tf_register_test,$(2))
-    $(call __tf_gen_runtarget,$(2),$(_hashgen))
-    $(2): _run_$(2)
+    $(eval override _name:=$(strip $(call __tf_register_test,$(2))))
+    $(call __tf_gen_runtarget,$(_name),$(_hashgen))
+    $(_name): _run_$(_name)
 	@TF_HASHVAL=`$(_hashgen) $(tf_logfile) | awk '{print $$$$1}'` && \
 	 if [ ! "$$$${TF_HASHVAL}" = "$(_hash)" ]; then \
 	     echo "\033[0;31mFAILED due to digest mismatch" ;\
-	     echo "$(2): test's log digest was '$$$${TF_HASHVAL}', expected '$(_hash)'.\033[0m" 2>&1 ;\
+	     echo "$(_name): test's log digest was '$$$${TF_HASHVAL}', expected '$(_hash)'.\033[0m" 2>&1 ;\
 	     false ;\
 	 else \
 	     echo "PASS";\
@@ -334,6 +337,18 @@ override mf-build-static-library = $(trace_in)$(call __mfguard,$0,$1)$(trace_out
 override mf-build-shared-library = $(trace_in)$(call __mfguard,$0,$1)$(trace_out)
 override mf-build-executable     = $(trace_in)$(call __mfguard,$0,$1)$(trace_out)
 
+
+override _tf_pretty_fqtn = $(subst ^,:,$1)
+
+define _tf_print_fqtn =
+    $(info $(_tf_pretty_fqtn))
+endef
+
+.PHONY: list
+list:
+	$(info $(\n)Here is a list of all the available tests:)
+	$(foreach dep,$(sort $(tf_topdeps)),$(call _tf_print_fqtn,$(dep)))
+	@echo
 
 endif  # __tf_include_guard
 

@@ -20,6 +20,11 @@ override bspace:=$(empty)$(empty)
 override ,:=$(comma)
 override ;:=$(semi)
 
+define \n =
+
+
+endef
+
 override restwords = $(wordlist 2,$(words $1),$1)
 
 ifdef VERBOSE
