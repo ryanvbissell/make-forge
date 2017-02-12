@@ -21,7 +21,7 @@ MFOUT:=$(MF_PROJECT_DIR)/out
 override _mfdir:=$(dir $(lastword $(MAKEFILE_LIST)))
 override _mfdir:=$(_mfdir:%/=%)
 override CF:=mfpriv
-override cfout:=$(MFOUT)
+override cf_outdir:=$(MFOUT)
 include $(_mfdir)/_common-forge
 
 
@@ -62,8 +62,8 @@ endef
 # be addressed first.
 .SECONDEXPANSION:
 clean:: $$(cf_clean_targets)
-	@([ -e $(cfout) ] && $(echo) "+++ [$(notdir $(cfout))] Removing...") || true
-	@([ -e $(cfout) ] && $(test) rmdir --ignore-fail-on-non-empty $(cfout)) || true
+	@([ -e $(cf_outdir) ] && $(echo) "+++ [$(notdir $(cf_outdir))] Removing...") || true
+	@([ -e $(cf_outdir) ] && $(test) rmdir --ignore-fail-on-non-empty $(cf_outdir)) || true
 
 
 endif  # __mf_include_guard

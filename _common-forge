@@ -26,14 +26,14 @@ cf_assert = $(if $($1),,\
               $(error INTERNAL ERROR:  $(_cfcaller) should have defined '$1' before including $(notdir $(_cfthis))))
 
 $(call cf_assert,CF)
-$(call cf_assert,cfout)
+$(call cf_assert,cf_outdir)
 
 _cfdir:=$(dir $(_cfthis))
 _cfdir:=$(_cfdir:%/=%)
 include $(_cfdir)/_tracing
 
-$(cfout):
-	@$(test) mkdir -p $(cfout)
+$(cf_outdir):
+	@$(test) mkdir -p $(cf_outdir)
 
 
 # TODO, see make-forge
@@ -42,7 +42,7 @@ $(cfout):
 
 # .d files are precious because they serve to speed up subsequent builds.
 # .i files are precious because the user specifically asked for them.
-.PRECIOUS: $(cfout)/%.d $(cfout)/%.i
+.PRECIOUS: $(cf_outdir)/%.d $(cf_outdir)/%.i
 
 
 # enable paralellism based on number of available processors
@@ -143,17 +143,18 @@ endef
 # Description:  Declares to make-forge that a new build-target named
 #               'name' is about to be described.
 # Arguments: 1: name of the build-target being described
+#            2: [optional] cf_target_outdir override
 # ---------------------------------------------------------------------
 define _cf_declare_target =
 $(trace_in)
     $(call __cf_initialize)
     $(eval override cf_target:=$(CF_NAMESPACE)$(1))
-    $(eval override cf_outdir:=$(cfout))
+    $(eval override cf_target_outdir:=$(if $2,$2,$(cf_outdir)))
+    $(call tracep,cf_target_outdir will be '$(cf_target_outdir)')
     $(call tracep,cf_target will be '$(cf_target)')
-    $(call tracep,cf_outdir will be '$(cf_outdir)')
 $(trace_out)
 endef
-$(CF)-declare-target = $(trace_in)$(strip $(call _cf_declare_target,$1))$(trace_out)
+$(CF)-declare-target = $(trace_in)$(strip $(call _cf_declare_target,$1,$2))$(trace_out)
 
 
 # ---------------------------------------------------------------------
@@ -232,17 +233,17 @@ endef
 # ---------------------------------------------------------------------
 define __cf_gen_dependencies =
 $(trace_in)
-	@$(test2) $(CXX) -MM $(CPPFLAGS) $(CXXFLAGS) $$< $(redir)$(cf_outdir)/$(1).d
-	@$(test2) mv -f $(cf_outdir)/$(1).d $(cf_outdir)/$(1).d.tmp
-	@$(test2) sed -e 's|.*:|$(cf_outdir)/$(1).o:|' $(indir)$(cf_outdir)/$(1).d.tmp $(redir)$(cf_outdir)/$(1).d
-	@$(test2) echo "" $(append)$(cf_outdir)/$(1).d
+	@$(test2) $(CXX) -MM $(CPPFLAGS) $(CXXFLAGS) $$< $(redir)$(cf_target_outdir)/$(1).d
+	@$(test2) mv -f $(cf_target_outdir)/$(1).d $(cf_target_outdir)/$(1).d.tmp
+	@$(test2) sed -e 's|.*:|$(cf_target_outdir)/$(1).o:|' $(indir)$(cf_target_outdir)/$(1).d.tmp $(redir)$(cf_target_outdir)/$(1).d
+	@$(test2) echo "" $(append)$(cf_target_outdir)/$(1).d
 	@$(test2) sed -e 's/.*://' \
-	              -e 's/\\$$$$//' $(indir)$(cf_outdir)/$(1).d.tmp $(pipe) \
+	              -e 's/\\$$$$//' $(indir)$(cf_target_outdir)/$(1).d.tmp $(pipe) \
 	 $(test2) fmt -1 $(pipe) \
 	 $(test2) sed -e 's/^ *//' \
 	              -e 's/$$$$/:\n/' \
-	              -e 's/^:.*$$$$/\n/' $(append)$(cf_outdir)/$(1).d
-	@$(test2) $(RM) $(cf_outdir)/$(1).d.tmp
+	              -e 's/^:.*$$$$/\n/' $(append)$(cf_target_outdir)/$(1).d
+	@$(test2) $(RM) $(cf_target_outdir)/$(1).d.tmp
 $(trace_out)
 endef
 
@@ -259,7 +260,7 @@ endef
 # ---------------------------------------------------------------------
 define __cf_gen_static_pattern_rule
 $(trace_in)
-    $(2): $(cf_outdir)/%$(cf_suffix).$(cfobj): $(3)/%$(4) | $(cf_outdir)
+    $(2): $(cf_target_outdir)/%$(cf_suffix).$(cfobj): $(3)/%$(4) | $(cf_target_outdir)
 	@$(call __cf_compile_$(1),$(cf_printsuffix))
 	@$(call __cf_gen_dependencies,$$*$(cf_suffix))
 $(trace_out)
@@ -277,10 +278,11 @@ endef
 # ---------------------------------------------------------------------
 define _cf_add_sources =
 $(trace_in)
+    $(call tracep,cf_target_outdir is '$(cf_target_outdir)')
     $(eval override _mfas_src:=$(wildcard $(2)/$(3)))
     $(eval override _mfas_ext:=$(suffix $(3)))
     $(eval override _mfas_obj:=$(subst $(_mfas_ext),$(cf_suffix).$(cfobj),$(_mfas_src)))
-    $(eval override _mfas_obj:=$(subst $(2),$(cf_outdir),$(_mfas_obj)))
+    $(eval override _mfas_obj:=$(subst $(2),$(cf_target_outdir),$(_mfas_obj)))
     $(eval override cf_srcfiles+=$(_mfas_src))
     $(eval override cf_objfiles+=$(_mfas_obj))
     $(eval $(call __cf_gen_static_pattern_rule,$(1),$(_mfas_obj),$(2),$(_mfas_ext)))
@@ -348,7 +350,7 @@ endef
 # ---------------------------------------------------------------------
 define __cf_delete_mfout_files =
 $(trace_in)
-	 ([ -e $(cfout) ] && $(test) $(RM) $(1)) || true;
+	 ([ -e $(cf_target_outdir) ] && $(test) $(RM) $(1)) || true;
 $(trace_out)
 endef
 
@@ -370,7 +372,7 @@ $(trace_in)
 
     .PHONY: _clean_$(_mfgc_target)
     _clean_$(_mfgc_target):
-	@([ -e $(cfout) ] && $(echo) "+++ [$(_mfgc_target)] Cleaning...") || true
+	@([ -e $(cf_target_outdir) ] && $(echo) "+++ [$(_mfgc_target)] Cleaning...") || true
 	@$(foreach _var,$(_mfgc_varnames),$(call __cf_delete_mfout_files,$($(_var))))
 
     $(eval override cf_clean_targets+=_clean_$(_mfgc_target))
@@ -386,7 +388,7 @@ endef
 # ---------------------------------------------------------------------
 define __cf_build_target_file =
 $(trace_in)
-    $(eval override cf_$(cf_target)_file:=$(cf_outdir)/$(1))
+    $(eval override cf_$(cf_target)_file:=$(cf_target_outdir)/$(1))
     $(eval $(__cf_import_depfiles))
     $(eval override cf_objfiles:=$(sort $(cf_objfiles)))
     $(eval override cf_linkfiles:=$(sort $(cf_linkfiles)))
