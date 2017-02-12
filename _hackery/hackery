@@ -20,6 +20,8 @@ override bspace:=$(empty)$(empty)
 override ,:=$(comma)
 override ;:=$(semi)
 
+override restwords = $(wordlist 2,$(words $1),$1)
+
 ifdef VERBOSE
     define verbose =
         $(info V: $1$2$3$4$5$6$7$8$9)

@@ -10,10 +10,8 @@
 ifndef __tracing_include_guard
 override __tracing_include_guard:=1
 
-override empty:=
-override space:=$(empty) $(empty)
-
-override restwords = $(wordlist 2,$(words $1),$1)
+override _mhtdir:=$(dir $(lastword $(MAKEFILE_LIST)))
+include $(_mhtdir)/hackery
 
 ifdef MF_TRACE
 override trace_depth:=
