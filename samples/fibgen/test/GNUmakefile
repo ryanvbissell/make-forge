@@ -40,6 +40,6 @@ include $(TFDIR)/test-forge
 # "just work" for you.  Otherwise, you will need to read up on
 #   - TODO
 
-$(call tf-import-testdirs)
+$(call tf-import-all-sections)
 
 

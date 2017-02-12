@@ -210,13 +210,13 @@ tf-test-sha1sum = $(trace_in)$(eval $(call __tf_test_hashval,sha1sum,$1,$2,$3))$
 
 
 # ---------------------------------------------------------------------
-# INTERNAL:     (__tf_include,filename)
-# Description:  Includes the given test-forge fragment
+# INTERNAL:     (__tf_include_subsection,filename)
+# Description:  Includes the given test-forge subsection fragment
 # Arguments: 1: the file to include
 # ---------------------------------------------------------------------
 #  TODO: enforce .TF extension
 tf_topdeps:=
-define __tf_include =
+define __tf_include_subsection =
 $(trace_in)
     $(eval override tf_subsection:=$(basename $(notdir $1)))
     $(call verbose,Loading sub-section '$(tf_section):$(tf_subsection)')
@@ -226,48 +226,48 @@ endef
 
 
 # ---------------------------------------------------------------------
-# INTERNAL:     (__tf_include_testdir,dirname)
+# INTERNAL:     (__tf_include_section,dirname)
 # Description:  Scans the given directory for test-forge fragments
 #               that don't begin with an underscore (_)
 # Arguments: 1: the directory to scan
 # ---------------------------------------------------------------------
-define __tf_include_testdir =
+define __tf_include_section =
 $(trace_in)
     $(eval override tf_section:=$(1))
     $(eval override tf_testdir:=$(abspath $(tf_section)))
     $(eval override tf_section_outdir:=$(tf_testdir)/.out)
     $(call verbose,Loading section '$(tf_section)')
     $(eval override _tests:=$(sort $(wildcard $(1)/[!_]*.TF)))
-    $(foreach _test,$(_tests),$(call __tf_include,$(_test),$(1)))
+    $(foreach _test,$(_tests),$(call __tf_include_subsection,$(_test),$(1)))
     $(eval override undefine _tests)
 $(trace_out)
 endef
 
 
 # ---------------------------------------------------------------------
-# Function:     (tf-include-testdirs,dirlist)
+# Function:     (tf-include-sections,dirlist)
 # Description:  Scans every given directory for test-forge fragments.
 # Arguments: 1: A space-delimited list of directories
 # ---------------------------------------------------------------------
 # TODO: should this be a private routine?
-define tf-include-testdirs =
+define tf-include-sections =
 $(trace_in)
-    $(foreach dir,$(1),$(call __tf_include_testdir,$(dir)))
+    $(foreach dir,$(1),$(call __tf_include_section,$(dir)))
 $(trace_out)
 endef
 
 
 # ---------------------------------------------------------------------
-# Function:     tf-import-testdirs
+# Function:     tf-import-sections
 # Description:  Imports tests from all subdirectories that don't start
 #               with a '.'
 # ---------------------------------------------------------------------
-define tf-import-testdirs =
+define tf-import-all-sections =
 $(trace_in)
     $(eval override _subdirs:=$(sort $(wildcard */)))
     $(eval override _subdirs:=$(_subdirs:%/=%))
     $(info === Importing tests ...)
-    $(call tf-include-testdirs,$(_subdirs))
+    $(call tf-include-sections,$(_subdirs))
 
     all:: $(tf_topdeps)
 $(trace_out)
