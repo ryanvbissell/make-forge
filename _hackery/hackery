@@ -1,0 +1,26 @@
+# vim: set ft=make:
+#
+# Copyright (c) 2017, Ryan V. Bissell
+# All rights reserved.
+#
+# SPDX-License-Identifier: MIT
+# See the enclosed "LICENSE.forge" file for exact license terms.
+#
+
+ifndef __mh_hackery_include_guard
+override __mh_hackery_include_guard:=1
+
+
+override empty:=
+override tab:=$(empty)	$(empty)
+override space:=$(empty) $(empty)
+override comma:= ,
+override semi:=;
+override bspace:=$(empty)$(empty)
+override ,:=$(comma)
+override ;:=$(semi)
+
+
+endif
+
+

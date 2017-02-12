@@ -11,15 +11,6 @@ ifndef __cf_include_guard
 override __cf_include_guard:=1
 
 
-override empty:=
-override tab:=$(empty)	$(empty)
-override space:=$(empty) $(empty)
-override comma:= ,
-override semi:=;
-override bspace:=$(empty)$(empty)
-override ,:=$(comma)
-override ;:=$(semi)
-
 _cfthis:=$(lastword $(MAKEFILE_LIST))
 _cfcaller:=$(notdir $(lastword $(wordlist 2,$(words $(MAKEFILE_LIST)),foo $(MAKEFILE_LIST))))
 cf_assert = $(if $($1),,\
@@ -30,7 +21,8 @@ $(call cf_assert,cf_outdir)
 
 _cfdir:=$(dir $(_cfthis))
 _cfdir:=$(_cfdir:%/=%)
-include $(_cfdir)/_tracing
+include $(_cfdir)/_hackery/hackery
+include $(_cfdir)/_hackery/tracing
 
 $(cf_outdir):
 	@$(test) mkdir -p $(cf_outdir)
