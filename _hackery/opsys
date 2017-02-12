@@ -1,0 +1,45 @@
+# vim: set ft=make:
+#
+# Copyright (c) 2017, Ryan V. Bissell
+# All rights reserved.
+#
+# SPDX-License-Identifier: MIT
+# See the enclosed "LICENSE" file for exact license terms.
+#
+
+ifndef __mh_opsys_include_guard
+override __mh_opsys_include_guard:=1
+
+override _mhdir:=$(dir $(lastword $(MAKEFILE_LIST)))
+include $(_mhdir)/hackery
+
+define mh_opsys_configure_linux =
+    $(eval override mh_buildos:=linux)
+    $(eval override CP:=cp)
+    $(eval override RM:=rm)
+    $(eval override RMDIR:=rmdir)
+    $(eval override MKDIR:=mkdir)
+endef
+
+
+define mh_opsys_configure_windows =
+    $(eval override mh_buildos:=windows)
+    $(eval override CP:=copy)
+    $(eval override RM:=del)
+    $(eval override RMDIR:=rmdir)
+    $(eval override MKDIR:=mkdir)
+endef
+
+
+ifeq ($(OS),Windows_NT)
+    $(strip $(call mh_opsys_configure_windows))
+else ifeq ($(shell uname -s), Linux)
+    $(strip $(call mh_opsys_configure_linux))
+else
+    $(error Unknown operating system on build machine)
+endif
+
+$(call verbose,Build-OS has been detected as '$(mh_buildos)')
+
+endif
+

@@ -7,9 +7,6 @@
 # See the enclosed "LICENSE.forge" file for exact license terms.
 #
 
-# TODO: work this out programmatically, in _common-forge
-override mf_opsys:=linux
-
 # normally, every time we invoke 'mf-declare-target', the regular
 # make envvars (CFLAGS, LDFLAGS, etc.) get reset back to their
 # original values and you must re-configure them as you need for

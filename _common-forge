@@ -21,6 +21,7 @@ $(call cf_assert,cf_outdir)
 
 _cfdir:=$(dir $(_cfthis))
 _cfdir:=$(_cfdir:%/=%)
+include $(_cfdir)/_hackery/opsys
 include $(_cfdir)/_hackery/hackery
 include $(_cfdir)/_hackery/tracing
 
@@ -41,11 +42,6 @@ $(cf_outdir):
 # I believe this is the most portable solution (nearly POSIX)
 override CF_NUMPROCS?=$(shell getconf _NPROCESSORS_ONLN)
 override MAKEFLAGS+= --jobs=$(CF_NUMPROCS)
-ifdef VERBOSE
-define verbose =
-    $(info V: $1$2$3$4$5$6$7$8$9)
-endef
-endif
 $(call verbose,This session will use $(CF_NUMPROCS) processor(s))
 
 ifndef CF_NOSYNC
@@ -57,12 +53,21 @@ endif
 # squelch unhelpful output from Make
 override MAKEFLAGS+= --no-print-directory
 
+override BUILDOS:=$(mh_buildos)
+override HOSTOS:=$(BUILDOS)
 
-# TODO: these should be specific to the host OS
-override cfobj:=o
-override cflib:=a
-override cfexe:=
-override cfdll:=so
+
+ifeq ($(BUILDOS),linux)
+    override cfobj:=o
+    override cflib:=a
+    override cfexe:=
+    override cfdll:=so
+else ifeq ($(BUILDOS),windows)
+    override cfobj:=obj
+    override cflib:=lib
+    override cfexe:=exe
+    override cfdll:=dll
+endif
 
 
 # TODO: some of these may be specific to the host OS
