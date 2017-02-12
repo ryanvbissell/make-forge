@@ -43,10 +43,10 @@ override CF_NUMPROCS?=$(shell getconf _NPROCESSORS_ONLN)
 override MAKEFLAGS+= --jobs=$(CF_NUMPROCS)
 ifdef VERBOSE
 define verbose =
-    $(info V: $1)
+    $(info V: $1$2$3$4$5$6$7$8$9)
 endef
 endif
-$(call verbose,This session will use $(cf_numprocs) processor(s))
+$(call verbose,This session will use $(CF_NUMPROCS) processor(s))
 
 ifndef CF_NOSYNC
 # group parallel output on a per-target basis,
