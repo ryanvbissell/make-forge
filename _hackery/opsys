@@ -10,8 +10,8 @@
 ifndef __mh_opsys_include_guard
 override __mh_opsys_include_guard:=1
 
-override _mhdir:=$(dir $(lastword $(MAKEFILE_LIST)))
-include $(_mhdir)/hackery
+override _mhodir:=$(dir $(lastword $(MAKEFILE_LIST)))
+include $(_mhodir)/hackery
 
 define mh_opsys_configure_linux =
     $(eval override mh_buildos:=linux)
