@@ -448,5 +448,11 @@ _clean: _version
 	$(info $(\n)Cleaning for test-forge is not yet implemented.)
 	@echo
 
+.PHONY: _help
+_help: _version
+	$(info $(\n)Full help for test-forge is not yet implemented.)
+	@echo
+
+
 endif  # __tf_include_guard
 
