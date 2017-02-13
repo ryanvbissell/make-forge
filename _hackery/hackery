@@ -25,7 +25,10 @@ define \n =
 
 endef
 
-override restwords = $(wordlist 2,$(words $1),$1)
+override car = $(firstword $1)
+override cdr = $(wordlist 2,$(words $1),$1)
+override last = $(lastword $1)
+override butlast = $(wordlist 2,$(words $1),fake $1)
 
 ifdef VERBOSE
     define verbose =

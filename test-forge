@@ -300,10 +300,30 @@ $(trace_out)
 endef
 
 
+define __tf_gen_midsliced =
+$(trace_in)
+    $(eval override _dep:=$(subst $(tsep), ,$2))
+    $(eval override _slice:=$(subst $(tsep),,$1))
+    $(call tracep,$(_slice), [$(_dep)])
+    $(if $(filter $(_slice),$(call car,$(call cdr,$(_dep)))),$(eval $(call __tf_gen_sliced,$1,$2)))
+$(trace_out)
+endef
+
+
+define __tf_gen_midsliced_target =
+$(trace_in)
+    $(foreach dep,$(tf_topdeps),$(call __tf_gen_midsliced,$1,$(dep)))
+$(trace_out)
+endef
+
+
 define __tf_gen_sliced_target =
 $(trace_in)
     $(call tracep,$1)
-    $(call tracep,filter yields '$(filter .%,$1)')
+    $(call tracep,(filter .%) yields '$(filter .%,$1)')
+    $(call tracep,(filter %.) yields '$(filter %.,$1)')
+    $(call tracep,(filter .%.) yields '$(filter .%.,$1)')
+    $(if $(filter .%.,$1),$(call __tf_gen_midsliced_target,$1))
     $(if $(filter .%,$1),$(call __tf_gen_postsliced_target,$1))
 $(trace_out)
 endef
@@ -311,6 +331,7 @@ endef
 
 define _tf_gen_sliced_targets =
 $(trace_in)
+    $(call tracep,MAKECMDGOALS is '$(MAKECMDGOALS)')
     $(foreach tgt,$(MAKECMDGOALS),$(call __tf_gen_sliced_target,$(tgt)))
 $(trace_out)
 endef
