@@ -65,5 +65,7 @@ clean:: $$(cf_clean_targets)
 	@([ -e $(cf_outdir) ] && $(echo) "+++ [$(notdir $(cf_outdir))] Removing...") || true
 	@([ -e $(cf_outdir) ] && $(test) rmdir --ignore-fail-on-non-empty $(cf_outdir)) || true
 
+version:: _version
+	@echo ""
 
 endif  # __mf_include_guard

@@ -33,7 +33,11 @@ include $(_tfdir)/_common-forge
 
 override tsep:=.
 
-.DEFAULT_GOAL:=all
+.DEFAULT_GOAL:=_quickhelp
+
+_quickhelp: _version
+	@echo "  - Type 'make list' to see a list of test-targets"
+	@echo "  - Type 'make help' for a more detailed help message."
 
 
 # create some test-forge aliases for needed make-forge routines
@@ -317,14 +321,43 @@ $(trace_out)
 endef
 
 
+define __tf_gen_presliced =
+$(trace_in)
+    $(eval override _dep:=$(subst $(tsep), ,$2))
+    $(eval override _slice:=$(subst $(tsep),,$1))
+    $(call tracep,$(_slice), [$(_dep)])
+    $(if $(filter $(_slice),$(call car,$(_dep))),$(eval $(call __tf_gen_sliced,$1,$2)))
+$(trace_out)
+endef
+
+
+define __tf_gen_presliced_target =
+$(trace_in)
+    $(foreach dep,$(tf_topdeps),$(call __tf_gen_presliced,$1,$(dep)))
+$(trace_out)
+endef
+
+
+override TF_BUILTINS:=clean help list version
+override __tf_is_builtin_target = $(filter $1,$(TF_BUILTINS))
+define __tf_gen_builtin_target =
+    $1:: _$1 ; @echo ""
+endef
+
+
 define __tf_gen_sliced_target =
 $(trace_in)
     $(call tracep,$1)
     $(call tracep,(filter .%) yields '$(filter .%,$1)')
     $(call tracep,(filter %.) yields '$(filter %.,$1)')
     $(call tracep,(filter .%.) yields '$(filter .%.,$1)')
-    $(if $(filter .%.,$1),$(call __tf_gen_midsliced_target,$1))
-    $(if $(filter .%,$1),$(call __tf_gen_postsliced_target,$1))
+    $(if $(call __tf_is_builtin_target,$1),
+         $(call __tf_gen_builtin_target,$1),
+         $(if $(filter .%.,$1),
+              $(call __tf_gen_midsliced_target,$1),
+              $(if $(filter .%,$1),
+                   $(call __tf_gen_postsliced_target,$1),
+                   $(call __tf_gen_presliced_target,$1))))
 $(trace_out)
 endef
 
@@ -350,11 +383,8 @@ define _tf_import_all_sections =
     $(call tf-include-sections,$(_subdirs))
 
     $(call _tf_gen_sliced_targets)
-    all:: $(tf_topdeps)
 endef
 tf-import-all-sections = $(trace_in)$(strip $(call _tf_import_all_sections))$(trace_out)
-#TODO: implement slicing above, by doing foreach on MAKECMDGOALS
-#      and generating the necessary targets
 
 
 # ---------------------------------------------------------------------
@@ -405,10 +435,10 @@ override mf-build-shared-library = $(trace_in)$(call __mfguard,$0,$1)$(trace_out
 override mf-build-executable     = $(trace_in)$(call __mfguard,$0,$1)$(trace_out)
 
 
-.PHONY: list
-list:
+.PHONY: _list
+_list: _version
 	$(info $(\n)Here is a list of all the available tests:)
-	$(foreach dep,$(sort $(tf_topdeps)),$(info $(dep)))
+	$(foreach dep,$(sort $(tf_topdeps)),$(info $( )  - $(dep)))
 	@echo
 
 endif  # __tf_include_guard
