@@ -36,7 +36,8 @@ override tsep:=.
 .DEFAULT_GOAL:=_quickhelp
 
 _quickhelp: _version
-	@echo "  - Type 'make list' to see a list of test-targets"
+	@echo "  - Type 'make all' to run all tests."
+	@echo "  - Type 'make list' to see a list of test-targets."
 	@echo "  - Type 'make help' for a more detailed help message."
 
 
@@ -384,10 +385,13 @@ define _tf_import_all_sections =
     $(call tf-include-sections,$(_subdirs))
 
     $(call _tf_gen_sliced_targets)
+
+    .PHONY: all
+    all: $(tf_topdeps) ;
 endef
-tf-import-all-sections = $(trace_in)$(strip $(call _tf_import_all_sections))$(trace_out)
+tf-import-all-sections = $(trace_in)$(eval $(call _tf_import_all_sections))$(trace_out)
 #TODO: improve on the above so that tests are not imported whenever
-#      the user has listed a builtin in MAKECMDGOALS
+#      the user has listed a builtin in MAKECMDGOALS (except for 'all')
 
 # ---------------------------------------------------------------------
 # Function:     (tf-use-makeforge-as,namespace,filepath)
