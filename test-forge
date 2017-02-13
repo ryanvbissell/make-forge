@@ -441,5 +441,10 @@ _list: _version
 	$(foreach dep,$(sort $(tf_topdeps)),$(info $( )  - $(dep)))
 	@echo
 
+.PHONY: _clean
+_clean: _version
+	$(info $(\n)Cleaning for test-forge is not yet implemented.)
+	@echo
+
 endif  # __tf_include_guard
 
