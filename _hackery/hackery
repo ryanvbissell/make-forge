@@ -30,10 +30,14 @@ override cdr = $(wordlist 2,$(words $1),$1)
 override last = $(lastword $1)
 override butlast = $(wordlist 2,$(words $1),fake $1)
 
+ifneq "$(findstring environment,$(origin VERBOSE))" ""
+override undefine VERBOSE
+endif
+
 ifdef VERBOSE
-    define verbose =
-        $(info V: $1$2$3$4$5$6$7$8$9)
-    endef
+define verbose =
+    $(info V: $1$2$3$4$5$6$7$8$9)
+endef
 endif
 
 endif
