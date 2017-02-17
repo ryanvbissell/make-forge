@@ -350,14 +350,14 @@ endef
 define __tf_gen_sliced_target =
 $(trace_in)
     $(call tracep,$1)
-    $(call tracep,(filter .%) yields '$(filter .%,$1)')
-    $(call tracep,(filter %.) yields '$(filter %.,$1)')
-    $(call tracep,(filter .%.) yields '$(filter .%.,$1)')
+    $(call tracep,$$(filter $(tsep)%) yields '$(filter $(tsep)%,$1)')
+    $(call tracep,$$(filter %$(tsep)) yields '$(filter %$(tsep),$1)')
+    $(call tracep,$$(filter $(tsep)%$(tsep)) yields '$(filter $(tsep)%$(tsep),$1)')
     $(if $(call __tf_is_builtin_target,$1),
          $(call __tf_gen_builtin_target,$1),
-         $(if $(filter .%.,$1),
+         $(if $(filter $(tsep)%$(tsep),$1),
               $(call __tf_gen_midsliced_target,$1),
-              $(if $(filter .%,$1),
+              $(if $(filter $(tsep)%,$1),
                    $(call __tf_gen_postsliced_target,$1),
                    $(call __tf_gen_presliced_target,$1))))
 $(trace_out)
