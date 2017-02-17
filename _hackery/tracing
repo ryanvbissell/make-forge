@@ -13,7 +13,12 @@ override __tracing_include_guard:=1
 override _mhtdir:=$(dir $(lastword $(MAKEFILE_LIST)))
 include $(_mhtdir)/hackery
 
-ifdef MF_TRACE
+# guard against --environment-overrides
+ifneq "$(findstring environment,$(origin TRACE))" ""
+override undefine TRACE
+endif
+
+ifdef TRACE
 override trace_depth:=
 override trace_indent = $(trace_depth:.=$(space))
 override trace_increase = $(eval override trace_depth+=.)
