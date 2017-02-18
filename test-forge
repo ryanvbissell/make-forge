@@ -288,12 +288,20 @@ $(trace_out)
 endef
 
 
+# a post-slice can be any of the following:
+# .test
+# .subsection.test
 define __tf_gen_postsliced =
 $(trace_in)
     $(eval override _dep:=$(subst $(tsep), ,$2))
-    $(eval override _slice:=$(subst $(tsep),,$1))
-    $(call tracep,$(_slice), [$(_dep)])
-    $(if $(filter $(_slice),$(lastword $(_dep))),$(eval $(call __tf_gen_sliced,$1,$2)))
+    $(eval override _slice:=$(subst $(tsep), ,$1))
+    $(eval override _words:=$(words $(_slice)))
+    $(call tracep, $(_words))
+    $(call tracep,'$(_slice)', [$(_dep)])
+    $(eval override _dep:=$(call cdr,$(_dep)))
+    $(eval override _dep:=$(if $(call cdr,$(_slice)),$(_dep),$(call cdr,$(_dep))))
+    $(if $(call list-eq,$(_slice),$(wordlist 1,$(_words),$(_dep))),
+         $(eval $(call __tf_gen_sliced,$1,$2)))
 $(trace_out)
 endef
 
@@ -322,12 +330,18 @@ $(trace_out)
 endef
 
 
+# a pre-slice can be any of the following:
+# section[.]
+# section.subsection[.]
 define __tf_gen_presliced =
 $(trace_in)
     $(eval override _dep:=$(subst $(tsep), ,$2))
-    $(eval override _slice:=$(subst $(tsep),,$1))
-    $(call tracep,$(_slice), [$(_dep)])
-    $(if $(filter $(_slice),$(call car,$(_dep))),$(eval $(call __tf_gen_sliced,$1,$2)))
+    $(eval override _slice:=$(subst $(tsep), ,$1))
+    $(eval override _words:=$(words $(_slice)))
+    $(call tracep, $(_words))
+    $(call tracep,'$(_slice)', [$(_dep)])
+    $(if $(call list-eq,$(_slice),$(wordlist 1,$(_words),$(_dep))),
+         $(eval $(call __tf_gen_sliced,$1,$2)))
 $(trace_out)
 endef
 
@@ -346,7 +360,6 @@ define __tf_gen_builtin_target =
 endef
 
 
-#TODO  what about section.subsection slicing?
 define __tf_gen_sliced_target =
 $(trace_in)
     $(call tracep,$1)
