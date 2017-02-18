@@ -16,9 +16,12 @@ $(call tf-declare-target,fibseq)
     $(call tf-add-sources,C,${TF_TESTDIR},first30.c)
     $(call tf-build-executable)
 
+$(call tf-test-exitstatus,fib21,21)
 $(call tf-test-md5sum,fib39,d74e8d3e7dbed0fa4134658a69594231,39)
 $(call tf-test-md5sum,fib40,994fb2287a77c89ffd83956a356ba24a,40)
-#$(call tf-test-md5sum,fib41,994fb2287a77c89ffd83956a356ba24a,41)
+
+# this one intentionally fails
+$(call tf-test-exitstatus,fib41,41)
 
 
 

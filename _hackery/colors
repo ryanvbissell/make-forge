@@ -1,0 +1,82 @@
+# vim: set ft=make:
+#
+# Copyright (c) 2017, Ryan V. Bissell
+# All rights reserved.
+#
+# SPDX-License-Identifier: MIT
+# See the enclosed "LICENSE" file for exact license terms.
+#
+
+ifndef __colors_include_guard
+override __colors_include_guard:=1
+
+ESC:=
+
+OFF:=$(ESC)[m
+
+BLACK:=:$(ESC)[0;38;5;0m
+RED:=$(ESC)[0;38;5;1m
+GREEN:=$(ESC)[0;38;5;2m
+YELLOW:=$(ESC)[0;38;5;3m
+BLUE:=$(ESC)[0;38;5;4m
+MAGENTA:=$(ESC)[0;38;5;5m
+CYAN:=$(ESC)[0;38;5;6m
+WHITE:=$(ESC)[0;38;5;7m
+BRBLACK:=$(ESC)[0;38;5;8m
+BRRED:=$(ESC)[0;38;5;9m
+BRGREEN:=$(ESC)[0;38;5;10m
+BRYELLOW:=$(ESC)[0;38;5;11m
+BRBLUE:=$(ESC)[0;38;5;12m
+BRMAGENTA:=$(ESC)[0;38;5;13m
+BRCYAN:=$(ESC)[0;38;5;14m
+BRWHITE:=$(ESC)[0;38;5;15m
+
+
+ifdef SOLARIZED
+SOLAR_BASE03:=$(BRBLACK)
+SOLAR_BASE02:=$(BLACK)
+SOLAR_BASE01:=$(BRGREEN)
+SOLAR_BASE00:=$(BRYELLOW)
+SOLAR_BASE0:=$(BRBLUE)
+SOLAR_BASE1:=$(BRCYAN)
+SOLAR_BASE2:=$(WHITE)
+SOLAR_BASE3:=$(BRWHITE)
+SOLAR_YELLOW:=$(YELLOW)
+SOLAR_ORANGE:=$(BRRED)
+SOLAR_RED:=$(RED)
+SOLAR_MAGENTA:=$(MAGENTA)
+SOLAR_VIOLET:=$(BRMAGENTA)
+SOLAR_BLUE:=$(BRCYAN)
+SOLAR_CYAN:=$(CYAN)
+SOLAR_GREEN:=$(GREEN)
+
+#TODO this is actually assuming 'polarized', a modified solarized
+#TODO want to support both polarized and solarized
+COLOR_TEXT:=$(SOLAR_BASE2)
+COLOR_DEBUG:=$(SOLAR_BASE00)
+COLOR_NOTICE:=$(SOLAR_CYAN)
+COLOR_PROMPT:=$(SOLAR_CYAN)
+COLOR_WARNING:=$(SOLAR_YELLOW)
+COLOR_ERROR:=$(SOLAR_RED)
+COLOR_REJOICE:=$(SOLAR_GREEN)
+else
+COLOR_TEXT:=$(WHITE)
+COLOR_DEBUG:=$(BLUE)
+COLOR_NOTICE:=$(CYAN)
+COLOR_PROMPT:=$(BRCYAN)
+COLOR_WARNING:=$(BRYELLOW)
+COLOR_ERROR:=$(BRRED)
+COLOR_REJOICE:=$(BRGREEN)
+endif
+
+
+override TEXT = $(COLOR_TEXT)$1$2$3$4$5$6$7$8$9$(OFF)
+override DEBUG = $(COLOR_DEBUG)$1$2$3$4$5$6$7$8$9$(OFF)
+override NOTICE = $(COLOR_NOTICE)$1$2$3$4$5$6$7$8$9$(OFF)
+override PROMPT = $(COLOR_PROMPT)$1$2$3$4$5$6$7$8$9$(OFF)
+override REJOICE = $(COLOR_REJOICE)$1$2$3$4$5$6$7$8$9$(OFF)
+override WARNING = $(COLOR_WARNING)$1$2$3$4$5$6$7$8$9$(OFF)
+override ERROR = $(COLOR_ERROR)$1$2$3$4$5$6$7$8$9$(OFF)
+
+endif
+

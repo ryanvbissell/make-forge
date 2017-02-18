@@ -29,6 +29,7 @@ override CF_NUMPROCS:=1
 override CF:=tfpriv
 override CF_NOSYNC:=1
 include $(_tfdir)/_common-forge
+include $(_tfdir)/_hackery/colors
 
 
 override tsep:=.
@@ -156,7 +157,7 @@ $(trace_in)
 	 && mkdir -p ./$(tf_sandbox) \
 	 && cd ./$(tf_sandbox) \
 	 && $(test) $(__tfgr_testcmd) >$(tf_logfile) 2>&1 \
-	   || (echo "\033[0;31mFAILED with exit status '$$$$?'\033[0m"; exit 1)
+	   || (echo "$(call ERROR,FAILED with exit status '$$$$?')"; exit 1)
 $(trace_out)
 endef
 
@@ -177,11 +178,11 @@ endef
 define _tf_test_exitstatus =
     $(eval override tf_testargs:=$(2))
     $(eval override _name:=$(strip $(call __tf_register_test,$(1))))
-    $(eval $(call __tf_gen_runtarget,$(1),exitstatus))
+    $(eval $(call __tf_gen_runtarget,$(_name),exitstatus))
     $(_name): _run_$(_name)
-	@echo "PASS"
+	@echo "$(call REJOICE,PASS)"
 endef
-tf-test-exitstatus = $(eval $(call _tf_test_exitstatus,$1,$2,$3))
+tf-test-exitstatus = $(trace_in)$(eval $(call _tf_test_exitstatus,$1,$2))$(trace_out)
 
 
 # ---------------------------------------------------------------------
@@ -204,11 +205,11 @@ define __tf_test_hashval =
     $(_name): _run_$(_name)
 	@TF_HASHVAL=`$(_hashgen) $(tf_logfile) | awk '{print $$$$1}'` && \
 	 if [ ! "$$$${TF_HASHVAL}" = "$(_hash)" ]; then \
-	     echo "\033[0;31mFAILED due to digest mismatch" ;\
-	     echo "$(_name): test's log digest was '$$$${TF_HASHVAL}', expected '$(_hash)'.\033[0m" 2>&1 ;\
+	     echo "$(call ERROR,FAILED due to digest mismatch)" ;\
+	     echo "$(call ERROR,$(_name): test's log digest was '$$$${TF_HASHVAL}', expected '$(_hash)'.)" 2>&1 ;\
 	     false ;\
 	 else \
-	     echo "PASS";\
+	     echo "$(call REJOICE,PASS)";\
 	     true;\
 	 fi
     $(eval override undefine _hash)
