@@ -25,10 +25,29 @@ define \n =
 
 endef
 
+override TRUE:=TRUE
+override undefine FALSE
+
 override car = $(firstword $1)
 override cdr = $(wordlist 2,$(words $1),$1)
 override last = $(lastword $1)
 override butlast = $(wordlist 2,$(words $1),fake $1)
+
+override not = $(if $1,,$(TRUE))
+override eq = $(and $(findstring x$(1),x$(2)),$(findstring x$(2),x$(1)))
+
+define _list-eq =
+    $(call tracep, list-eq [$1]  $(comma)  [$2])
+    $(if $(call not,$(or $1,$2)),
+         TRUE,
+         $(if $(and $1,$2),
+              $(if $(call eq,$(call car,$1),$(call car,$2)),
+                   $(call _list-eq,$(call cdr,$1),$(call cdr,$2)),
+                   $(FALSE)),
+              $(FALSE)))
+endef
+override list-eq = $(trace_in)$(strip $(call _list-eq,$1,$2))$(trace_out)
+
 
 ifneq "$(findstring environment,$(origin VERBOSE))" ""
 override undefine VERBOSE
