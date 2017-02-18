@@ -39,7 +39,7 @@ override eq = $(and $(findstring x$(1),x$(2)),$(findstring x$(2),x$(1)))
 define _list-eq =
     $(call tracep, list-eq [$1]  $(comma)  [$2])
     $(if $(call not,$(or $1,$2)),
-         TRUE,
+         $(TRUE),
          $(if $(and $1,$2),
               $(if $(call eq,$(call car,$1),$(call car,$2)),
                    $(call _list-eq,$(call cdr,$1),$(call cdr,$2)),
