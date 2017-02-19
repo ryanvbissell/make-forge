@@ -91,7 +91,7 @@ else
 endif
 
 ifdef DEBUG
-    override CXXFLAGS+= -ggdb3 -O0
+    override CFLAGS+= -O0 -ggdb3
 endif
 
 override echo:=echo
