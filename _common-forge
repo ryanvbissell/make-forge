@@ -266,7 +266,11 @@ $(trace_in)
 	              -e 's/$$$$/:\n/' \
 	              -e 's/^:.*$$$$/\n/' $(append)$(cf_target_outdir)/$(1).d
 	@$(test2) $(RM) $(cf_target_outdir)/$(1).d.tmp
+	@echo "" >>$(cf_target_outdir)/$(1).d
+	@echo "$(cf_target_outdir)/$(1).o: $(MAKEFILE_LIST)" >>$(cf_target_outdir)/$(1).d
+	@echo "" >>$(cf_target_outdir)/$(1).d
 	$(call append_vars,$(cf_target_outdir)/$(1).d)
+	@echo "" >>$(cf_target_outdir)/$(1).d
 $(trace_out)
 endef
 
