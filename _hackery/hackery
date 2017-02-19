@@ -35,6 +35,7 @@ override butlast = $(wordlist 2,$(words $1),fake $1)
 
 override not = $(if $1,,$(TRUE))
 override eq = $(and $(findstring x$(1),x$(2)),$(findstring x$(2),x$(1)))
+override neq = $(call not,$(call eq,$1,$2))
 
 define _list-eq =
     $(call tracep, list-eq [$1]  $(comma)  [$2])
@@ -47,6 +48,8 @@ define _list-eq =
               $(FALSE)))
 endef
 override list-eq = $(trace_in)$(strip $(call _list-eq,$1,$2))$(trace_out)
+
+override map = $(trace_in)$(strip $(foreach item,$2,$(call $1,$(item))))$(trace_out)
 
 
 ifneq "$(findstring environment,$(origin VERBOSE))" ""
