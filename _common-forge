@@ -110,6 +110,17 @@ override CF_CXXFLAGS:=$(CXXFLAGS)
 # traditionally, ARFLAGS defaults to 'rv', but we like 'rcs' here
 override CF_ARFLAGS:=rcs
 
+
+define append_var =
+$(trace_in)
+	@echo "$1 := $$($1)" $(append)$2
+$(trace_out)
+endef
+
+append_vars = $(foreach item, @ % < ? ^ + | *,$(call append_var,$(item),$1))
+
+
+
 # ---------------------------------------------------------------------
 # INTERNAL:     (__cf_initialize)
 # Description:  Resets internal state, in preparation for
@@ -181,15 +192,29 @@ $(trace_out)
 endef
 
 
+define __cf_compile =
+$(trace_in)
+	$(eval C:=$(strip $3))
+	$(call tracep,1 will be '$1')
+	$(call tracep,2 will be '$2')
+	$(call tracep,3 will be '$3')
+	$(call tracep,C will be '$C')
+	@echo "$$(subst $$$$,\$$$$,$$$$(if $$$$(call neq,$3,$C),$$$$(call verbose,Configuration changed for $$(notdir $$<))$$$$(shell $(RM) $$@)))" >> $2
+	@$(call __cf_announce_compile,$1)
+	@$(test) $C
+$(trace_out)
+endef
+
+
 # ---------------------------------------------------------------------
 # INTERNAL:     (__cf_compile_C)
 # Description:  compile a C++ source file
 # Arguments: 1: Parenthesized suffix, if set
+#            2: Path of depfile
 # ---------------------------------------------------------------------
 define __cf_compile_C =
 $(trace_in)
-	@$(call __cf_announce_compile,$(1))
-	@$(test) $(CC) $(CPPFLAGS) $(CFLAGS) -c $$< -o $$@
+	$(call __cf_compile,$1,$2,$$$$(CC) $$$$(CPPFLAGS) $$$$(CFLAGS) -c $$$$< -o $$$$@)
 $(trace_out)
 endef
 
@@ -198,11 +223,11 @@ endef
 # INTERNAL:     (__cf_compile_C++)
 # Description:  compile a C++ source file
 # Arguments: 1: Parenthesized suffix, if set
+#            2: Path of depfile
 # ---------------------------------------------------------------------
 define __cf_compile_C++ =
 $(trace_in)
-	@$(call __cf_announce_compile,$(1))
-	@$(test) $(CXX) $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) -c $$< -o $$@
+	$(call __cf_compile,$1,$2,$$$$(CXX) $$$$(CPPFLAGS) $$$$(CFLAGS) $$$$(CXXFLAGS) -c $$$$< -o $$$$@)
 $(trace_out)
 endef
 
@@ -241,6 +266,7 @@ $(trace_in)
 	              -e 's/$$$$/:\n/' \
 	              -e 's/^:.*$$$$/\n/' $(append)$(cf_target_outdir)/$(1).d
 	@$(test2) $(RM) $(cf_target_outdir)/$(1).d.tmp
+	$(call append_vars,$(cf_target_outdir)/$(1).d)
 $(trace_out)
 endef
 
@@ -258,8 +284,8 @@ endef
 define __cf_gen_static_pattern_rule
 $(trace_in)
     $(2): $(cf_target_outdir)/%$(cf_suffix).$(cfobj): $(3)/%$(4) | $(cf_target_outdir)
-	@$(call __cf_compile_$(1),$(cf_printsuffix))
 	@$(call __cf_gen_dependencies,$$*$(cf_suffix))
+	$(call __cf_compile_$(1),$(cf_printsuffix),$(cf_target_outdir)/$$*$(cf_suffix).d)
 $(trace_out)
 endef
 
