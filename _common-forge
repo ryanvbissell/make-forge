@@ -199,7 +199,7 @@ $(trace_in)
 	$(call tracep,2 will be '$2')
 	$(call tracep,3 will be '$3')
 	$(call tracep,C will be '$C')
-	@echo "$$(subst $$$$,\$$$$,$$$$(if $$$$(call neq,$3,$C),$$$$(call verbose,Configuration changed for $$(notdir $$<))$$$$(shell $(RM) $$@)))" >> $2
+	@echo "$$(subst $$$$,\$$$$,$$$$(if $$$$(call neq,$3,$C),$$$$(call verbose,Configuration changed for $$(notdir $$<) $(cf_printsuffix))$$$$(shell $(RM) $$@)))" >> $2
 	@$(call __cf_announce_compile,$1)
 	@$(test) $C
 $(trace_out)
