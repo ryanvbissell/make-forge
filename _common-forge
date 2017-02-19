@@ -214,7 +214,7 @@ endef
 # ---------------------------------------------------------------------
 define __cf_compile_C =
 $(trace_in)
-	$(call __cf_compile,$1,$2,$$$$(CC) $$$$(CPPFLAGS) $$$$(CFLAGS) -c $$$$< -o $$$$@)
+	$(call __cf_compile,$1,$2,$$$$(CC) $$$$(CPPFLAGS_$(cf_target)) $$$$(CFLAGS_$(cf_target)) -c $$$$< -o $$$$@)
 $(trace_out)
 endef
 
@@ -227,7 +227,7 @@ endef
 # ---------------------------------------------------------------------
 define __cf_compile_C++ =
 $(trace_in)
-	$(call __cf_compile,$1,$2,$$$$(CXX) $$$$(CPPFLAGS) $$$$(CFLAGS) $$$$(CXXFLAGS) -c $$$$< -o $$$$@)
+	$(call __cf_compile,$1,$2,$$$$(CXX) $$$$(CPPFLAGS_$(cf_target)) $$$$(CFLAGS_$(cf_target)) $$$$(CXXFLAGS_$(cf_target)) -c $$$$< -o $$$$@)
 $(trace_out)
 endef
 
@@ -312,6 +312,9 @@ $(trace_in)
     $(eval override _mfas_obj:=$(subst $(2),$(cf_target_outdir),$(_mfas_obj)))
     $(eval override cf_srcfiles+=$(_mfas_src))
     $(eval override cf_objfiles+=$(_mfas_obj))
+    $(eval override CFLAGS_$(cf_target):=$(CFLAGS))
+    $(eval override CPPFLAGS_$(cf_target):=$(CPPFLAGS))
+    $(eval override CXXFLAGS_$(cf_target):=$(CXXFLAGS))
     $(eval $(call __cf_gen_static_pattern_rule,$(1),$(_mfas_obj),$(2),$(_mfas_ext)))
     $(eval undefine _mfas_src)
     $(eval undefine _mfas_ext)
