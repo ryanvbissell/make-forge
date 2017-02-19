@@ -16,7 +16,7 @@ include $(_mhodir)/hackery
 define mh_opsys_configure_linux =
     $(eval override mh_buildos:=linux)
     $(eval override CP:=cp)
-    $(eval override RM:=rm)
+    $(eval override RM:=rm -f)
     $(eval override RMDIR:=rmdir)
     $(eval override MKDIR:=mkdir)
 endef
