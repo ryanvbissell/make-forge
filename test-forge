@@ -157,7 +157,7 @@ $(trace_in)
 	 && mkdir -p ./$(tf_sandbox) \
 	 && cd ./$(tf_sandbox) \
 	 && $(test) $(__tfgr_testcmd) >$(tf_logfile) 2>&1 \
-	   || (echo "$(call ERROR,FAILED with exit status '$$$$?')"; exit 1)
+	   || (echo "$(call _ERROR,FAILED with exit status '$$$$?')"; exit 1)
 $(trace_out)
 endef
 
@@ -180,7 +180,7 @@ define _tf_test_exitstatus =
     $(eval override _name:=$(strip $(call __tf_register_test,$(1))))
     $(eval $(call __tf_gen_runtarget,$(_name),exitstatus))
     $(_name): _run_$(_name)
-	@echo "$(call REJOICE,PASS)"
+	@echo "$(call _REJOICE,PASS)"
 endef
 tf-test-exitstatus = $(trace_in)$(eval $(call _tf_test_exitstatus,$1,$2))$(trace_out)
 
@@ -205,11 +205,11 @@ define __tf_test_hashval =
     $(_name): _run_$(_name)
 	@TF_HASHVAL=`$(_hashgen) $(tf_logfile) | awk '{print $$$$1}'` && \
 	 if [ ! "$$$${TF_HASHVAL}" = "$(_hash)" ]; then \
-	     echo "$(call ERROR,FAILED due to digest mismatch)" ;\
-	     echo "$(call ERROR,$(_name): test's log digest was '$$$${TF_HASHVAL}', expected '$(_hash)'.)" 2>&1 ;\
+	     echo "$(call _ERROR,FAILED due to digest mismatch)" ;\
+	     echo "$(call _ERROR,$(_name): test's log digest was '$$$${TF_HASHVAL}', expected '$(_hash)'.)" 2>&1 ;\
 	     false ;\
 	 else \
-	     echo "$(call REJOICE,PASS)";\
+	     echo "$(call _REJOICE,PASS)";\
 	     true;\
 	 fi
     $(eval override undefine _hash)

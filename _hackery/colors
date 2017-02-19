@@ -70,13 +70,13 @@ COLOR_REJOICE:=$(BRGREEN)
 endif
 
 
-override TEXT = $(COLOR_TEXT)$1$2$3$4$5$6$7$8$9$(OFF)
-override DEBUG = $(COLOR_DEBUG)$1$2$3$4$5$6$7$8$9$(OFF)
-override NOTICE = $(COLOR_NOTICE)$1$2$3$4$5$6$7$8$9$(OFF)
-override PROMPT = $(COLOR_PROMPT)$1$2$3$4$5$6$7$8$9$(OFF)
-override REJOICE = $(COLOR_REJOICE)$1$2$3$4$5$6$7$8$9$(OFF)
-override WARNING = $(COLOR_WARNING)$1$2$3$4$5$6$7$8$9$(OFF)
-override ERROR = $(COLOR_ERROR)$1$2$3$4$5$6$7$8$9$(OFF)
+override _TEXT = $(COLOR_TEXT)$1$2$3$4$5$6$7$8$9$(OFF)
+override _DEBUG = $(COLOR_DEBUG)$1$2$3$4$5$6$7$8$9$(OFF)
+override _NOTICE = $(COLOR_NOTICE)$1$2$3$4$5$6$7$8$9$(OFF)
+override _PROMPT = $(COLOR_PROMPT)$1$2$3$4$5$6$7$8$9$(OFF)
+override _REJOICE = $(COLOR_REJOICE)$1$2$3$4$5$6$7$8$9$(OFF)
+override _WARNING = $(COLOR_WARNING)$1$2$3$4$5$6$7$8$9$(OFF)
+override _ERROR = $(COLOR_ERROR)$1$2$3$4$5$6$7$8$9$(OFF)
 
 endif
 
