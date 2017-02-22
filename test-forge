@@ -404,6 +404,8 @@ define _tf_import_all_sections =
     all: $(tf_topdeps) ;
 endef
 tf-import-all-sections = $(trace_in)$(eval $(call _tf_import_all_sections))$(trace_out)
+
+
 #TODO: improve on the above so that tests are not imported whenever
 #      the user has listed a builtin in MAKECMDGOALS (except for 'all')
 
