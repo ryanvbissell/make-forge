@@ -155,6 +155,7 @@ $(trace_in)
 	@echo 'cd $(tf_sandbox) && $(__tfgr_testcmd)' >$(__tfgr_cmdfile)
 	@cd $(tf_subsection_outdir) \
 	 && mkdir -p ./$(tf_sandbox) \
+	 && ([ -e $(TF_TESTDIR)/$(tf_sandbox) ] && cp -Rf $(TF_TESTDIR)/$(tf_sandbox)/* $(tf_sandbox)/ || true) \
 	 && cd ./$(tf_sandbox) \
 	 && $(test) $(__tfgr_testcmd) >$(tf_logfile) 2>&1 \
 	   || (echo "$(call _ERROR,FAILED with exit status '$$$$?')"; exit 1)
