@@ -152,11 +152,11 @@ $(trace_in)
 
     _run_$(1): _announce_$(1) $(tf_subsection_outdir) $(cf_target)
 	@printf 'Running [%-10s]...  ' $(2)
-	@echo 'cd $(tf_sandbox) && $(__tfgr_testcmd)' >$(__tfgr_cmdfile)
+	@echo 'cd $(tf_sandbox).sandbox && $(__tfgr_testcmd)' >$(__tfgr_cmdfile)
 	@cd $(tf_subsection_outdir) \
-	 && mkdir -p ./$(tf_sandbox) \
-	 && ([ -e $(TF_TESTDIR)/$(tf_sandbox) ] && cp -Rf $(TF_TESTDIR)/$(tf_sandbox)/* $(tf_sandbox)/ || true) \
-	 && cd ./$(tf_sandbox) \
+	 && mkdir -p ./$(tf_sandbox).sandbox \
+	 && ([ -e $(TF_TESTDIR)/$(tf_sandbox) ] && cp -Rf $(TF_TESTDIR)/$(tf_sandbox)/* $(tf_sandbox).sandbox/ || true) \
+	 && cd ./$(tf_sandbox).sandbox \
 	 && $(test) $(__tfgr_testcmd) >$(tf_logfile) 2>&1 \
 	   || (echo "$(call _ERROR,FAILED with exit status '$$$$?')"; exit 1)
 $(trace_out)
