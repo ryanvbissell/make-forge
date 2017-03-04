@@ -412,6 +412,39 @@ tf-import-all-sections = $(trace_in)$(eval $(call _tf_import_all_sections))$(tra
 #      the user has listed a builtin in MAKECMDGOALS (except for 'all')
 
 
+override undefine tf_usingmf
+override tf_prefix:=@
+# ---------------------------------------------------------------------
+# Function:     (__tf_include_makeforge_as,namespace,filepath,outdir)
+# Description:  Imports a make-forge fragment into a test-forge
+#               session, encapsulated into 'namespace@' namespace.
+#               'name' is about to be described.
+# Arguments: 1: Namespace to use
+#            2: Path to the make-forge fragment (.MF)
+#            3: Path for cf_outdir override
+# ---------------------------------------------------------------------
+define __tf_include_makeforge_as =
+$(trace_in)
+    $(eval override _namespace:=$(1)@$(tf_subsection)@$(tf_section))
+    $(eval override _tfima_saved_mfpd:=$(MF_PROJECT_DIR))
+    $(eval override _tfima_saved_cfout:=$(cf_outdir))
+    $(eval override cf_outdir:=$3)
+    $(cf_outdir): ; @mkdir -p $(cf_outdir)
+    $(eval override MF_PROJECT_DIR:=$(abspath $(dir $(2))))
+    $(eval override tf_usingmf:=1)
+    $(eval override cf_prefix:=$(tf_prefix))
+    $(call $(CF)-include-as,$(_namespace),$(2))
+    $(eval override undefine cf_prefix)
+    $(eval override undefine tf_usingmf)
+    $(eval override cf_outdir:=$(_tfima_saved_cfout))
+    $(eval override MF_PROJECT_DIR:=$(_tfima_saved_mfpd))
+    $(eval override undefine _tfima_saved_cfout)
+    $(eval override undefine _tfima_saved_mfpd)
+    $(eval override undefine _namespace)
+$(trace_out)
+endef
+
+
 # ---------------------------------------------------------------------
 # Function:     (tf-export-makeforge-as,namespace,filepath)
 # Description:  Imports a make-forge fragment into a test-forge
@@ -420,28 +453,10 @@ tf-import-all-sections = $(trace_in)$(eval $(call _tf_import_all_sections))$(tra
 # Arguments: 1: Namespace to use
 #            2: Path to the make-forge fragment (.MF)
 # ---------------------------------------------------------------------
-override undefine tf_usingmf
-override tf_prefix:=@
 define _tf_export_makeforge_as =
-    $(eval override _namespace:=$(1)@$(tf_subsection)@$(tf_section))
-    $(eval override _tfum_saved_mfpd:=$(MF_PROJECT_DIR))
-    $(eval override _tfum_saved_cfout:=$(cf_outdir))
-    $(eval override cf_outdir:=$(cf_outdir)/@$(1))
-    $(cf_outdir): ; @mkdir -p $(cf_outdir)
-    $(eval override MF_PROJECT_DIR:=$(abspath $(dir $(2))))
-    $(eval override tf_usingmf:=1)
-    $(eval override cf_prefix:=$(tf_prefix))
-    $(call $(CF)-include-as,$(_namespace),$(2))
-    $(eval override undefine cf_prefix)
-    $(eval override undefine tf_usingmf)
-    $(eval override cf_outdir:=$(_tfum_saved_cfout))
-    $(eval override MF_PROJECT_DIR:=$(_tfum_saved_mfpd))
-    $(eval override undefine _tfum_saved_cfout)
-    $(eval override undefine _tfum_saved_mfpd)
-    $(eval override undefine _namespace)
+    $(call __tf_include_makeforge_as,$1,$2,$(cf_outdir)/@$(1))
 endef
 tf-export-makeforge-as = $(trace_in)$(strip $(call _tf_export_makeforge_as,$1,$2))$(trace_out)
-
 
 
 # ---------------------------------------------------------------------
@@ -453,22 +468,7 @@ tf-export-makeforge-as = $(trace_in)$(strip $(call _tf_export_makeforge_as,$1,$2
 #            2: Path to the make-forge fragment (.MF)
 # ---------------------------------------------------------------------
 define _tf_share_makeforge_as =
-    $(eval override _namespace:=$(1)@$(tf_subsection)@$(tf_section))
-    $(eval override _tfum_saved_mfpd:=$(MF_PROJECT_DIR))
-    $(eval override _tfum_saved_cfout:=$(cf_outdir))
-    $(eval override cf_outdir:=$(tf_section_outdir)/@$(1))
-    $(cf_outdir): ; @mkdir $(cf_outdir)
-    $(eval override MF_PROJECT_DIR:=$(abspath $(dir $(2))))
-    $(eval override tf_usingmf:=1)
-    $(eval override cf_prefix:=$(tf_prefix))
-    $(call $(CF)-include-as,$(_namespace),$(2))
-    $(eval override undefine cf_prefix)
-    $(eval override undefine tf_usingmf)
-    $(eval override cf_outdir:=$(_tfum_saved_cfout))
-    $(eval override MF_PROJECT_DIR:=$(_tfum_saved_mfpd))
-    $(eval override undefine _tfum_saved_cfout)
-    $(eval override undefine _tfum_saved_mfpd)
-    $(eval override undefine _namespace)
+    $(call __tf_include_makeforge_as,$1,$2,$(tf_section_outdir)/@$(1))
 endef
 tf-share-makeforge-as = $(trace_in)$(strip $(call _tf_share_makeforge_as,$1,$2))$(trace_out)
 
@@ -482,22 +482,7 @@ tf-share-makeforge-as = $(trace_in)$(strip $(call _tf_share_makeforge_as,$1,$2))
 #            2: Path to the make-forge fragment (.MF)
 # ---------------------------------------------------------------------
 define _tf_use_makeforge_as =
-    $(eval override _namespace:=$(1)@$(tf_subsection)@$(tf_section))
-    $(eval override _tfum_saved_mfpd:=$(MF_PROJECT_DIR))
-    $(eval override _tfum_saved_cfout:=$(cf_outdir))
-    $(eval override cf_outdir:=$(tf_subsection_outdir)/@$(1))
-    $(cf_outdir): ; @mkdir $(cf_outdir)
-    $(eval override MF_PROJECT_DIR:=$(abspath $(dir $(2))))
-    $(eval override tf_usingmf:=1)
-    $(eval override cf_prefix:=$(tf_prefix))
-    $(call $(CF)-include-as,$(_namespace),$(2))
-    $(eval override undefine cf_prefix)
-    $(eval override undefine tf_usingmf)
-    $(eval override cf_outdir:=$(_tfum_saved_cfout))
-    $(eval override MF_PROJECT_DIR:=$(_tfum_saved_mfpd))
-    $(eval override undefine _tfum_saved_cfout)
-    $(eval override undefine _tfum_saved_mfpd)
-    $(eval override undefine _namespace)
+    $(call __tf_include_makeforge_as,$1,$2,$(tf_subsection_outdir)/@$(1))
 endef
 tf-use-makeforge-as = $(trace_in)$(strip $(call _tf_use_makeforge_as,$1,$2))$(trace_out)
 

@@ -7,11 +7,11 @@
 # See the enclosed "LICENSE" file for exact license terms.
 #
 
-$(call tf-export-makeforge-as,fibby,$(TF_TESTROOT)/../GNUmakefile.MF)
+$(call tf-export-makeforge-as,exported-fibby,$(TF_TESTROOT)/../GNUmakefile.MF)
 
 $(call tf-declare-target,fibseq)
     override CPPFLAGS:=-I${TF_TESTROOT}/../inc
-    $(call tf-static-dependencies,static@fibby)
+    $(call tf-static-dependencies,static@exported-fibby)
     $(call tf-add-sources,C,${TF_TESTROOT}/../src,fibgen.c)
     $(call tf-add-sources,C,${TF_TESTDIR},first30.c)
     $(call tf-build-executable)
