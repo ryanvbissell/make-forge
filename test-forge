@@ -452,8 +452,6 @@ tf-export-makeforge-as = $(trace_in)$(strip $(call _tf_export_makeforge_as,$1,$2
 # Arguments: 1: Namespace to use
 #            2: Path to the make-forge fragment (.MF)
 # ---------------------------------------------------------------------
-override undefine tf_usingmf
-override tf_prefix:=@
 define _tf_share_makeforge_as =
     $(eval override _namespace:=$(1)@$(tf_subsection)@$(tf_section))
     $(eval override _tfum_saved_mfpd:=$(MF_PROJECT_DIR))
@@ -483,8 +481,6 @@ tf-share-makeforge-as = $(trace_in)$(strip $(call _tf_share_makeforge_as,$1,$2))
 # Arguments: 1: Namespace to use
 #            2: Path to the make-forge fragment (.MF)
 # ---------------------------------------------------------------------
-override undefine tf_usingmf
-override tf_prefix:=@
 define _tf_use_makeforge_as =
     $(eval override _namespace:=$(1)@$(tf_subsection)@$(tf_section))
     $(eval override _tfum_saved_mfpd:=$(MF_PROJECT_DIR))
