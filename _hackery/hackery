@@ -51,6 +51,12 @@ override list-eq = $(trace_in)$(strip $(call _list-eq,$1,$2))$(trace_out)
 
 override map = $(trace_in)$(strip $(foreach item,$2,$(call $1,$(item))))$(trace_out)
 
+define _set-isect =
+    $(call tracep, set-isect {$1} $(comma) {$2})
+    $(filter $1,$2)
+endef
+override set-isect = $(trace_in)$(strip $(call _set-isect,$1,$2))$(trace_out)
+
 
 ifneq "$(findstring environment,$(origin VERBOSE))" ""
 override undefine VERBOSE
