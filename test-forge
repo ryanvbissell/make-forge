@@ -388,12 +388,12 @@ endef
 #               with a '.'
 # ---------------------------------------------------------------------
 define _tf_import_all_sections =
-    $(eval override _subdirs:=$(sort $(wildcard */)))
-    $(eval override _subdirs:=$(_subdirs:%/=%))
-    $(if $(call set-isect,$(_subdirs),$(tf_builtins)),
+    $(eval override tf_subdirs:=$(sort $(wildcard */)))
+    $(eval override tf_subdirs:=$(tf_subdirs:%/=%))
+    $(if $(call set-isect,$(tf_subdirs),$(tf_builtins)),
          $(error The following reserved words are not allowed as section names: {$(tf_builtins)}))
     $(info === Importing tests ...)
-    $(call tf-include-sections,$(_subdirs))
+    $(call tf-include-sections,$(tf_subdirs))
 
     $(call _tf_gen_sliced_targets)
 
@@ -511,6 +511,8 @@ _list: _version
 
 .PHONY: _clean
 _clean: _version
+	@$(RM) -R $(cf_outdir)
+	@$(RM) -R $(foreach dir,$(tf_subdirs),$(dir)/.out)
 	$(info $(\n)Cleaning for test-forge is not yet implemented.)
 	@echo
 
