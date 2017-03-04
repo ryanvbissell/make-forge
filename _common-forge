@@ -503,7 +503,7 @@ endef
 
 # each release adds another digit of i^i (0.207879576350761908546955619834978770033877841631769608075...)
 cf_version_major:=0
-cf_version_minor:=2078795
+cf_version_minor:=20787957
 cf_version_text:=... (beta release "i^i")
 _version:
 	@echo "( build/test system: MAKE-FORGE, version $(cf_version_major).$(cf_version_minor)$(cf_version_text) )"
