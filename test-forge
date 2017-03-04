@@ -392,7 +392,6 @@ define _tf_import_all_sections =
     $(eval override _subdirs:=$(_subdirs:%/=%))
     $(if $(call set-isect,$(_subdirs),$(tf_builtins)),
          $(error The following reserved words are not allowed as section names: {$(tf_builtins)}))
-    $(call verbose,_subdirs is '$(_subdirs)')
     $(info === Importing tests ...)
     $(call tf-include-sections,$(_subdirs))
 
