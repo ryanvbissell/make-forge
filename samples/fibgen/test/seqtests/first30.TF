@@ -7,7 +7,7 @@
 # See the enclosed "LICENSE" file for exact license terms.
 #
 
-$(call tf-use-makeforge-as,fibby,$(TF_TESTROOT)/../GNUmakefile.MF)
+$(call tf-export-makeforge-as,fibby,$(TF_TESTROOT)/../GNUmakefile.MF)
 
 $(call tf-declare-target,fibseq)
     override CPPFLAGS:=-I${TF_TESTROOT}/../inc
