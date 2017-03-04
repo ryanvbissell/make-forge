@@ -156,7 +156,7 @@ endef
 define _cf_declare_target =
 $(trace_in)
     $(call __cf_initialize)
-    $(eval override cf_target:=$(CF_NAMESPACE)$(1))
+    $(eval override cf_target:=$1$(CF_NAMESPACE))
     $(eval override cf_target_outdir:=$(if $2,$2,$(cf_outdir)))
     $(call tracep,cf_target_outdir will be '$(cf_target_outdir)')
     $(call tracep,cf_target will be '$(cf_target)')
@@ -492,8 +492,8 @@ $(CF)-build-executable = $(eval $(call _cf_build_executable,$1))
 #  TODO: enforce .MF extension?
 define $(CF)-include-as =
 $(trace_in)
-    $(eval override CF_NAMESPACE:=$(1)@)
-    $(call verbose,including '$(2)' as '$(1)')
+    $(eval override CF_NAMESPACE:=$(if $1,@$1,))
+    $(call verbose,including '$(2)' as '$1')
     $(eval include $(2))
     $(eval override undefine CF_NAMESPACE)
 $(trace_out)
