@@ -206,7 +206,7 @@ define __tf_test_hashval =
 	@TF_HASHVAL=`$(_hashgen) $(tf_logfile) | awk '{print $$$$1}'` && \
 	 if [ ! "$$$${TF_HASHVAL}" = "$(_hash)" ]; then \
 	     echo "$(call _ERROR,FAILED due to digest mismatch)" ;\
-	     echo "$(call _ERROR,$(_name): test's log digest was '$$$${TF_HASHVAL}', expected '$(_hash)'.)" 2>&1 ;\
+	     echo "$(call _ERROR,$(_name): test log digest was '$$$${TF_HASHVAL}', expected '$(_hash)'.)" 2>&1 ;\
 	     false ;\
 	 else \
 	     echo "$(call _REJOICE,PASS)";\
