@@ -333,8 +333,9 @@ endef
 
 
 # a pre-slice can be any of the following:
-# section[.]
-# section.subsection[.]
+#   - section[.]
+#   - section.subsection[.]
+# 'section.subsection.test' is special-cased to avoid circular dependency
 define __tf_gen_presliced =
 $(trace_in)
     $(eval override _dep:=$(subst $(tsep), ,$2))
@@ -343,7 +344,7 @@ $(trace_in)
     $(call tracep, $(_words))
     $(call tracep,'$(_slice)', [$(_dep)])
     $(if $(call list-eq,$(_slice),$(wordlist 1,$(_words),$(_dep))),
-         $(eval $(call __tf_gen_sliced,$1,$2)))
+         $(if $(call neq,$1,$2),$(eval $(call __tf_gen_sliced,$1,$2))))
 $(trace_out)
 endef
 
