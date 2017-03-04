@@ -34,13 +34,7 @@ include $(_tfdir)/_hackery/colors
 
 override tsep:=.
 
-.DEFAULT_GOAL:=_quickhelp
-
-_quickhelp: _version
-	@echo "  - Type 'make all' to run all tests."
-	@echo "  - Type 'make list' to see a list of test-targets."
-	@echo "  - Type 'make help' for a more detailed help message."
-
+.DEFAULT_GOAL:=_all
 
 # create some test-forge aliases for needed make-forge routines
 tf-add-sources = $(call $(CF)-add-sources,$(1),$(2),$(3))
@@ -356,8 +350,8 @@ $(trace_out)
 endef
 
 
-override TF_BUILTINS:=clean help list version
-override __tf_is_builtin_target = $(filter $1,$(TF_BUILTINS))
+override tf_builtins:=clean help list version
+override __tf_is_builtin_target = $(filter $1,$(tf_builtins))
 define __tf_gen_builtin_target =
     $1:: _$1 ; @echo ""
 endef
@@ -388,7 +382,6 @@ $(trace_out)
 endef
 
 
-
 # ---------------------------------------------------------------------
 # Function:     tf-import-sections
 # Description:  Imports tests from all subdirectories that don't start
@@ -397,13 +390,16 @@ endef
 define _tf_import_all_sections =
     $(eval override _subdirs:=$(sort $(wildcard */)))
     $(eval override _subdirs:=$(_subdirs:%/=%))
+    $(if $(call set-isect,$(_subdirs),$(tf_builtins)),
+         $(error The following reserved words are not allowed as section names: {$(tf_builtins)}))
+    $(call verbose,_subdirs is '$(_subdirs)')
     $(info === Importing tests ...)
     $(call tf-include-sections,$(_subdirs))
 
     $(call _tf_gen_sliced_targets)
 
-    .PHONY: all
-    all: $(tf_topdeps) ;
+    .PHONY: _all
+    _all: $(tf_topdeps) ;
 endef
 tf-import-all-sections = $(trace_in)$(eval $(call _tf_import_all_sections))$(trace_out)
 
@@ -521,7 +517,9 @@ _clean: _version
 
 .PHONY: _help
 _help: _version
-	$(info $(\n)Full help for test-forge is not yet implemented.)
+	@echo "  - Type 'make' to run all tests."
+	@echo "  - Type 'make list' to see a list of test-targets."
+	@echo "  - Type 'make clean' to clear out all previous test results (TODO)."
 	@echo
 
 
