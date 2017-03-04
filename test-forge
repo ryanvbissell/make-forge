@@ -94,7 +94,7 @@ tf-declare-target = $(eval $(call _tf_declare_target,$1))
 define _tf_static_dependencies =
 $(trace_in)
     $(eval override _prefixed:=)
-    $(foreach dep,$(1),$(eval override _prefixed+=@$(dep)))
+    $(foreach dep,$(1),$(eval override _prefixed+=$(dep)@$(tf_subsection)@$(tf_section)))
     $(call $(CF)-static-dependencies,$(_prefixed))
     $(eval override undefine _prefixed)
 $(trace_out)
@@ -420,10 +420,10 @@ tf-import-all-sections = $(trace_in)$(eval $(call _tf_import_all_sections))$(tra
 # ---------------------------------------------------------------------
 override undefine tf_usingmf
 define _tf_use_makeforge_as =
-    $(eval override _namespace:=@$(1))
+    $(eval override _namespace:=$(1)@$(tf_subsection)@$(tf_section))
     $(eval override _tfum_saved_mfpd:=$(MF_PROJECT_DIR))
     $(eval override _tfum_saved_cfout:=$(cf_outdir))
-    $(eval override cf_outdir:=$(tf_section_outdir)/$(_namespace))
+    $(eval override cf_outdir:=$(tf_section_outdir)/@$(1))
     $(cf_outdir): ; @mkdir $(cf_outdir)
     $(eval override MF_PROJECT_DIR:=$(abspath $(dir $(2))))
     $(eval override tf_usingmf:=1)
