@@ -72,7 +72,7 @@ define _tf_declare_target =
 $(trace_in)
     $(eval $(call __tf_initialize,$(1)))
     $(eval override tf_subsection_outdir:=$(tf_section_outdir)/$(tf_subsection))
-    $(eval $(call $(CF)-declare-target,_tf_build_$(tf_target),$(tf_subsection_outdir)))
+    $(eval $(call $(CF)-declare-target,_tf_build_$(tf_target)@$(tf_subsection)@$(tf_section),$(tf_subsection_outdir)))
     $(call tracep,cf_outdir is '$(cf_outdir)')
     $(call tracep,tf_section_outdir is '$(tf_section_outdir)')
     $(call tracep,tf_subsection_outdir is '$(tf_subsection_outdir)')
