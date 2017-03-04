@@ -148,7 +148,7 @@ $(trace_in)
     $(eval __tfgr_testcmd:=$(TF_ENVVARS) ../$(__tfgr_exename) $(tf_testargs))
     $(eval __tfgr_cmdfile:=$(tf_logfile:%.log=%.cmd))
     _announce_$(1):
-	@printf '%15s  ::  Building...' $(tf_testname)
+	@printf '%-25s  ::  Building...' $(tf_testname)
 
     _run_$(1): _announce_$(1) $(tf_subsection_outdir) $(cf_target)
 	@printf 'Running [%-10s]...  ' $(2)
