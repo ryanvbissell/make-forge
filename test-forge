@@ -69,10 +69,6 @@ $(trace_in)
     $(call tracep,cf_outdir is '$(cf_outdir)')
     $(call tracep,tf_section_outdir is '$(tf_section_outdir)')
     $(call tracep,tf_subsection_outdir is '$(tf_subsection_outdir)')
-
-    # TODO not sure why, but $@ doesn't work in the mkdir line
-    $(tf_subsection_outdir):
-	@mkdir -p $(tf_subsection_outdir)
 $(trace_out)
 endef
 tf-declare-target = $(eval $(call _tf_declare_target,$1))
@@ -238,6 +234,9 @@ define __tf_include_subsection =
 $(trace_in)
     $(eval override tf_subsection:=$(basename $(notdir $1)))
     $(eval override tf_subsection_outdir:=$(tf_section_outdir)/$(tf_subsection))
+    # TODO not sure why, but $@ doesn't work in the mkdir line
+    $(tf_subsection_outdir):
+	@mkdir -p $(tf_subsection_outdir)
     $(call verbose,Loading sub-section '$(tf_section):$(tf_subsection)')
     $(eval include $(1))
 $(trace_out)
