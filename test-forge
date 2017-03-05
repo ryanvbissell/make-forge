@@ -511,9 +511,9 @@ _list: _version
 
 .PHONY: _clean
 _clean: _version
+	@echo "Cleaning..."
 	@$(RM) -R $(cf_outdir)
 	@$(RM) -R $(foreach dir,$(tf_subdirs),$(dir)/.out)
-	$(info $(\n)Cleaning for test-forge is not yet implemented.)
 	@echo
 
 .PHONY: _help
