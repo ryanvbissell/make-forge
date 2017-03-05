@@ -40,6 +40,7 @@ override tsep:=.
 tf-add-sources = $(call $(CF)-add-sources,$(1),$(2),$(3))
 tf-build-static_library = $(call $(CF)-build-static-library,$(1))
 tf-build-shared_library = $(call $(CF)-build-shared-library,$(1))
+tf-set-object-suffix = $(call $(CF)-set-object-suffix,$(1))
 
 
 # ---------------------------------------------------------------------
