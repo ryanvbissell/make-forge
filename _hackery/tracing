@@ -11,6 +11,7 @@ ifndef __tracing_include_guard
 override __tracing_include_guard:=1
 
 override _mhtdir:=$(dir $(lastword $(MAKEFILE_LIST)))
+override _mhtdir:=$(_mhodir:%/=%)
 include $(_mhtdir)/hackery
 include $(_mhtdir)/colors
 

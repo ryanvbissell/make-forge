@@ -11,6 +11,7 @@ ifndef __mh_opsys_include_guard
 override __mh_opsys_include_guard:=1
 
 override _mhodir:=$(dir $(lastword $(MAKEFILE_LIST)))
+override _mhodir:=$(_mhodir:%/=%)
 include $(_mhodir)/hackery
 
 define mh_opsys_configure_linux =
