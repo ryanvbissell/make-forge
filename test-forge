@@ -40,7 +40,21 @@ override tsep:=.
 tf-add-sources = $(call $(CF)-add-sources,$(1),$(2),$(3))
 tf-build-static-library = $(call $(CF)-build-static-library,$(1))
 tf-build-shared-library = $(call $(CF)-build-shared-library,$(1))
-tf-set-object-suffix = $(call $(CF)-set-object-suffix,$(1))
+
+
+# ---------------------------------------------------------------------
+# Function:     (tf-set-object-suffix,suffix)
+# Description:  Sets a filename stem suffix for every object file
+#               built for this build-target
+# Arguments: 1: What the suffix should be set to
+# ---------------------------------------------------------------------
+define _tf_set_object_suffix =
+$(trace_in)
+    $(call $(CF)-set-object-suffix,$1)
+    $(eval override cf_suffix:=@$1)
+$(trace_out)
+endef
+tf-set-object-suffix = $(strip $(call _tf_set_object_suffix,$1))
 
 
 # ---------------------------------------------------------------------
@@ -67,9 +81,11 @@ define _tf_declare_target =
 $(trace_in)
     $(eval $(call __tf_initialize,$(1)))
     $(eval $(call $(CF)-declare-target,_tf_build_$(tf_target)@$(tf_subsection)@$(tf_section),$(tf_subsection_outdir)))
+    $(eval $(call tf-set-object-suffix,$1))
     $(call tracep,cf_outdir is '$(cf_outdir)')
     $(call tracep,tf_section_outdir is '$(tf_section_outdir)')
     $(call tracep,tf_subsection_outdir is '$(tf_subsection_outdir)')
+    $(call tracep,cf_suffix is '$(cf_suffix)')
 $(trace_out)
 endef
 tf-declare-target = $(eval $(call _tf_declare_target,$1))
