@@ -99,10 +99,12 @@ tf-declare-target = $(eval $(call _tf_declare_target,$1))
 # ---------------------------------------------------------------------
 define _tf_static_dependencies =
 $(trace_in)
-    $(eval override _fqdeps:=)
-    $(foreach dep,$(1),$(eval override _fqdeps+=$(tf_prefix)$(dep)@$(tf_subsection)@$(tf_section)))
-    $(call $(CF)-static-dependencies,$(_fqdeps))
-    $(eval override undefine _fqdeps)
+    $(eval override _cfdeps:=)
+    $(call tracep, cf_target is '$(cf_target)')
+    $(foreach dep,$(1),$(eval override _cfdeps+=$(cf_@$(dep)@$(tf_subsection)@$(tf_section)_targetvar)))
+    $(call tracep, _cfdeps is '$(_cfdeps)')
+    $(call $(CF)-static-dependencies,$(_cfdeps))
+    $(eval override undefine _cfdeps)
 $(trace_out)
 endef
 tf-static-dependencies = $(strip $(call _tf_static_dependencies,$1))
@@ -115,6 +117,7 @@ tf-static-dependencies = $(strip $(call _tf_static_dependencies,$1))
 # ---------------------------------------------------------------------
 define _tf_build_executable =
 $(trace_in)
+    $(call tracep,tf_target is '$(tf_target)')
     $(call $(CF)-build-executable,$(tf_target))
 $(trace_out)
 endef
@@ -423,35 +426,79 @@ tf-import-all-sections = $(trace_in)$(eval $(call _tf_import_all_sections))$(tra
 #      the user has listed a builtin in MAKECMDGOALS (except for 'all')
 
 
+#TODO: note that @$1$2 is the same thing as $(cf_target)
+define __tf_makeforge_callback =
+$(trace_in)
+    $(eval override _as:=$(call car,$(subst @,$(space),$2)))
+    $(eval override _fulltarget:=@$1@$(_as)@$(tf_subsection)@$(tf_section))
+    $(call tracep, cf_target is '$(cf_target)')
+    $(call tracep, creating target '$(_fulltarget): @$1$2')
+    # NOTE: the next line intentionally uses late expansion
+    $(eval override cf_$(_fulltarget)_targetvar=$(cf_target))
+    $(_fulltarget): @$1$2
+$(trace_out)
+endef
+
+
+override tf_namespaces:=
 override undefine tf_usingmf
-override tf_prefix:=@
 # ---------------------------------------------------------------------
 # Function:     (__tf_include_makeforge_as,namespace,filepath,outdir)
-# Description:  Imports a make-forge fragment into a test-forge
-#               session, encapsulated into 'namespace@' namespace.
-#               'name' is about to be described.
+# Description:  Helper to __tf_include_makeforge_as
 # Arguments: 1: Namespace to use
 #            2: Path to the make-forge fragment (.MF)
-#            3: Path for cf_outdir override
+#            3: [optional] name of target notification callback
 # ---------------------------------------------------------------------
 define __tf_include_makeforge_as =
 $(trace_in)
-    $(eval override _namespace:=$(1)@$(tf_subsection)@$(tf_section))
+    $(eval override _tf_makeforge_as__$1:=$2)
+    $(eval override _namespace:=$(1))
     $(eval override _tfima_saved_mfpd:=$(MF_PROJECT_DIR))
-    $(eval override _tfima_saved_cfout:=$(cf_outdir))
-    $(eval override cf_outdir:=$3)
-    $(cf_outdir): ; @mkdir -p $(cf_outdir)
     $(eval override MF_PROJECT_DIR:=$(abspath $(dir $(2))))
     $(eval override tf_usingmf:=1)
-    $(eval override cf_prefix:=$(tf_prefix))
-    $(call $(CF)-include-as,$(_namespace),$(2))
+    $(eval override cf_prefix:=@)
+    $(call $(CF)-include-as,$(_namespace),$(2),$3)
     $(eval override undefine cf_prefix)
     $(eval override undefine tf_usingmf)
-    $(eval override cf_outdir:=$(_tfima_saved_cfout))
     $(eval override MF_PROJECT_DIR:=$(_tfima_saved_mfpd))
-    $(eval override undefine _tfima_saved_cfout)
     $(eval override undefine _tfima_saved_mfpd)
     $(eval override undefine _namespace)
+    $(eval override tf_namespaces:=$1)
+$(trace_out)
+endef
+
+
+define __tf_gen_mkdir_targetrule =
+$(trace_in)
+    $(1): ; @mkdir -p $(1)
+$(trace_out)
+endef
+
+# ---------------------------------------------------------------------
+# Function:     (_tf_include_makeforge_as,namespace,filepath,outdir)
+# Description:  Imports a make-forge fragment into a test-forge
+#               session, encapsulated into '@namespace' namespace.
+#               'name' is about to be described.
+# Arguments: 1: User-provided namespace
+#            2: Namespace suffix to apply for scoping
+#            3: Path to the make-forge fragment (.MF)
+#            4: Path for cf_outdir override
+#            5: [optional] name of target notification callback
+# ---------------------------------------------------------------------
+define _tf_include_makeforge_as =
+$(trace_in)
+    $(call tracep,tf_namespaces is '$(tf_namespaces)')
+    $(call tracep,_tf_makeforge_as__$1$2 is '$(_tf_makeforge_as__$1$2)')
+    $(if $(filter $1$2,$(tf_namespaces)),
+         $(if $(call neq,$3,$(_tf_makeforge_as__$1$2)),
+              $(error Already loaded different file '$(_tf_makeforge_as__$1$2)' as namespace '$1')))
+
+    $(eval override _tfima_saved_cfout:=$(cf_outdir))
+    $(eval override cf_outdir:=$4)
+    $(if $(filter $1$2,$(tf_namespaces)),,$(call __tf_gen_mkdir_targetrule,$(cf_outdir)))
+    $(call __tf_include_makeforge_as,$1$2,$3,$5)
+    $(eval override cf_outdir:=$(_tfima_saved_cfout))
+    $(eval override undefine _tfima_saved_cfout)
 $(trace_out)
 endef
 
@@ -459,13 +506,13 @@ endef
 # ---------------------------------------------------------------------
 # Function:     (tf-export-makeforge-as,namespace,filepath)
 # Description:  Imports a make-forge fragment into a test-forge
-#               session, encapsulated into 'namespace@' namespace.
+#               session, encapsulated into '@namespace' namespace.
 #               'name' is about to be described.
 # Arguments: 1: Namespace to use
 #            2: Path to the make-forge fragment (.MF)
 # ---------------------------------------------------------------------
 define _tf_export_makeforge_as =
-    $(call __tf_include_makeforge_as,$1,$2,$(cf_outdir)/@$(1))
+    $(call _tf_include_makeforge_as,$1,@@,$2,$(cf_outdir)/@$(1),__tf_makeforge_callback)
 endef
 tf-export-makeforge-as = $(trace_in)$(strip $(call _tf_export_makeforge_as,$1,$2))$(trace_out)
 
@@ -473,13 +520,13 @@ tf-export-makeforge-as = $(trace_in)$(strip $(call _tf_export_makeforge_as,$1,$2
 # ---------------------------------------------------------------------
 # Function:     (tf-share-makeforge-as,namespace,filepath)
 # Description:  Imports a make-forge fragment into a test-forge
-#               session, encapsulated into 'namespace@' namespace.
+#               session, encapsulated into '@namespace' namespace.
 #               'name' is about to be described.
 # Arguments: 1: Namespace to use
 #            2: Path to the make-forge fragment (.MF)
 # ---------------------------------------------------------------------
 define _tf_share_makeforge_as =
-    $(call __tf_include_makeforge_as,$1,$2,$(tf_section_outdir)/@$(1))
+    $(call _tf_include_makeforge_as,$1,@@$(tf_section),$2,$(tf_section_outdir)/@$(1),__tf_makeforge_callback)
 endef
 tf-share-makeforge-as = $(trace_in)$(strip $(call _tf_share_makeforge_as,$1,$2))$(trace_out)
 
@@ -487,13 +534,13 @@ tf-share-makeforge-as = $(trace_in)$(strip $(call _tf_share_makeforge_as,$1,$2))
 # ---------------------------------------------------------------------
 # Function:     (tf-use-makeforge-as,namespace,filepath)
 # Description:  Imports a make-forge fragment into a test-forge
-#               session, encapsulated into 'namespace@' namespace.
+#               session, encapsulated into '@namespace' namespace.
 #               'name' is about to be described.
 # Arguments: 1: Namespace to use
 #            2: Path to the make-forge fragment (.MF)
 # ---------------------------------------------------------------------
 define _tf_use_makeforge_as =
-    $(call __tf_include_makeforge_as,$1,$2,$(tf_subsection_outdir)/@$(1))
+    $(call _tf_include_makeforge_as,$1,@$(tf_subsection)@$(tf_section),$2,$(tf_subsection_outdir)/@$(1))
 endef
 tf-use-makeforge-as = $(trace_in)$(strip $(call _tf_use_makeforge_as,$1,$2))$(trace_out)
 
