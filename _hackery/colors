@@ -7,6 +7,8 @@
 # See the enclosed "LICENSE" file for exact license terms.
 #
 
+$(eval $(if $(MAKE_TERMOUT),,override __colors_include_guard:=1))
+
 ifndef __colors_include_guard
 override __colors_include_guard:=1
 
@@ -69,6 +71,7 @@ COLOR_ERROR:=$(BRRED)
 COLOR_REJOICE:=$(BRGREEN)
 endif
 
+endif
 
 override _TEXT = $(COLOR_TEXT)$1$2$3$4$5$6$7$8$9$(OFF)
 override _DEBUG = $(COLOR_DEBUG)$1$2$3$4$5$6$7$8$9$(OFF)
@@ -78,5 +81,4 @@ override _REJOICE = $(COLOR_REJOICE)$1$2$3$4$5$6$7$8$9$(OFF)
 override _WARNING = $(COLOR_WARNING)$1$2$3$4$5$6$7$8$9$(OFF)
 override _ERROR = $(COLOR_ERROR)$1$2$3$4$5$6$7$8$9$(OFF)
 
-endif
 
