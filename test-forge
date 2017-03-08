@@ -80,7 +80,7 @@ endef
 define _tf_declare_target =
 $(trace_in)
     $(eval $(call __tf_initialize,$(1)))
-    $(eval $(call $(CF)-declare-target,_tf_build_$(tf_target)@$(tf_subsection)@$(tf_section),$(tf_subsection_outdir)))
+    $(eval $(call $(CF)-declare-target,$(tf_target)@$(tf_subsection)@$(tf_section),$(tf_subsection_outdir)))
     $(eval $(call tf-set-object-suffix,$1))
     $(call tracep,cf_outdir is '$(cf_outdir)')
     $(call tracep,tf_section_outdir is '$(tf_section_outdir)')
