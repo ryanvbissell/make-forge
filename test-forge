@@ -431,8 +431,7 @@ define __tf_makeforge_callback =
 $(trace_in)
     $(eval override _as:=$(call car,$(subst @,$(space),$2)))
     $(eval override _fulltarget:=@$1@$(_as)@$(tf_subsection)@$(tf_section))
-    $(call tracep, cf_target is '$(cf_target)')
-    $(call tracep, creating target '$(_fulltarget): @$1$2')
+    $(call verbose,--- target $(_fulltarget)$(,) aliasing $(cf_target))
     $(eval override cf_$(_fulltarget)_targetvar:=$(cf_target))
     $(_fulltarget): @$1$2
 $(trace_out)

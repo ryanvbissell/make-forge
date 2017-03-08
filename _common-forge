@@ -157,6 +157,7 @@ define _cf_declare_target =
 $(trace_in)
     $(call __cf_initialize)
     $(eval override cf_target:=$(cf_prefix)$1$(CF_NAMESPACE))
+    $(call verbose,--- target $(cf_target))
     $(if $(CF_CALLBACK),$(eval $(call $(CF_CALLBACK),$1,$(CF_NAMESPACE))))
     $(eval override cf_target_outdir:=$(if $2,$2,$(cf_outdir)))
     $(call tracep,cf_target_outdir will be '$(cf_target_outdir)')
