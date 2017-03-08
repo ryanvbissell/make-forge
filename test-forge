@@ -433,8 +433,7 @@ $(trace_in)
     $(eval override _fulltarget:=@$1@$(_as)@$(tf_subsection)@$(tf_section))
     $(call tracep, cf_target is '$(cf_target)')
     $(call tracep, creating target '$(_fulltarget): @$1$2')
-    # NOTE: the next line intentionally uses late expansion
-    $(eval override cf_$(_fulltarget)_targetvar=$(cf_target))
+    $(eval override cf_$(_fulltarget)_targetvar:=$(cf_target))
     $(_fulltarget): @$1$2
 $(trace_out)
 endef
