@@ -157,7 +157,7 @@ define _cf_declare_target =
 $(trace_in)
     $(call __cf_initialize)
     $(eval override cf_target:=$(cf_prefix)$1$(CF_NAMESPACE))
-    $(call verbose,--- target $(cf_target))
+    $(call verbose,- target $(cf_target))
     $(if $(CF_CALLBACK),$(eval $(call $(CF_CALLBACK),$1,$(CF_NAMESPACE))))
     $(eval override cf_target_outdir:=$(if $2,$2,$(cf_outdir)))
     $(call tracep,cf_target_outdir will be '$(cf_target_outdir)')
@@ -457,12 +457,12 @@ endef
 # ---------------------------------------------------------------------
 #  INTERNAL:     (__cf_build_target_file,filename,string)
 #  Description:  Generates the ultimate target file of the current-target
-#  Arguments: 1: The filename (stem[.ext]) of the file to be generated.
+#  Arguments: 1: The fully-qualified filename of the file to be generated.
 #             2: A string describing the type of file being built
 # ---------------------------------------------------------------------
 define __cf_build_target_file =
 $(trace_in)
-    $(eval override cf_$(cf_target)_file:=$(cf_target_outdir)/$(1))
+    $(eval override cf_$(cf_target)_file:=$1)
     $(eval $(__cf_import_depfiles))
     $(eval override cf_objfiles:=$(sort $(cf_objfiles)))
     $(eval override cf_linkfiles:=$(sort $(cf_linkfiles)))
@@ -479,11 +479,11 @@ endef
 # ---------------------------------------------------------------------
 #  Function:     (__cf_build_static_library,filename)
 #  Description:  This ends the target definition for a static library
-#  Arguments: 1: The static library's intended filename
+#  Arguments: 1: The static library's fully-qualified filename
 # ---------------------------------------------------------------------
 define __cf_build_static_library =
 $(trace_in)
-    $(call __cf_build_target_file,$(1),static-library)
+    $(call __cf_build_target_file,$1,static-library)
 	@$(test) $(AR) $(ARFLAGS) $$@ $$^
 $(trace_out)
 endef
@@ -497,6 +497,7 @@ endef
 define _cf_build_static_library =
 $(trace_in)
     $(eval override _cfbsl_name:=$(if $1,$1,$(cf_target)).$(cflib))
+    $(eval override _cfbsl_name:=$(cf_target_outdir)/$(_cfbsl_name))
     $(if $(filter $(_cfbsl_name),$(cf_static_libraries)),
          ,
          $(call __cf_build_static_library,$(_cfbsl_name)))
@@ -510,13 +511,13 @@ $(CF)-build-static-library = $(eval $(call _cf_build_static_library,$1))
 #  Function:     (__cf_build_shared_library,filename)
 #  Description:  This ends the target definition for a shared library.
 #                This will add '-shared' to LDFLAGS
-#  Arguments: 1: The shared library's intended filename
+#  Arguments: 1: The shared library's fully-qualified filename
 # ---------------------------------------------------------------------
 define __cf_build_shared_library =
 $(trace_in)
     # TODO, need an add-flags routine
     $(eval override LDFLAGS+=-shared)
-    $(call __cf_build_target_file,$(1),shared-library)
+    $(call __cf_build_target_file,$1,shared-library)
 	@$(test) $(CXX) $(LDFLAGS) $$^ -o $$@
 $(trace_out)
 endef
@@ -531,6 +532,7 @@ endef
 define _cf_build_shared_library =
 $(trace_in)
     $(eval override _cfbshl_name:=$(if $1,$1,$(cf_target)).$(cfdll))
+    $(eval override _cfbshl_name:=$(cf_target_outdir)/$(_cfbshl_name))
     $(if $(filter $(_cfbshl_name),$(cf_shared_libraries)),
          ,
          $(call __cf_build_shared_library,$(_cfbshl_name)))
@@ -543,11 +545,11 @@ $(CF)-build-shared-library = $(eval $(call _cf_build_shared_library,$1))
 # ---------------------------------------------------------------------
 #  Function:     (__cf_build_executable,filename)
 #  Description:  This end the target definition for an executable
-#  Arguments: 1: The executable's intended filename
+#  Arguments: 1: The executable's fully-qualified filename
 # ---------------------------------------------------------------------
 define __cf_build_executable =
 $(trace_in)
-    $(call __cf_build_target_file,$(1),executable)
+    $(call __cf_build_target_file,$1,executable)
 	@$(test) $(CXX) $(LDFLAGS) $$^ $(LDLIBS) -o $$@
 $(trace_out)
 endef
@@ -561,6 +563,7 @@ endef
 define _cf_build_executable =
 $(trace_in)
     $(eval override _cfbe_name:=$(if $1,$1,$(cf_target))$(cfexe))
+    $(eval override _cfbe_name:=$(cf_target_outdir)/$(_cfbe_name))
     $(if $(filter $(cf_target_outdir)/$(_cfbe_name),$(cf_executables)),
          ,
          $(call __cf_build_executable,$(_cfbe_name)))

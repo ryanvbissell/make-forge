@@ -426,14 +426,22 @@ tf-import-all-sections = $(trace_in)$(eval $(call _tf_import_all_sections))$(tra
 #      the user has listed a builtin in MAKECMDGOALS (except for 'all')
 
 
-#TODO: note that @$1$2 is the same thing as $(cf_target)
 define __tf_makeforge_callback =
+$(trace_in)
+    $(call verbose,-- target $(3)$(,) aliasing @$1$2)
+    $3: @$1$2
+$(trace_out)
+endef
+
+
+#TODO: note that @$1$2 is the same thing as $(cf_target)
+define _tf_makeforge_callback =
 $(trace_in)
     $(eval override _as:=$(call car,$(subst @,$(space),$2)))
     $(eval override _fulltarget:=@$1@$(_as)@$(tf_subsection)@$(tf_section))
-    $(call verbose,--- target $(_fulltarget)$(,) aliasing $(cf_target))
+    $(if $(call neq,$(_fulltarget),$(cf_target)),
+         $(call __tf_makeforge_callback,$1,$2,$(_fulltarget)))
     $(eval override cf_$(_fulltarget)_targetvar:=$(cf_target))
-    $(_fulltarget): @$1$2
 $(trace_out)
 endef
 
@@ -510,7 +518,7 @@ endef
 #            2: Path to the make-forge fragment (.MF)
 # ---------------------------------------------------------------------
 define _tf_export_makeforge_as =
-    $(call _tf_include_makeforge_as,$1,@@,$2,$(cf_outdir)/@$(1),__tf_makeforge_callback)
+    $(call _tf_include_makeforge_as,$1,@@,$2,$(cf_outdir)/@$(1),_tf_makeforge_callback)
 endef
 tf-export-makeforge-as = $(trace_in)$(strip $(call _tf_export_makeforge_as,$1,$2))$(trace_out)
 
@@ -524,7 +532,7 @@ tf-export-makeforge-as = $(trace_in)$(strip $(call _tf_export_makeforge_as,$1,$2
 #            2: Path to the make-forge fragment (.MF)
 # ---------------------------------------------------------------------
 define _tf_share_makeforge_as =
-    $(call _tf_include_makeforge_as,$1,@@$(tf_section),$2,$(tf_section_outdir)/@$(1),__tf_makeforge_callback)
+    $(call _tf_include_makeforge_as,$1,@@$(tf_section),$2,$(tf_section_outdir)/@$(1),_tf_makeforge_callback)
 endef
 tf-share-makeforge-as = $(trace_in)$(strip $(call _tf_share_makeforge_as,$1,$2))$(trace_out)
 
@@ -538,7 +546,7 @@ tf-share-makeforge-as = $(trace_in)$(strip $(call _tf_share_makeforge_as,$1,$2))
 #            2: Path to the make-forge fragment (.MF)
 # ---------------------------------------------------------------------
 define _tf_use_makeforge_as =
-    $(call _tf_include_makeforge_as,$1,@$(tf_subsection)@$(tf_section),$2,$(tf_subsection_outdir)/@$(1))
+    $(call _tf_include_makeforge_as,$1,@$(tf_subsection)@$(tf_section),$2,$(tf_subsection_outdir)/@$(1),_tf_makeforge_callback)
 endef
 tf-use-makeforge-as = $(trace_in)$(strip $(call _tf_use_makeforge_as,$1,$2))$(trace_out)
 
