@@ -214,6 +214,21 @@ $(trace_out)
 endef
 
 
+define __cf_config_changed =
+    $(call verbose, Configuration changed for $1)
+    $(shell $(RM) $2)
+endef
+
+
+define __cf_depfile_heredoc
+	# this forces a recompile if this rule's recipe changes
+	$$(subst $$$$,\$$$$,override THISRUN:=$3)
+	$$(subst $$$$,\$$$$,override LASTRUN:=$C)
+	$$(subst $$$$,\$$$$,
+	$$$$(if $$$$(call neq,$$$$(THISRUN),$$$$(LASTRUN)), $$$$(eval $$$$(call __cf_config_changed,$$(notdir $$<),$$@))))
+endef
+
+
 define __cf_compile =
 $(trace_in)
 	$(eval C:=$(strip $3))
@@ -221,8 +236,9 @@ $(trace_in)
 	$(call tracep,2 will be '$2')
 	$(call tracep,3 will be '$3')
 	$(call tracep,C will be '$C')
-	@echo "# this forces a recompile if this rule's recipe changes" $(append)$2
-	@echo "$$(subst $$$$,\$$$$,$$$$(if $$$$(call neq,$3,$C),$$$$(call verbose,Configuration changed for $$(notdir $$<) $(cf_printsuffix))$$$$(shell $(RM) $$@)))" $(append) $2
+	@cat <<- EOF $(append)$2
+	$(__cf_depfile_heredoc)
+	EOF
 	@$(test2) echo "" $(append)$2
 	@$(call __cf_announce_compile,$1)
 	@$(test) $C
