@@ -400,7 +400,7 @@ $(CF)-static-dependencies = $(strip $(call _cf_static_dependencies,$1))
 # ---------------------------------------------------------------------
 define __cf_import_depfiles =
 $(trace_in)
-    $(eval override cf_depfiles:=$(cf_objfiles:.$(cfobj)=.d))
+    $(eval override cf_depfiles:=$(addsuffix .d,$(cf_objfiles)))
     -include $(cf_depfiles)
 $(trace_out)
 endef
