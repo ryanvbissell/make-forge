@@ -204,7 +204,7 @@ $(trace_in)
 	$(call tracep,3 will be '$3')
 	$(call tracep,C will be '$C')
 	@echo "# this forces a recompile if this rule's recipe changes" $(append)$2
-	@echo "$$(subst $$$$,\$$$$,$$$$(if $$$$(call neq,$3,$C),$$$$(call verbose,Configuration changed for $$(notdir $$<) $(cf_printsuffix))$$$$(shell $(RM) $$@)))" >> $2
+	@echo "$$(subst $$$$,\$$$$,$$$$(if $$$$(call neq,$3,$C),$$$$(call verbose,Configuration changed for $$(notdir $$<) $(cf_printsuffix))$$$$(shell $(RM) $$@)))" $(append) $2
 	@$(call __cf_announce_compile,$1)
 	@$(test) $C
 $(trace_out)
@@ -277,12 +277,12 @@ $(trace_in)
 	              -e 's/$$$$/:\n/' \
 	              -e 's/^:.*$$$$/\n/' $(append)$(cf_target_outdir)/$(1).d
 	@$(test2) $(RM) $(cf_target_outdir)/$(1).d.tmp
-	@echo "" >>$(cf_target_outdir)/$(1).d
+	@echo "" $(append)$(cf_target_outdir)/$(1).d
 	@echo "# this forces a recompile if the makefiles change" $(append)$(cf_target_outdir)/$(1).d
-	@echo "$(cf_target_outdir)/$(1): $(sort $(MAKEFILE_LIST:%.d=))" >>$(cf_target_outdir)/$(1).d
-	@echo "" >>$(cf_target_outdir)/$(1).d
+	@echo "$(cf_target_outdir)/$(1): $(sort $(MAKEFILE_LIST:%.d=))" $(append)$(cf_target_outdir)/$(1).d
+	@echo "" $(append)$(cf_target_outdir)/$(1).d
 	$(call append_vars,$(cf_target_outdir)/$(1).d)
-	@echo "" >>$(cf_target_outdir)/$(1).d
+	@echo "" $(append)$(cf_target_outdir)/$(1).d
 $(trace_out)
 endef
 
