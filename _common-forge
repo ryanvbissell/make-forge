@@ -254,6 +254,8 @@ endef
 #    sed:    - strip leading spaces
 #            - add trailing colons (and blank lines)
 #            - remove lines containing only a colon
+#
+# Arguments: 1: typically, this is '$*$(cf_suffix).o'
 # ---------------------------------------------------------------------
 # TODO it seems possibly wrong that we hardcode $(CXX) below, since
 # this could be used for C code as well.
