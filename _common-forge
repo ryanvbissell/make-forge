@@ -277,12 +277,12 @@ $(trace_in)
 	              -e 's/$$$$/:\n/' \
 	              -e 's/^:.*$$$$/\n/' $(append)$(cf_target_outdir)/$(1).d
 	@$(test2) $(RM) $(cf_target_outdir)/$(1).d.tmp
-	@echo "" $(append)$(cf_target_outdir)/$(1).d
-	@echo "# this forces a recompile if the makefiles change" $(append)$(cf_target_outdir)/$(1).d
-	@echo "$(cf_target_outdir)/$(1): $(sort $(MAKEFILE_LIST:%.d=))" $(append)$(cf_target_outdir)/$(1).d
-	@echo "" $(append)$(cf_target_outdir)/$(1).d
+	@$(test2)echo "" $(append)$(cf_target_outdir)/$(1).d
+	@$(test2)echo "# this forces a recompile if the makefiles change" $(append)$(cf_target_outdir)/$(1).d
+	@$(test2)echo "$(cf_target_outdir)/$(1): $(sort $(MAKEFILE_LIST:%.d=))" $(append)$(cf_target_outdir)/$(1).d
+	@$(test2)echo "" $(append)$(cf_target_outdir)/$(1).d
 	$(call append_vars,$(cf_target_outdir)/$(1).d)
-	@echo "" $(append)$(cf_target_outdir)/$(1).d
+	@$(test2)echo "" $(append)$(cf_target_outdir)/$(1).d
 $(trace_out)
 endef
 
