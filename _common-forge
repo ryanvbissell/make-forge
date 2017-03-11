@@ -113,13 +113,28 @@ override CF_ARFLAGS:=rcs
 
 define append_var =
 $(trace_in)
-	@echo "$1 := $$($1)" $(append)$2
+	@$(test2) echo "$1 := $$($1)" $(append)$2
 $(trace_out)
 endef
 
 define append_vars =
-	@echo "# these describe the automatic variables the last time this rule fired" $(append)$1
+	@$(test2) echo "# these describe the automatic variables the last time this rule fired" $(append)$1
 	$(foreach item, @ % < ? ^ + | *,$(call append_var,$(item),$1))
+endef
+
+
+define append_makedep =
+$(trace_in)
+	@$(test2) echo " $1 \\" $(append)$2
+$(trace_out)
+endef
+
+
+define append_makedeps =
+	@$(test2) echo "# this forces a recompile if the makefiles change" $(append)$2
+	@$(test2) echo "$1: \\" $(append)$2
+	$(foreach mk,$(call butlast,$(sort $(MAKEFILE_LIST:%.d=))),$(call append_makedep,$(mk),$2))
+	@$(test2) echo " $(call last,$(sort $(MAKEFILE_LIST:%.d=)))" $(append)$2
 endef
 
 
@@ -278,8 +293,7 @@ $(trace_in)
 	              -e 's/^:.*$$$$/\n/' $(append)$(cf_target_outdir)/$(1).d
 	@$(test2) $(RM) $(cf_target_outdir)/$(1).d.tmp
 	@$(test2)echo "" $(append)$(cf_target_outdir)/$(1).d
-	@$(test2)echo "# this forces a recompile if the makefiles change" $(append)$(cf_target_outdir)/$(1).d
-	@$(test2)echo "$(cf_target_outdir)/$(1): $(sort $(MAKEFILE_LIST:%.d=))" $(append)$(cf_target_outdir)/$(1).d
+	$(call append_makedeps,$(cf_target_outdir)/$(1),$(cf_target_outdir)/$(1).d)
 	@$(test2)echo "" $(append)$(cf_target_outdir)/$(1).d
 	$(call append_vars,$(cf_target_outdir)/$(1).d)
 	@$(test2)echo "" $(append)$(cf_target_outdir)/$(1).d
