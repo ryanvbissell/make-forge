@@ -255,6 +255,8 @@ endef
 #            - add trailing colons (and blank lines)
 #            - remove lines containing only a colon
 # ---------------------------------------------------------------------
+# TODO it seems possibly wrong that we hardcode $(CXX) below, since
+# this could be used for C code as well.
 define __cf_gen_dependencies =
 $(trace_in)
 	@$(test2) $(CXX) -MM $(CPPFLAGS) $(CXXFLAGS) $$< $(redir)$(cf_target_outdir)/$(1).d
