@@ -259,7 +259,7 @@ define __cf_gen_dependencies =
 $(trace_in)
 	@$(test2) $(CXX) -MM $(CPPFLAGS) $(CXXFLAGS) $$< $(redir)$(cf_target_outdir)/$(1).d
 	@$(test2) mv -f $(cf_target_outdir)/$(1).d $(cf_target_outdir)/$(1).d.tmp
-	@$(test2) sed -e 's|.*:|$(cf_target_outdir)/$(1).o:|' $(indir)$(cf_target_outdir)/$(1).d.tmp $(redir)$(cf_target_outdir)/$(1).d
+	@$(test2) sed -e 's|.*:|$(cf_target_outdir)/$(1):|' $(indir)$(cf_target_outdir)/$(1).d.tmp $(redir)$(cf_target_outdir)/$(1).d
 	@$(test2) echo "" $(append)$(cf_target_outdir)/$(1).d
 	@$(test2) sed -e 's/.*://' \
 	              -e 's/\\$$$$//' $(indir)$(cf_target_outdir)/$(1).d.tmp $(pipe) \
@@ -269,7 +269,7 @@ $(trace_in)
 	              -e 's/^:.*$$$$/\n/' $(append)$(cf_target_outdir)/$(1).d
 	@$(test2) $(RM) $(cf_target_outdir)/$(1).d.tmp
 	@echo "" >>$(cf_target_outdir)/$(1).d
-	@echo "$(cf_target_outdir)/$(1).o: $(sort $(MAKEFILE_LIST:%.d=))" >>$(cf_target_outdir)/$(1).d
+	@echo "$(cf_target_outdir)/$(1): $(sort $(MAKEFILE_LIST:%.d=))" >>$(cf_target_outdir)/$(1).d
 	@echo "" >>$(cf_target_outdir)/$(1).d
 	$(call append_vars,$(cf_target_outdir)/$(1).d)
 	@echo "" >>$(cf_target_outdir)/$(1).d
@@ -289,8 +289,8 @@ endef
 define ___cf_gen_static_pattern_rule
 $(trace_in)
     $(2): $(cf_target_outdir)/%$(cf_suffix).$(cfobj): $(3)/%$(4) | $(cf_target_outdir)
-	@$(call __cf_gen_dependencies,$$*$(cf_suffix))
-	$(call __cf_compile_$(1),$(cf_printsuffix),$(cf_target_outdir)/$$*$(cf_suffix).d)
+	@$(call __cf_gen_dependencies,$$*$(cf_suffix).$(cfobj))
+	$(call __cf_compile_$(1),$(cf_printsuffix),$(cf_target_outdir)/$$*$(cf_suffix).$(cfobj).d)
 $(trace_out)
 endef
 
