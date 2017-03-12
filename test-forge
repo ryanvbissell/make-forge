@@ -160,10 +160,16 @@ $(trace_in)
     $(eval __tfgr_testcmd:=$(TF_ENVVARS) ../$(__tfgr_exename) $(tf_testargs))
     $(eval __tfgr_cmdfile:=$(tf_logfile:%.log=%.cmd))
     _announce_$(1):
+ifndef CF_QUIETER_BUILDS
 	@printf '%-25s  ::  Building...' $(tf_testname)
+endif
 
     _run_$(1): _announce_$(1) $(tf_subsection_outdir) $(cf_target)
+ifndef CF_QUIETER_BUILDS
 	@printf 'Running [%-10s]...  ' $(2)
+else
+	@echo -n ">"
+endif
 	@echo 'cd $(tf_sandbox).sandbox && $(__tfgr_testcmd)' >$(__tfgr_cmdfile)
 	@cd $(tf_subsection_outdir) \
 	 && mkdir -p ./$(tf_sandbox).sandbox \
@@ -193,7 +199,9 @@ define _tf_test_exitstatus =
     $(eval override _name:=$(strip $(call __tf_register_test,$(1))))
     $(eval $(call __tf_gen_runtarget,$(_name),exitstatus))
     $(_name): _run_$(_name)
+ifndef CF_QUIETER_BUILDS
 	@echo "$(call _REJOICE,PASS)"
+endif
 endef
 tf-test-exitstatus = $(trace_in)$(eval $(call _tf_test_exitstatus,$1,$2))$(trace_out)
 
@@ -222,7 +230,7 @@ define __tf_test_hashval =
 	     echo "$(call _ERROR,$(_name): test log digest was '$$$${TF_HASHVAL}', expected '$(_hash)'.)" 2>&1 ;\
 	     false ;\
 	 else \
-	     echo "$(call _REJOICE,PASS)";\
+	     $(if $(CF_QUIETER_BUILDS),true,echo "$(call _REJOICE,PASS)");\
 	     true;\
 	 fi
     $(eval override undefine _hash)
@@ -301,7 +309,9 @@ endef
 define __tf_gen_sliced =
 $(trace_in)
     $(call tracep,$1 --> $2)
+    $(eval override tf_selected+=$2)
     $1: $2
+
 $(trace_out)
 endef
 
@@ -404,6 +414,7 @@ $(trace_out)
 endef
 
 
+#dd$(if $(call not,$(filter clean,$(MAKECMDGOALS)
 # ---------------------------------------------------------------------
 # Function:     tf-import-sections
 # Description:  Imports tests from all subdirectories that don't start
@@ -414,15 +425,20 @@ define _tf_import_all_sections =
     $(eval override tf_subdirs:=$(tf_subdirs:%/=%))
     $(if $(call set-isect,$(tf_subdirs),$(tf_builtins)),
          $(error The following reserved words are not allowed as section names: {$(tf_builtins)}))
-    $(info === Importing tests ...)
+    $(info === Importing tests)
     $(call tf-include-sections,$(tf_subdirs))
 
     $(call _tf_gen_sliced_targets)
+    $(if $(and $(CF_QUIETER_BUILDS),
+               $(call not,$(filter $(tf_builtins),$(MAKECMDGOALS)))),
+         $(info === Selected: $(if $(tf_selected),$(tf_selected),all)))
 
     .PHONY: _all
-    _all: $(tf_topdeps) ;
+    _all: $(tf_topdeps)
+	@echo ""
 endef
 tf-import-all-sections = $(trace_in)$(eval $(call _tf_import_all_sections))$(trace_out)
+
 
 
 #TODO: improve on the above so that tests are not imported whenever
@@ -537,7 +553,7 @@ tf-export-makeforge-as = $(trace_in)$(strip $(call _tf_export_makeforge_as,$1,$2
 define _tf_share_makeforge_as =
     $(call _tf_include_makeforge_as,$1,@@$(tf_section),$2,$(tf_section_outdir)/@$(1),_tf_makeforge_callback)
 endef
-tf-share-makeforge-as = $(trace_in)$(strip $(call _tf_share_makeforge_as,$1,$2))$(trace_out)
+tf-share-makeforge-as = $(trace_in)$(strip $(cecho all _tf_share_makeforge_as,$1,$2))$(trace_out)
 
 
 # ---------------------------------------------------------------------
@@ -580,6 +596,13 @@ _list: _version
 	$(info $(\n)Here is a list of all the available tests:)
 	$(foreach dep,$(sort $(tf_topdeps)),$(info $( )  - $(dep)))
 	@echo
+
+define _cf_check_cleansafe =
+$(if $(and $(filter clean,$(MAKECMDGOALS)),
+           $(filter-out clean,$(MAKECMDGOALS))),
+     $(error 'clean' can not be specified with other targets.))
+endef
+$(call _cf_check_cleansafe)
 
 .PHONY: _clean
 _clean: _version

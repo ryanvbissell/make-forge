@@ -525,8 +525,7 @@ endef
 
 ifdef CF_QUIETER_BUILDS
 define cf_quiet_newline =
-	$(if $(or $(call not,$(MAKECMDGOALS)),
-	          $(filter $(cf_target),$(MAKECMDGOALS))),
+	$(if $(filter $(cf_target),$(MAKECMDGOALS)),
 	     @$(echo) "")
 endef
 endif
