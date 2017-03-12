@@ -40,7 +40,10 @@ $(cf_outdir):
 
 # enable paralellism based on number of available processors
 # I believe this is the most portable solution (nearly POSIX)
-override CF_NUMPROCS?=$(shell getconf _NPROCESSORS_ONLN)
+override CF_NUMPROCS:=1
+ifndef NOPARALLEL
+override CF_NUMPROCS:=$(shell getconf _NPROCESSORS_ONLN)
+endif
 override MAKEFLAGS+= --jobs=$(CF_NUMPROCS)
 $(call verbose,This session will use $(CF_NUMPROCS) processor(s))
 
@@ -95,7 +98,7 @@ ifdef DEBUG
 endif
 
 override echo:=echo
-ifdef CF_QUIET_BUILDS
+ifdef CF_SILENT_BUILDS
     override echo:=>/dev/null echo
 endif
 
@@ -209,7 +212,11 @@ $(CF)-set-object-suffix = $(strip $(call _cf_set_object_suffix,$1))
 # ---------------------------------------------------------------------
 define __cf_announce_compile =
 $(trace_in)
+ifdef CF_QUIETER_BUILDS
+	@$(echo) -n "."
+else
 	@$(echo) "+++ [$$(notdir $(cf_target))] $$(notdir $$<)$(tab)$(1)"
+endif
 $(trace_out)
 endef
 
@@ -507,10 +514,22 @@ $(trace_in)
 
     $(eval $(call __cf_gen_cleantarget,$(cf_target),cf_objfiles cf_depfiles cf_$(cf_target)_file))
     $(cf_$(cf_target)_file): $(cf_objfiles) $(cf_linkfiles)
+ifdef CF_QUIETER_BUILDS
+	@$(echo) -n "+"
+else
 	@$(echo) +++ [$(cf_target)] Generating $(2) \'$$(notdir $$@)\'...
+endif
 $(trace_out)
 endef
 
+
+ifdef CF_QUIETER_BUILDS
+define cf_quiet_newline =
+	$(if $(or $(call not,$(MAKECMDGOALS)),
+	          $(filter $(cf_target),$(MAKECMDGOALS))),
+	     @$(echo) "")
+endef
+endif
 
 # ---------------------------------------------------------------------
 #  Function:     (__cf_build_static_library,filename)
@@ -521,6 +540,7 @@ define __cf_build_static_library =
 $(trace_in)
     $(call __cf_build_target_file,$1,static-library)
 	@$(test) $(AR) $(ARFLAGS) $$@ $$^
+	$(call cf_quiet_newline)
 $(trace_out)
 endef
 
@@ -555,6 +575,7 @@ $(trace_in)
     $(eval override LDFLAGS+=-shared)
     $(call __cf_build_target_file,$1,shared-library)
 	@$(test) $(CXX) $(LDFLAGS) $$^ -o $$@
+	$(call cf_quiet_newline)
 $(trace_out)
 endef
 
@@ -587,6 +608,7 @@ define __cf_build_executable =
 $(trace_in)
     $(call __cf_build_target_file,$1,executable)
 	@$(test) $(CXX) $(LDFLAGS) $$^ $(LDLIBS) -o $$@
+	$(call cf_quiet_newline)
 $(trace_out)
 endef
 
