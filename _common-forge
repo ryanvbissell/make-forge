@@ -95,6 +95,8 @@ endif
 
 ifdef DEBUG
     override CFLAGS+= -O0 -ggdb3
+else
+    override CFLAGS+= -O2
 endif
 
 override echo:=echo
