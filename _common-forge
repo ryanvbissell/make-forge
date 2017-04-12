@@ -632,6 +632,26 @@ endef
 $(CF)-build-executable = $(eval $(call _cf_build_executable,$1))
 
 
+override undefine cf_curdir_stack
+define _cf_push_curdir =
+$(trace_in)
+    $(eval override cf_curdir_stack+= $(CURDIR))
+    $(eval override CURDIR:=$1)
+    $(call verbose,>>> CURDIR is now '$(CURDIR)')
+$(trace_out)
+endef
+
+
+define _cf_pop_curdir =
+$(trace_in)
+    $(eval override CURDIR:=$(call last,$(cf_curdir_stack)))
+    $(call verbose,<<< CURDIR has been restored to '$(CURDIR)')
+    $(eval override cf_curdir_stack:=$(call butlast,$(cf_curdir_stack)))
+$(trace_out)
+endef
+
+
+
 # ---------------------------------------------------------------------
 #  Function:     ($(CF)-include-as,namespace,filepath[,callback])
 #  Description:  This imports the make-forge fragment located at
@@ -648,7 +668,9 @@ $(trace_in)
     $(eval override CF_NAMESPACE:=$(if $1,@$1,))
     $(eval override CF_CALLBACK:=$3)
     $(call verbose,including '$(2)' as '$1')
+    $(call _cf_push_curdir,$(realpath $(dir $2)))
     $(eval include $(2))
+    $(call _cf_pop_curdir)
     $(eval override undefine CF_CALLBACK)
     $(eval override undefine CF_NAMESPACE)
 $(trace_out)
