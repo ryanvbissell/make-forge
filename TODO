@@ -1,0 +1,7 @@
+
+* mf-include-as should prefix all targets with _ to make them private
+
+* mf-build-static-library doesn't work well with mf-static-dependencies, since the latter usually includes .a files, and you cannot 'ar rcs' an archive into an archive.
+** Maybe Add mf-build-object-files as a way to deal with the above ?
+
+test-forge needs a better 'help' target that explains NOPARALLEL, etc.
