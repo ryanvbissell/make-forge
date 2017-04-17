@@ -572,9 +572,9 @@ tf-use-makeforge-as = $(trace_in)$(strip $(call _tf_use_makeforge_as,$1,$2))$(tr
 
 override mf-include-as = $(trace_in) \
     $(if $(tf_usingmf), \
-         $(eval $$(call $(CF)-include-as,$1,$2))), \
-         $(error Within test-forge, you must use 'tf-use-makeforge-as' instead of 'mf-include-as') \
-         $(trace_out)
+         $(eval $$(call $(CF)-include-as,$1,$2)), \
+         $(error Within test-forge, you must use 'tf-use-makeforge-as' instead of 'mf-include-as') ) \
+    $(trace_out)
 
 
 override __mfguard = $(if $(tf_usingmf),                           \
