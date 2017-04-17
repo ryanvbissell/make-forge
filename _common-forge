@@ -664,7 +664,7 @@ endef
 # ---------------------------------------------------------------------
 #  TODO: enforce .MF extension?
 override undefine cf_prefix
-define $(CF)-include-as =
+define _cf_include_as =
 $(trace_in)
     $(eval override CF_NAMESPACE:=$(if $1,@$1,))
     $(eval override CF_CALLBACK:=$3)
@@ -676,6 +676,7 @@ $(trace_in)
     $(eval override undefine CF_NAMESPACE)
 $(trace_out)
 endef
+$(CF)-include-as = $(strip $(call _cf_include_as,$1,$2,$3))
 
 
 # each release adds another digit of i^i (0.207879576350761908546955619834978770033877841631769608075...)
