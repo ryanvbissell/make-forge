@@ -144,6 +144,9 @@ $(trace_in)
 $(trace_out)
 endef
 
+ifndef TEST
+__tf_logto = >$(1) 2>&1
+endif
 
 # ---------------------------------------------------------------------
 # INTERNAL:     (__tf_gen_runtarget,name,text)
@@ -175,7 +178,7 @@ endif
 	 && mkdir -p ./$(tf_sandbox).sandbox \
 	 && ([ -e $(TF_TESTDIR)/$(tf_sandbox) ] && cp --reflink=auto -Rf $(TF_TESTDIR)/$(tf_sandbox)/* $(tf_sandbox).sandbox/ || true) \
 	 && cd ./$(tf_sandbox).sandbox \
-	 && $(test) $(__tfgr_testcmd) >$(tf_logfile) 2>&1 \
+	 && $(test) $(__tfgr_testcmd) $(call __tf_logto,$(tf_logfile)) \
 	   || (echo "$(call _ERROR,FAILED with exit status '$$$$?')"; exit 1)
 $(trace_out)
 endef
