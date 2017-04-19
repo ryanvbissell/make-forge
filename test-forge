@@ -556,7 +556,7 @@ tf-export-makeforge-as = $(trace_in)$(strip $(call _tf_export_makeforge_as,$1,$2
 define _tf_share_makeforge_as =
     $(call _tf_include_makeforge_as,$1,@@$(tf_section),$2,$(tf_section_outdir)/@$(1),_tf_makeforge_callback)
 endef
-tf-share-makeforge-as = $(trace_in)$(strip $(cecho all _tf_share_makeforge_as,$1,$2))$(trace_out)
+tf-share-makeforge-as = $(trace_in)$(strip $(call _tf_share_makeforge_as,$1,$2))$(trace_out)
 
 
 # ---------------------------------------------------------------------
