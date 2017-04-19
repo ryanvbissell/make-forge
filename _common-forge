@@ -175,7 +175,8 @@ endef
 # Function:     ($(CF)-declare-target,name)
 # Description:  Declares to make-forge that a new build-target named
 #               'name' is about to be described.
-# Arguments: 1: name of the build-target being described
+# Arguments: 1: name of the build-target being described (this will
+#               be suffixed with the current namespace)
 #            2: [optional] cf_target_outdir override
 # ---------------------------------------------------------------------
 define _cf_declare_target =
