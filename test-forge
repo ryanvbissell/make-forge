@@ -464,6 +464,7 @@ $(trace_in)
     $(if $(call neq,$(_fulltarget),$(cf_target)),
          $(call __tf_makeforge_callback,$1,$2,$(_fulltarget)))
     $(eval override cf_$(_fulltarget)_targetvar:=$(cf_target))
+    $(call tracep,'cf_$(_fulltarget)_targetvar' set to '$(cf_target)')
 $(trace_out)
 endef
 
