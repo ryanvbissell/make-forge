@@ -544,7 +544,7 @@ $(trace_in)
     $(eval override MF_PROJECT_DIR:=$(_tfima_saved_mfpd))
     $(eval override undefine _tfima_saved_mfpd)
     $(eval override undefine _namespace)
-    $(eval override tf_namespaces:=$1)
+    $(eval override tf_namespaces+=$1)
 $(trace_out)
 endef
 
@@ -571,13 +571,13 @@ $(trace_in)
     $(call tracep,tf_namespaces is '$(tf_namespaces)')
     $(call tracep,_tf_makeforge_as__$1$2 is '$(_tf_makeforge_as__$1$2)')
     $(if $(filter $1$2,$(tf_namespaces)),
-         $(if $(call neq,$3,$(_tf_makeforge_as__$1$2)),
+         $(if $(call neq,$(realpath $3),$(_tf_makeforge_as__$1$2)),
               $(error Already loaded different file '$(_tf_makeforge_as__$1$2)' as namespace '$1')))
 
     $(eval override _tfima_saved_cfout:=$(cf_outdir))
     $(eval override cf_outdir:=$4)
     $(if $(filter $1$2,$(tf_namespaces)),,$(call __tf_gen_mkdir_targetrule,$(cf_outdir)))
-    $(call __tf_include_makeforge_as,$1$2,$3,$5)
+    $(call __tf_include_makeforge_as,$1$2,$(realpath $3),$5)
     $(eval override cf_outdir:=$(_tfima_saved_cfout))
     $(eval override undefine _tfima_saved_cfout)
 $(trace_out)
