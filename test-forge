@@ -489,6 +489,8 @@ $(trace_in)
 $(trace_out)
 endef
 
+# TODO 'tf_namespaces' seems broken; for one thing, it is plural, but
+#      it seems we only ever set it to one thing at a time.
 override tf_namespaces:=
 override undefine tf_usingmf
 # ---------------------------------------------------------------------
