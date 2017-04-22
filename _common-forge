@@ -642,7 +642,7 @@ define _cf_push_curdir =
 $(trace_in)
     $(eval $(call push,cf_curdir_stack,$(CURDIR)))
     $(eval override CURDIR:=$1)
-    $(call verbose,>>> CURDIR is now '$(CURDIR)')
+    $(call tracep,>>> CURDIR has been temporarily changed to '$(CURDIR)')
 $(trace_out)
 endef
 
@@ -650,7 +650,7 @@ endef
 define _cf_pop_curdir =
 $(trace_in)
     $(eval override CURDIR:=$(call pop,cf_curdir_stack))
-    $(call verbose,<<< CURDIR has been restored to '$(CURDIR)')
+    $(call tracep,CURDIR has been restored to '$(CURDIR)')
 $(trace_out)
 endef
 
@@ -659,7 +659,7 @@ override undefine cf_namespace_stack
 define _cf_push_namespace =
 $(trace_in)
     $(call push,cf_namespace_stack,$1)
-    $(call verbose,>>> namespace is now '$(cf_namespace)')
+    $(call tracep,namespace is now '$(cf_namespace)')
 $(trace_out)
 endef
 
@@ -667,7 +667,7 @@ endef
 define _cf_pop_namespace =
 $(trace_in)
     $(eval _trash:=$(call pop,cf_namespace_stack))
-    $(call verbose,<<< namespace has been restored to '$(cf_namespace)')
+    $(call tracep,namespace has been restored to '$(cf_namespace)')
 $(trace_out)
 endef
 
