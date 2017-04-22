@@ -471,19 +471,19 @@ $(trace_in)
 $(trace_out)
 endef
 
-define _tf_mfuse_callback =
+define tf_mfcallback__use =
 $(trace_in)
     $(call _tf_makeforge_callback,@$(tf_subsection)@$(tf_section),using)
 $(trace_out)
 endef
 
-define _tf_mfshare_callback =
+define tf_mfcallback__share =
 $(trace_in)
     $(call _tf_makeforge_callback,@@$(tf_section),sharing)
 $(trace_out)
 endef
 
-define _tf_mfexport_callback =
+define tf_mfcallback__export =
 $(trace_in)
     $(call _tf_makeforge_callback,@@,exporting)
 $(trace_out)
@@ -563,7 +563,7 @@ endef
 #            2: Path to the make-forge fragment (.MF)
 # ---------------------------------------------------------------------
 define _tf_export_makeforge_as =
-    $(call _tf_include_makeforge_as,$1,@@,$2,$(cf_outdir)/@$(1),_tf_mfexport_callback)
+    $(call _tf_include_makeforge_as,$1,@@,$2,$(cf_outdir)/@$(1),tf_mfcallback__export)
 endef
 tf-export-makeforge-as = $(trace_in)$(strip $(call _tf_export_makeforge_as,$1,$2))$(trace_out)
 
@@ -577,7 +577,7 @@ tf-export-makeforge-as = $(trace_in)$(strip $(call _tf_export_makeforge_as,$1,$2
 #            2: Path to the make-forge fragment (.MF)
 # ---------------------------------------------------------------------
 define _tf_share_makeforge_as =
-    $(call _tf_include_makeforge_as,$1,@@$(tf_section),$2,$(tf_section_outdir)/@$(1),_tf_mfshare_callback)
+    $(call _tf_include_makeforge_as,$1,@@$(tf_section),$2,$(tf_section_outdir)/@$(1),tf_mfcallback__share)
 endef
 tf-share-makeforge-as = $(trace_in)$(strip $(call _tf_share_makeforge_as,$1,$2))$(trace_out)
 
@@ -591,7 +591,7 @@ tf-share-makeforge-as = $(trace_in)$(strip $(call _tf_share_makeforge_as,$1,$2))
 #            2: Path to the make-forge fragment (.MF)
 # ---------------------------------------------------------------------
 define _tf_use_makeforge_as =
-    $(call _tf_include_makeforge_as,$1,@$(tf_subsection)@$(tf_section),$2,$(tf_subsection_outdir)/@$(1),_tf_mfuse_callback)
+    $(call _tf_include_makeforge_as,$1,@$(tf_subsection)@$(tf_section),$2,$(tf_subsection_outdir)/@$(1),tf_mfcallback__use)
 endef
 tf-use-makeforge-as = $(trace_in)$(strip $(call _tf_use_makeforge_as,$1,$2))$(trace_out)
 
