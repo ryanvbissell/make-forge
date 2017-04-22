@@ -58,19 +58,15 @@ endef
 override set-isect = $(trace_in)$(strip $(call _set-isect,$1,$2))$(trace_out)
 
 define _push =
-    $(call tracep, push '$2' onto stack '$1')
     $(if $(filter undefined,$(origin $1)),
          $(eval override $1:=$2),
          $(eval override $1:=$2 $($1)))
-    $(call tracep, stack '$1' now contains [$($1)])
 endef
 override push = $(trace_in)$(strip $(call _push,$1,$2))$(trace_out)
 
 define _pop =
-    $(call tracep,pop value '$(lastword $($1))' from stack '$1')
     $(call car,$($1))
     $(eval override $1:=$(call cdr,$($1)))
-    $(call tracep, stack '$1' now contains [$($1)])
 endef
 override pop = $(trace_in)$(strip $(call _pop,$1))$(trace_out)
 
