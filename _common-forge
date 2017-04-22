@@ -229,6 +229,8 @@ endef
 
 define __cf_config_changed =
     $(call verbose, Configuration changed for $1)
+    $(call verbose2, THISRUN is '$(THISRUN)')
+    $(call verbose2, LASTRUN was '$(LASTRUN)')
     $(shell $(RM) $2)
 endef
 
@@ -236,10 +238,8 @@ endef
 define __cf_compile =
 $(trace_in)
 	$(eval C:=$(strip $3))
-	$(call tracep,1 will be '$1')
-	$(call tracep,2 will be '$2')
-	$(call tracep,3 will be '$3')
-	$(call tracep,C will be '$C')
+	$(call tracep,THISRUN will be '$3')
+	$(call tracep,LASTRUN will be '$C')
 	@$(test) echo "# this forces a recompile if this rule's recipe changes" $(append)$2
 	@$(test) echo "$$(subst $$$$,\$$$$,override THISRUN:=$3)" $(append)$2
 	@$(test) echo "$$(subst $$$$,\$$$$,override LASTRUN:=$C)" $(append)$2
