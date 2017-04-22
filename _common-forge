@@ -354,6 +354,7 @@ endef
 #            3: the directory where the source(s) are located
 #            4: the file name (or file glob) to be compiled.
 # ---------------------------------------------------------------------
+override cf_static_pattern_rules:=
 define __cf_gen_static_pattern_rule
 $(trace_in)
     $(if $(filter $2,$(cf_static_pattern_rules)),
