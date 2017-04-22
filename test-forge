@@ -450,8 +450,6 @@ tf-import-all-sections = $(trace_in)$(eval $(call _tf_import_all_sections))$(tra
 
 define __tf_makeforge_callback =
 $(trace_in)
-    $(eval override cf_targetvar__$1:=$(cf_target))
-    $(call tracep,'cf_targetvar__$1' set to '$(cf_target)')
     $(call tracep,$2 '$1' as '$(cf_target)')
     $1: $(cf_target)
 $(trace_out)
@@ -466,7 +464,10 @@ $(trace_in)
          $(error TEST-FORGE: expected cf_target to contain '$1') )
     $(eval override _full:=$(subst $1,,$(cf_target)))
     $(eval override _full:=$(_full)@$(tf_subsection)@$(tf_section))
-    $(call __tf_makeforge_callback,$(_full),$2)
+    $(eval override cf_targetvar__$(_full):=$(cf_target))
+    $(call tracep,'cf_targetvar__$(_full)' set to '$(cf_target)')
+    $(if $(call neq,$(_full),$(cf_target)),
+         $(call __tf_makeforge_callback,$(_full),$2) )
 $(trace_out)
 endef
 
