@@ -417,7 +417,6 @@ $(trace_out)
 endef
 
 
-#dd$(if $(call not,$(filter clean,$(MAKECMDGOALS)
 # ---------------------------------------------------------------------
 # Function:     tf-import-sections
 # Description:  Imports tests from all subdirectories that don't start
@@ -448,6 +447,13 @@ tf-import-all-sections = $(trace_in)$(eval $(call _tf_import_all_sections))$(tra
 #      the user has listed a builtin in MAKECMDGOALS (except for 'all')
 
 
+# ---------------------------------------------------------------------
+# Function:     (__tf_makeforge_callback,expect,verb)
+# Description:  Helper routine to tf_mfcallback__xxxxxx
+# Arguments: 1: name of fully-qualified test-forge target, to
+#               be made dependent on $(cf_target)
+#            2: progressive verb to output
+# ---------------------------------------------------------------------
 define __tf_makeforge_callback =
 $(trace_in)
     $(call tracep,$2 '$1' as '$(cf_target)')
@@ -455,8 +461,13 @@ $(trace_in)
 $(trace_out)
 endef
 
-# 1: expect
-# 2: verb
+
+# ---------------------------------------------------------------------
+# Function:     (_tf_makeforge_callback,expect,verb)
+# Description:  Helper routine to tf_mfcallback__xxxxxx
+# Arguments: 1: expected string to search for
+#            2: progressive verb to output
+# ---------------------------------------------------------------------
 define _tf_makeforge_callback =
 $(trace_in)
     $(call tracep,cf_target is '$(cf_target)')
@@ -471,30 +482,49 @@ $(trace_in)
 $(trace_out)
 endef
 
+
+# ---------------------------------------------------------------------
+# Function:     (tf_mfcallback__use)
+# Description:  This is the make-forge target callback registered
+#               by tf_use_makeforge_as
+# ---------------------------------------------------------------------
 define tf_mfcallback__use =
 $(trace_in)
     $(call _tf_makeforge_callback,@$(tf_subsection)@$(tf_section),using)
 $(trace_out)
 endef
 
+
+# ---------------------------------------------------------------------
+# Function:     (tf_mfcallback__share)
+# Description:  This is the make-forge target callback registered
+#               by tf_share_makeforge_as
+# ---------------------------------------------------------------------
 define tf_mfcallback__share =
 $(trace_in)
     $(call _tf_makeforge_callback,@@$(tf_section),sharing)
 $(trace_out)
 endef
 
+
+# ---------------------------------------------------------------------
+# Function:     (tf_mfcallback__export)
+# Description:  This is the make-forge target callback registered
+#               by tf_export_makeforge_as
+# ---------------------------------------------------------------------
 define tf_mfcallback__export =
 $(trace_in)
     $(call _tf_makeforge_callback,@@,exporting)
 $(trace_out)
 endef
 
+
 # TODO 'tf_namespaces' seems broken; for one thing, it is plural, but
 #      it seems we only ever set it to one thing at a time.
 override tf_namespaces:=
 override undefine tf_usingmf
 # ---------------------------------------------------------------------
-# Function:     (__tf_include_makeforge_as,namespace,filepath,outdir)
+# Function:     (__tf_include_makeforge_as,namespace,filepath [,callback])
 # Description:  Helper to __tf_include_makeforge_as
 # Arguments: 1: Namespace to use
 #            2: Path to the make-forge fragment (.MF)
