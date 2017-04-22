@@ -566,6 +566,13 @@ endef
 #            4: Path for cf_outdir override
 #            5: [optional] name of target notification callback
 # ---------------------------------------------------------------------
+# TODO There is an optimization opportunity here:  if test-forge has
+#      already seen the namespace $1$2 associated with file $3, then
+#      somehow coax make-forge into *only* doing the callbacks (not
+#      constructing any of the target or dependency rules.)  Note that
+#      make-forge already does this to some extent for its own reasons,
+#      but there appears to be some room for improvement, at least
+#      from test-forge's perspective.
 define _tf_include_makeforge_as =
 $(trace_in)
     $(call tracep,tf_namespaces is '$(tf_namespaces)')
