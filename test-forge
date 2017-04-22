@@ -69,7 +69,7 @@ tf-set-object-suffix = $(strip $(call _tf_set_object_suffix,$1))
 define __tf_initialize =
 $(trace_in)
     $(eval override undefine TF_ENVVARS)
-    $(eval override @tf_target:=$(1))
+    $(eval override tf_target:=$1)
 $(trace_out)
 endef
 
