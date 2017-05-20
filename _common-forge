@@ -109,7 +109,7 @@ endif
 # can restore them a the start of every target declaration
 override CF_CFLAGS:=$(CFLAGS)
 override CF_LDFLAGS:=$(LDFLAGS)
-override CF_CPPFLAGS:=$(CPPFLAGS)
+override CF_CPPFLAGS:=$(CPPFLAGS) -DMF_HOSTOS=$(HOSTOS)
 override CF_CXXFLAGS:=$(CXXFLAGS)
 
 # traditionally, ARFLAGS defaults to 'rv', but we like 'rcs' here
