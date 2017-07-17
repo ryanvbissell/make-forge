@@ -95,6 +95,7 @@ endif
 
 ifdef DEBUG
     override CFLAGS+= -O0 -ggdb3
+    override CPPFLAGS+= -DDEBUG=1
 else
     override CFLAGS+= -O2
 endif
