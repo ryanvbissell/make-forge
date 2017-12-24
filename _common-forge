@@ -56,8 +56,8 @@ endif
 # squelch unhelpful output from Make
 override MAKEFLAGS+= --no-print-directory
 
-override BUILDOS:=$(mh_buildos)
-override HOSTOS:=$(BUILDOS)
+override CF_BUILDOS:=$(mh_buildos)
+override HOSTOS:=$(CF_BUILDOS)
 
 
 ifeq ($(BUILDOS),linux)
