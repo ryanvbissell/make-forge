@@ -59,13 +59,13 @@ override MAKEFLAGS+= --no-print-directory
 override CF_BUILDOS:=$(mh_buildos)
 HOSTOS:=$(CF_BUILDOS)
 
-
-ifeq ($(BUILDOS),linux)
+# build output file extensions based on target (host) os
+ifeq ($(HOSTOS),linux)
     override cfobj:=o
     override cflib:=a
     override cfexe:=
     override cfdll:=so
-else ifeq ($(BUILDOS),windows)
+else ifeq ($(HOSTOS),windows)
     override cfobj:=obj
     override cflib:=lib
     override cfexe:=exe
