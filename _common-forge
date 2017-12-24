@@ -57,7 +57,7 @@ endif
 override MAKEFLAGS+= --no-print-directory
 
 override CF_BUILDOS:=$(mh_buildos)
-override HOSTOS:=$(CF_BUILDOS)
+HOSTOS:=$(CF_BUILDOS)
 
 
 ifeq ($(BUILDOS),linux)
